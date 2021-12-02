@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crypto Tool for Text Encryption & Decryption</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+  <script>
+    let EncryptionKey = '&F)J@NcRfTjWnZr4u7x!A%D*G-KaPdSg';
+    let key = CryptoJS.enc.Utf8.parse(EncryptionKey);
+
+    function encryptKey() {
+      const text = document.querySelector('#decryption-input').value;
+      console.log(text);
+      const val = encrypt(text);
+      document.querySelector('#decryption-output').innerHTML = val;
+    }
+
+    function decryptKey() {
+      const text = document.querySelector('#encryption-input').value;
+      const val = decrypt(text);
+      console.log(val);
+      try {
+        document.querySelector('#encryption-output').innerHTML = JSON.stringify(
+          JSON.parse(val),
+          undefined,
+          2,
+        );
+      } catch (error) {
+        document.querySelector('#encryption-output').innerHTML = val;
+      }
+    }
+
+    function encrypt(msgString) {
+      /**
+       * @param msgString:        string to be encrypted via AES
+       * @type {*|WordArray|number}
+       * @return string value
+       */
+      // msgString is expected to be Utf8 encoded
+      let iv = CryptoJS.lib.WordArray.random(16);
+      let encrypted = CryptoJS.AES.encrypt(msgString, key, {
+        iv: iv,
+      });
+      return iv.concat(encrypted.ciphertext).toString(CryptoJS.enc.Base64);
+    }
+
+    function decrypt(ciphertextStr) {
+      /**
+       * @param ciphertextStr:    string to be decrypted via AES
+       * @type {*|WordArray}
+       * @return JSON object
+       */
+      let ciphertext = CryptoJS.enc.Base64.parse(ciphertextStr);
+      // split IV and ciphertext
+      let iv = ciphertext.clone();
+      iv.sigBytes = 16;
+      iv.clamp();
+      ciphertext.words.splice(0, 4); // delete 4 words = 16 bytes
+      ciphertext.sigBytes -= 16;
+      // decryption
+      let decrypted = CryptoJS.AES.decrypt({ ciphertext: ciphertext }, key, {
+        iv: iv,
+      });
+      return decrypted.toString(CryptoJS.enc.Utf8);
+    }
+  </script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: row;
+      text-align: center;
+      justify-content: space-between;
+      margin: 0px;
+      padding: 5px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #encrypt-container,
+    #decrypt-container {
+      width: 50%;
+      margin: 0.5rem;
+      padding: 0.5rem;
+      border: 1px solid black;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title {
+      margin: 0.5rem;
+      font-weight: bold;
+      width: 100%;
+      text-align: left;
+    }
+
+    #encryption-input {
+      padding: 0.5rem;
+      margin: 0.5rem;
+      height: 100%;
+      height: 100px;
+      text-align: left;
+      border: 1px solid black;
+      resize: vertical;
+    }
+
+    #encryption-output {
+      text-align: left;
+      padding: 0.5rem;
+      margin: 0.5rem;
+      height: 300px;
+      border: 1px solid black;
+      overflow-y: auto;
+    }
+
+    #decryption-input {
+      padding: 0.5rem;
+      margin: 0.5rem;
+      height: 100%;
+      min-height: 200px;
+      text-align: left;
+      border: 1px solid black;
+      resize: vertical;
+    }
+
+    #decryption-output {
+      padding: 0.5rem;
+      margin: 0.5rem;
+      height: 100%;
+      min-height: 200px;
+      text-align: left;
+      border: 1px solid black;
+      resize: vertical;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="encrypt-container">
+    <div class="title">Decrypt</div>
+    <textarea id="encryption-input" placeholder="Encrypted Text/JSON/XML" onkeyup="decryptKey()"></textarea>
+    <pre id="encryption-output" title="decrypted key"></pre>
+  </div>
+  <div id="decrypt-container">
+    <div class="title">Encrypt</div>
+    <textarea id="decryption-input" placeholder="Decrypted Text/JSON/XML" onkeyup="encryptKey()"></textarea>
+    <textarea id="decryption-output" title="decrypted key"></textarea>
+  </div>
+</body>
+
+</html>
