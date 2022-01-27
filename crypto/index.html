@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crypto Tool for Text Encryption & Decryption</title>
+  <title>CryptoJS Tool</title>
 
   <link rel="apple-touch-icon" sizes="57x57" href="./favicon/apple-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="./favicon/apple-icon-60x60.png">
@@ -25,146 +25,84 @@
   <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
 
+  <link rel="stylesheet" href="main.css">
+  <script src="./main.js"></script>
+
+  <link rel="stylesheet" href="https://baijudodhia.github.io/cdn/font-awesome-5.15.4/icons/all.css">
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
-  <script>
-    let EncryptionKey = '&F)J@NcRfTjWnZr4u7x!A%D*G-KaPdSg';
-    let key = CryptoJS.enc.Utf8.parse(EncryptionKey);
-
-    function encryptKey() {
-      const text = document.querySelector('#decryption-input').value;
-      console.log(text);
-      const val = encrypt(text);
-      document.querySelector('#decryption-output').innerHTML = val;
-    }
-
-    function decryptKey() {
-      const text = document.querySelector('#encryption-input').value;
-      const val = decrypt(text);
-      console.log(val);
-      try {
-        document.querySelector('#encryption-output').innerHTML = JSON.stringify(
-          JSON.parse(val),
-          undefined,
-          2,
-        );
-      } catch (error) {
-        document.querySelector('#encryption-output').innerHTML = val;
-      }
-    }
-
-    function encrypt(msgString) {
-      /**
-       * @param msgString:        string to be encrypted via AES
-       * @type {*|WordArray|number}
-       * @return string value
-       */
-      // msgString is expected to be Utf8 encoded
-      let iv = CryptoJS.lib.WordArray.random(16);
-      let encrypted = CryptoJS.AES.encrypt(msgString, key, {
-        iv: iv,
-      });
-      return iv.concat(encrypted.ciphertext).toString(CryptoJS.enc.Base64);
-    }
-
-    function decrypt(ciphertextStr) {
-      /**
-       * @param ciphertextStr:    string to be decrypted via AES
-       * @type {*|WordArray}
-       * @return JSON object
-       */
-      let ciphertext = CryptoJS.enc.Base64.parse(ciphertextStr);
-      // split IV and ciphertext
-      let iv = ciphertext.clone();
-      iv.sigBytes = 16;
-      iv.clamp();
-      ciphertext.words.splice(0, 4); // delete 4 words = 16 bytes
-      ciphertext.sigBytes -= 16;
-      // decryption
-      let decrypted = CryptoJS.AES.decrypt({ ciphertext: ciphertext }, key, {
-        iv: iv,
-      });
-      return decrypted.toString(CryptoJS.enc.Utf8);
-    }
-  </script>
-  <style>
-    body {
-      display: flex;
-      flex-direction: row;
-      text-align: center;
-      justify-content: space-between;
-      margin: 0px;
-      padding: 5px;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    #encrypt-container,
-    #decrypt-container {
-      width: 50%;
-      margin: 0.5rem;
-      padding: 0.5rem;
-      border: 1px solid black;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .title {
-      margin: 0.5rem;
-      font-weight: bold;
-      width: 100%;
-      text-align: left;
-    }
-
-    #encryption-input {
-      padding: 0.5rem;
-      margin: 0.5rem;
-      height: 100%;
-      height: 100px;
-      text-align: left;
-      border: 1px solid black;
-      resize: vertical;
-    }
-
-    #encryption-output {
-      text-align: left;
-      padding: 0.5rem;
-      margin: 0.5rem;
-      height: 300px;
-      border: 1px solid black;
-      overflow-y: auto;
-    }
-
-    #decryption-input {
-      padding: 0.5rem;
-      margin: 0.5rem;
-      height: 100%;
-      min-height: 200px;
-      text-align: left;
-      border: 1px solid black;
-      resize: vertical;
-    }
-
-    #decryption-output {
-      padding: 0.5rem;
-      margin: 0.5rem;
-      height: 100%;
-      min-height: 200px;
-      text-align: left;
-      border: 1px solid black;
-      resize: vertical;
-    }
-  </style>
 </head>
 
 <body>
-  <div id="encrypt-container">
-    <div class="title">Decrypt</div>
-    <textarea id="encryption-input" placeholder="Encrypted Text/JSON/XML" onkeyup="decryptKey()"></textarea>
-    <pre id="encryption-output" title="decrypted key"></pre>
-  </div>
-  <div id="decrypt-container">
-    <div class="title">Encrypt</div>
-    <textarea id="decryption-input" placeholder="Decrypted Text/JSON/XML" onkeyup="encryptKey()"></textarea>
-    <textarea id="decryption-output" title="decrypted key"></textarea>
+  <nav>
+    <div id="nav-brand">
+      <a href="./" class="nav-brand-item">CryptoJS</a>
+    </div>
+    <div class="nav-items">
+      <button aria-label="reset all" title="reset all" class="reset-all-btn" id="reset-all-btn" onclick="resetAll()">
+        <div>clear all</div>
+        <div id="rotate"><i class="fas fa-redo"></i></div>
+      </button>
+      <a id="docs-link" href="https://cryptojs.gitbook.io/docs/" title="CryptoJS Docs" target="_blank">CryptoJS Docs <i
+          class="fas fa-external-link-square-alt"></i></a>
+    </div>
+  </nav>
+  <main>
+    <select name="crypto" id="crypto-select" onchange="toggleOptionOnMobileScreen(this.value);">
+      <option value="encrypt">Encrypt</option>
+      <option value="decrypt">Decrypt</option>
+    </select>
+    <div id="encrypt-title" class="box-title">Encrypt</div>
+    <div id="decrypt-title" class="box-title">Decrypt</div>
+    <div id="decrypt-textarea-input" class="text-container">
+      <div class="btn-container">
+        <button aria-label="format code" title="format json code" class="format-btn" id="dec-in-format-btn"
+          onclick="formatText('dec-in')"><i class="fas fa-code"></i></button>
+        <button class="copy-btn" id="dec-in-copy-btn" title="copy text" onclick="copy('dec-in')"><i
+            class="fas fa-copy"></i></button>
+        <button class="clear-btn" id="dec-in-clear-btn" title="clear text" onclick="clearText('dec-in')"><i
+            class="fas fa-backspace"></i></button>
+      </div>
+      <textarea id="dec-in" placeholder="Enter Text/JSON/XML to encrypt" onkeyup="encryptKey()"></textarea>
+    </div>
+    <div id="encrypt-textarea-input" class="text-container">
+      <div class="btn-container">
+        <button class="copy-btn" id="enc-in-copy-btn" title="copy text" onclick="copy('enc-in')"><i
+            class="fas fa-copy"></i></button>
+        <button class="clear-btn" id="enc-in-clear-btn" title="clear text" onclick="clearText('enc-in')"><i
+            class="fas fa-backspace"></i></button>
+      </div>
+      <textarea id="enc-in" placeholder="Enter string to decrypt" onkeyup="decryptKey()"></textarea>
+    </div>
+    <div id="decrypt-textarea-output" class="text-container">
+      <div class="btn-container">
+        <button class="copy-btn" id="dec-out-copy-btn" title="copy text" onclick="copy('dec-out')"><i
+            class="fas fa-copy"></i></button>
+        <button class="clear-btn" id="dec-out-clear-btn" title="clear text" onclick="clearText('dec-out')"><i
+            class="fas fa-backspace"></i></button>
+      </div>
+      <textarea id="dec-out" placeholder="Encrypted string will show here" onkeyup="encryptKey()" disabled></textarea>
+    </div>
+    <div id="encrypt-textarea-output" class="text-container">
+      <div class="btn-container">
+        <button class="copy-btn" id="enc-out-copy-btn" title="copy text" onclick="copy('enc-out')"><i
+            class="fas fa-copy"></i></button>
+        <button class="clear-btn" id="enc-out-clear-btn" title="clear text" onclick="clearText('enc-out')"><i
+            class="fas fa-backspace"></i></button>
+      </div>
+      <textarea id="enc-out" placeholder="Decrypted Text/JSON/XML will show here" onkeyup="encryptKey()"
+        disabled></textarea>
+    </div>
+  </main>
+  <footer>
+    <div>
+      <a href="https://baijudodhia.github.io/tools/" class="footer-brand-item">All Tools</a>
+    </div>
+  </footer>
+  <div id="snackbar-container">
+    <template id="snackbar-template">
+      <div class="snackbar"></div>
+    </template>
   </div>
 </body>
 
