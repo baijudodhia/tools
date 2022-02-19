@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+    <head>
+        <meta charset="UTF-8">
+
+        <!-- Styles -->
+        <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+
+        <!-- Meta tags -->
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="author" content="Baiju Dodhia" />
+        <meta name="color-scheme" content="light" />
+        <meta name="copyright" content="Baiju Dodhia" />
+        <meta name="description" content="Collection of Software Tools used regularly" />
+        <meta name="designer" content="Baiju Dodhia" />
+        <meta name="geo.region" content="IN" />
+        <meta name="keywords" content="baiju dodhia, software engineer, technology, startups, entrepreneur" />
+        <meta name="language" content="EN" />
+        <meta name="owner" content="Baiju Dodhia" />
+        <meta name="robots" content="INDEX, FOLLOW" />
+        <meta name="theme-color" content="#157878">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <title>Tools - Baiju Dodhia</title>
+
+        <!-- Open Graph / Facebook -->
+        <meta name="og:locality" content="Mumbai" />
+        <meta name="og:region" content="IN" />
+        <meta name="og:title" content="Tools - Baiju Dodhia" />
+        <meta property="og:description" content="Collection of Software Tools used regularly" />
+        <meta property="og:image" content="https://baijudodhia.github.io/tools/assets/social-media-preview/social-preview.png" />
+        <meta property="og:locale" content="en_IN" />
+        <meta property="og:site_name" content="Tools - Baiju Dodhia" />
+        <meta property="og:title" content="Tools - Baiju Dodhia" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://baijudodhia.github.io/tools/" />
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:description" content="Collection of Software Tools used regularly" />
+        <meta property="twitter:image" content="https://baijudodhia.github.io/tools/assets/social-media-preview/social-preview.png" />
+        <meta property="twitter:site" content="https://baijudodhia.github.io/tools/" />
+        <meta property="twitter:title" content="Tools - Baiju Dodhia" />
+        <meta property="twitter:url" content="https://baijudodhia.github.io/tools/" />
+
+        <!-- Favicon -->
+        <link rel="apple-touch-icon" sizes="57x57" href="https://baijudodhia.github.io/tools/assets/favicon/apple-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="https://baijudodhia.github.io/tools/assets/favicon/apple-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="https://baijudodhia.github.io/tools/assets/favicon/apple-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="https://baijudodhia.github.io/tools/assets/favicon/apple-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="https://baijudodhia.github.io/tools/assets/favicon/apple-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="https://baijudodhia.github.io/tools/assets/favicon/apple-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="https://baijudodhia.github.io/tools/assets/favicon/apple-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="https://baijudodhia.github.io/tools/assets/favicon/apple-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="https://baijudodhia.github.io/tools/assets/favicon/apple-icon-180x180.png">
+        <link rel="icon" type="image/png" sizes="192x192"  href="https://baijudodhia.github.io/tools/assets/favicon/android-icon-192x192.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="https://baijudodhia.github.io/tools/assets/favicon/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="https://baijudodhia.github.io/tools/assets/favicon/favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="https://baijudodhia.github.io/tools/assets/favicon/favicon-16x16.png">
+        <link rel="manifest" href="https://baijudodhia.github.io/tools/assets/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="https://baijudodhia.github.io/tools/assets/favicon/ms-icon-144x144.png">
+        <meta name="theme-color" content="#ffffff">
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet" />
+    </head>   
+    <body>
+        <a id="skip-to-content" href="#content">Skip to the content.</a>
+
+        <header class="page-header" role="banner">
+            <h1 class="project-name">{{ page.title | default: site.title | default: site.github.repository_name }}</h1>
+            <h2 class="project-tagline">{{ page.description | default: site.description | default: site.github.project_tagline }}</h2>
+            {% if site.github.is_project_page %}
+            <a href="{{ site.github.repository_url }}" class="btn">View on GitHub</a>
+            {% endif %}
+            {% if site.show_downloads %}
+            <a href="{{ site.github.zip_url }}" class="btn">Download .zip</a>
+            <a href="{{ site.github.tar_url }}" class="btn">Download .tar.gz</a>
+            {% endif %}
+        </header>
+
+        <main id="content" class="main-content" role="main">
+            {{ content }}
+            <footer class="site-footer">
+            {% if site.github.is_project_page %}
+                <span class="site-footer-owner"><a href="{{ site.github.repository_url }}">{{ site.github.repository_name }}</a> is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a>.</span>
+            {% endif %}
+            <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+            </footer>
+        </main>
+    </body>
+
+    <!-- Analytics -->
+    <script async src="https://baijudodhia.github.io/assets/scripts/analytics.js"></script>
+</html>
