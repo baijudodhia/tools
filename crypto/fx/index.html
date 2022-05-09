@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryptoJS | FX</title>
+
+  <link rel="apple-touch-icon" sizes="57x57" href="../favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="../favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="../favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="../favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="../favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="../favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="../favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="../favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="../favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="../favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../favicon/favicon-16x16.png">
+  <link rel="manifest" href="../favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="stylesheet" href="./main.css">
+  
+  <link rel="stylesheet" href="https://baijudodhia.github.io/cdn/font-awesome-5.15.4/icons/all.css">
+  
+  <script src="https://baijudodhia.github.io/cdn/cryptojs-3.1.9/crypto-js.js"></script>
+  <script src="./main.js"></script>
+</head>
+
+<body>
+  <nav>
+    <div id="nav-brand">
+      <a href="./" class="nav-brand-item">CryptoJS | FX</a>
+    </div>
+    <div class="nav-items">
+      <button aria-label="reset all" title="reset all" class="reset-all-btn" id="reset-all-btn" onclick="resetAll()">
+        <div>clear all</div>
+        <div id="rotate"><i class="fas fa-redo"></i></div>
+      </button>
+      <a id="docs-link" href="https://cryptojs.gitbook.io/docs/" title="CryptoJS Docs" target="_blank">CryptoJS Docs <i
+          class="fas fa-external-link-square-alt"></i></a>
+    </div>
+  </nav>
+  <main>
+    <select name="crypto" id="crypto-select" onchange="toggleOptionOnMobileScreen(this.value);">
+      <option value="encrypt">Encrypt</option>
+      <option value="decrypt">Decrypt</option>
+    </select>
+    <div id="encrypt-title" class="box-title">Encrypt</div>
+    <div id="decrypt-title" class="box-title">Decrypt</div>
+    <div id="decrypt-textarea-input" class="text-container">
+      <div class="btn-container">
+        <button aria-label="format code" title="format json code" class="format-btn" id="dec-in-format-btn"
+          onclick="formatText('dec-in')"><i class="fas fa-code"></i></button>
+        <button class="copy-btn" id="dec-in-copy-btn" title="copy text" onclick="copy('dec-in')"><i
+            class="fas fa-copy"></i></button>
+        <button class="clear-btn" id="dec-in-clear-btn" title="clear text" onclick="clearText('dec-in')"><i
+            class="fas fa-backspace"></i></button>
+      </div>
+      <textarea id="dec-in" placeholder="Enter Text/JSON/XML to encrypt" onkeyup="encryptKey()"></textarea>
+    </div>
+    <div id="encrypt-textarea-input" class="text-container">
+      <div class="btn-container">
+        <button class="copy-btn" id="enc-in-copy-btn" title="copy text" onclick="copy('enc-in')"><i
+            class="fas fa-copy"></i></button>
+        <button class="clear-btn" id="enc-in-clear-btn" title="clear text" onclick="clearText('enc-in')"><i
+            class="fas fa-backspace"></i></button>
+      </div>
+      <textarea id="enc-in" placeholder="Enter string to decrypt" onkeyup="decryptKey()"></textarea>
+    </div>
+    <div id="decrypt-textarea-output" class="text-container">
+      <div class="btn-container">
+        <button class="copy-btn" id="dec-out-copy-btn" title="copy text" onclick="copy('dec-out')"><i
+            class="fas fa-copy"></i></button>
+        <button class="clear-btn" id="dec-out-clear-btn" title="clear text" onclick="clearText('dec-out')"><i
+            class="fas fa-backspace"></i></button>
+      </div>
+      <textarea id="dec-out" placeholder="Encrypted string will show here" onkeyup="encryptKey()" disabled></textarea>
+    </div>
+    <div id="encrypt-textarea-output" class="text-container">
+      <div class="btn-container">
+        <button class="copy-btn" id="enc-out-copy-btn" title="copy text" onclick="copy('enc-out')"><i
+            class="fas fa-copy"></i></button>
+        <button class="clear-btn" id="enc-out-clear-btn" title="clear text" onclick="clearText('enc-out')"><i
+            class="fas fa-backspace"></i></button>
+      </div>
+      <textarea id="enc-out" placeholder="Decrypted Text/JSON/XML will show here" onkeyup="encryptKey()"
+        disabled></textarea>
+    </div>
+  </main>
+  <footer>
+    <div>
+      <a href="https://baijudodhia.github.io/tools/" class="footer-brand-item">All Tools</a>
+    </div>
+  </footer>
+  <div id="snackbar-container">
+    <template id="snackbar-template">
+      <div class="snackbar"></div>
+    </template>
+  </div>
+</body>
+
+</html>
