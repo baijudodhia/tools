@@ -1,0 +1,129 @@
+<div
+  id="action"
+  class="action"
+></div>
+
+<template id="action-template">
+  <form id="action-form">
+    <div class="form-group">
+      <label for="action-id">Action Id:</label>
+      <input
+        type="text"
+        id="action-id"
+        name="id"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="action-condition">Action Condition:</label>
+      <input
+        type="text"
+        id="action-condition"
+        name="condition"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="action-label">Select Action:</label>
+      <select
+        id="action-key"
+        name="key"
+      ></select>
+    </div>
+
+    <div id="action-key-form"></div>
+
+    <div id="action-footer">
+      <button
+        id="action-save-btn"
+        type="button"
+      >
+        Add
+      </button>
+    </div>
+  </form>
+</template>
+
+<template id="action-options-template">
+  <option value="FIELD_HIDE">Hide Field</option>
+  <option value="FIELD_SHOW">Show Field</option>
+  <option value="FIELD_DISABLE">Disable Field</option>
+  <option value="FIELD_ENABLE">Enable Field</option>
+  <option value="FIELD_ERROR_SHOW">Show Field Error</option>
+  <option value="FIELD_ERROR_HIDE">Hide Field Error</option>
+</template>
+
+<template id="action-general-template">
+  <div class="form-group">
+    <label for="fieldKey">Field Key:</label>
+    <input
+      type="text"
+      id="fieldKey"
+      name="fieldKey"
+    />
+  </div>
+</template>
+
+<template id="action-field_error-template">
+  <div class="form-group">
+    <label for="fieldKey">Field Key:</label>
+    <input
+      type="text"
+      id="fieldKey"
+      name="fieldKey"
+    />
+  </div>
+  <div class="form-group">
+    <label for="fieldErrorMessage">Message Source:</label>
+    <button
+      id="showMessageSource"
+      type="button"
+    >
+      Select Source
+    </button>
+    <app-source
+      id="sg-a-fr-ms"
+      style="display: none"
+    ></app-source>
+    <input
+      required
+      type="text"
+      id="fieldErrorMessage"
+      name="fieldErrorMessage"
+      readonly
+    />
+  </div>
+</template>
+
+<template id="action-field_message-template">
+  <div class="form-group">
+    <label for="fieldKey">Field Key:</label>
+    <input
+      type="text"
+      id="fieldKey"
+      name="fieldKey"
+    />
+  </div>
+  <div class="form-group">
+    <label for="messageType">Message Type:</label>
+    <select
+      id="message-type"
+      name="messageType"
+    >
+      <option value="ERROR">Error</option>
+      <option value="SUCCESS">Success</option>
+      <option value="INFO">Info</option>
+      <option value="WARN">Warn</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="message-message">Message:</label>
+    <input
+      required
+      type="text"
+      id="message-message"
+      name="message-message"
+      readonly
+    />
+  </div>
+</template>

@@ -1,0 +1,150 @@
+<div
+  id="source"
+  class="source"
+></div>
+
+<template id="source-template">
+  <form id="source-form">
+    <div class="form-group">
+      <label for="source-label">Select Source:</label>
+      <select
+        id="source-key"
+        name="key"
+      ></select>
+    </div>
+
+    <div id="source-key-form"></div>
+
+    <div id="source-footer">
+      <button
+        id="source-close-btn"
+        type="button"
+      >
+        Close
+      </button>
+      <button
+        id="source-save-btn"
+        type="button"
+      >
+        Save
+      </button>
+    </div>
+  </form>
+</template>
+
+<template id="source-options-template">
+  <option
+    value="OBJECT"
+    selected
+    >Object Source</option
+  >
+  <option value="BROWSER_STORAGE">Browser Storage Source</option>
+  <option value="PATTERN">Pattern Source</option>
+  <option value="PREDEFINED">Predefined Value Source</option>
+  <option value="REMOTE">Remote Source</option>
+  <option value="QUERY_PARAMS">Query Parameters Source</option>
+</template>
+
+<template id="source-object-template">
+  <div class="form-group">
+    <label for="objectKey">Object Key:</label>
+    <input
+      type="text"
+      id="objectKey"
+      name="objectKey"
+    />
+  </div>
+  <div class="form-group">
+    <label for="objectPath">Object Path:</label>
+    <input
+      type="text"
+      id="objectPath"
+      name="objectPath"
+    />
+  </div>
+</template>
+
+<template id="source-browser_storage-template">
+  <div class="form-group">
+    <label for="storageType">Storage Type:</label>
+    <select
+      id="storageType"
+      name="storageType"
+    >
+      <option value="LOCAL_STORAGE">Local Storage</option>
+      <option value="SESSION_STORAGE">Session Storage</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="storageKey">Storage Key:</label>
+    <input
+      type="text"
+      id="storageKey"
+      name="storageKey"
+    />
+  </div>
+</template>
+
+<template id="source-pattern-template">
+  <div class="form-group">
+    <label for="patternKey">Pattern Key:</label>
+    <select
+      id="patternKey"
+      name="patternKey"
+    >
+      <option value="CUSTOM">Custom</option>
+      <optgroup label="Documents">
+        <option value="IS_AADHAAR_NUMBER">Aadhaar Number</option>
+        <option value="IS_BANK_ACCOUNT_NO">Bank Account Number</option>
+        <!-- Remaining options omitted for brevity -->
+      </optgroup>
+      <optgroup label="Standard">
+        <!-- Remaining options omitted for brevity -->
+      </optgroup>
+    </select>
+  </div>
+  <div
+    id="customPattern"
+    class="form-group"
+    style="display: none"
+  >
+    <label for="pattern">Custom Pattern:</label>
+    <input
+      type="text"
+      id="pattern"
+      name="pattern"
+    />
+  </div>
+</template>
+
+<template id="source-predefined-template">
+  <div class="form-group">
+    <label for="predefinedValue">Predefined Value:</label>
+    <textarea
+      id="predefinedValue"
+      name="predefinedValue"
+    ></textarea>
+  </div>
+</template>
+
+<template id="source-remote-template">
+  <div class="form-group">
+    <label for="remoteURL">Remote URL:</label>
+    <input
+      type="text"
+      id="remoteURL"
+      name="remoteURL"
+    />
+  </div>
+</template>
+
+<template id="source-query_params-template">
+  <div class="form-group">
+    <label for="queryParamsKey">Query Params Key:</label>
+    <input
+      type="text"
+      id="queryParamsKey"
+      name="queryParamsKey"
+    />
+  </div>
+</template>

@@ -1,0 +1,427 @@
+.poppins-thin {
+  font-family: "Poppins", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.poppins-extralight {
+  font-family: "Poppins", sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.poppins-light {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.poppins-regular {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.poppins-medium {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.poppins-semibold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.poppins-bold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.poppins-extrabold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.poppins-black {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.poppins-thin-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.poppins-extralight-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.poppins-light-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.poppins-regular-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.poppins-medium-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.poppins-semibold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.poppins-bold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.poppins-extrabold-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.poppins-black-italic {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+}
+
+#container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+header {
+  width: 100%;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  box-shadow: 0px 0px 6px -2px gray;
+}
+
+header #re-text-copy-btn {
+  font-size: 12px;
+}
+
+main {
+  width: 100%;
+  padding: 1rem;
+  flex: 1;
+  justify-content: flex-start;
+  overflow: auto;
+}
+
+main #trigger-engine-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+}
+main #trigger-engine-container textarea {
+  align-self: stretch;
+  width: 100%;
+  height: 100%;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  display: block;
+  font-weight: normal;
+  unicode-bidi: embed;
+  overflow-x: hidden;
+  resize: none;
+  padding: 10px;
+  border: none;
+  box-shadow: 0px 0px 6px -2px grey;
+  margin: 0px;
+  font-family: monospace;
+  font-size: 12px;
+}
+main #trigger-engine-container > #trigger-engine,
+main #trigger-engine-container > #trigger-list,
+main #trigger-engine-container > #trigger-config {
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  border: none;
+  box-shadow: 0px 0px 6px -2px grey;
+  margin: 0px;
+}
+main #rule-engine-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+}
+main #rule-engine-container textarea {
+  align-self: stretch;
+  width: 100%;
+  height: 100%;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  display: block;
+  font-weight: normal;
+  unicode-bidi: embed;
+  overflow-x: hidden;
+  resize: none;
+  padding: 10px;
+  border: none;
+  box-shadow: 0px 0px 6px -2px grey;
+  margin: 0px;
+  font-family: monospace;
+  font-size: 12px;
+}
+main #rule-engine-container > #rule-engine,
+main #rule-engine-container > #rule-list,
+main #rule-engine-container > #rule-config {
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  border: none;
+  box-shadow: 0px 0px 6px -2px grey;
+  margin: 0px;
+}
+
+main #action-engine-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+}
+main #action-engine-container textarea {
+  align-self: stretch;
+  width: 100%;
+  height: 100%;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  display: block;
+  font-weight: normal;
+  unicode-bidi: embed;
+  overflow-x: hidden;
+  resize: none;
+  padding: 10px;
+  border: none;
+  box-shadow: 0px 0px 6px -2px grey;
+  margin: 0px;
+  font-family: monospace;
+  font-size: 12px;
+}
+main #action-engine-container > #action-engine,
+main #action-engine-container > #action-list,
+main #action-engine-container > #action-config {
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  border: none;
+  box-shadow: 0px 0px 6px -2px grey;
+  margin: 0px;
+}
+
+footer {
+  width: 100%;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  align-items: stretch;
+  padding: 1rem;
+  box-shadow: 0px 0px 6px -2px gray;
+}
+
+/** Extras */
+
+main .text-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: center;
+  align-items: stretch;
+
+  align-self: stretch;
+  width: 100%;
+}
+
+main .text-container > textarea {
+  align-self: stretch;
+  width: 100%;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  display: block;
+  font-weight: bold;
+  unicode-bidi: embed;
+  overflow-x: hidden;
+  resize: none;
+  padding: 10px;
+  border: none;
+  box-shadow: 0px 0px 6px -2px grey;
+}
+main .text-container > textarea::placeholder {
+  font-weight: normal;
+}
+
+main .text-container > textarea:focus,
+main .text-container > textarea:active {
+  border: none;
+  outline: none;
+}
+main .text-container > .btn-container {
+  opacity: 0;
+  display: flex;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+  flex-direction: row;
+  column-gap: 8px;
+  transition: 1s linear;
+}
+
+main .text-container:hover > .btn-container {
+  opacity: 1;
+  transition: 0.25s linear;
+}
+
+main .text-container > .btn-container .format-btn {
+  color: mediumvioletred !important;
+}
+main .text-container > .btn-container .clear-btn {
+  color: lightslategray !important;
+}
+
+.reset-all-btn,
+main .text-container > .btn-container .format-btn,
+main .text-container > .btn-container .clear-btn,
+main .text-container > .btn-container .copy-btn {
+  display: flex;
+  background-color: white;
+  color: #121212;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  align-content: center;
+  transform: scale(1);
+  transition: 0.15s linear;
+}
+
+main .text-container > .btn-container .format-btn:hover,
+main .text-container > .btn-container .clear-btn:hover,
+main .text-container > .btn-container .copy-btn :hover {
+  transform: scale(1.15);
+  transition: 0.15s linear;
+}
+
+.reset-all-btn:active,
+main .text-container > .btn-container .format-btn:active,
+main .text-container > .btn-container .clear-btn:active,
+main .text-container > .btn-container .copy-btn:active {
+  transform: scale(0.95);
+  transition: 0.15s linear;
+}
+
+.hidden-textarea {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -100px;
+  left: -100px;
+}
+
+#snackbar-container {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  bottom: 20px;
+  left: 20px;
+  row-gap: 25px;
+  transition: 2s linear;
+}
+
+.snackbar[data-tooltip] {
+  transition: 5s linear;
+}
+
+.snackbar.empty[data-tooltip]::after {
+  background-color: red;
+}
+
+.snackbar.copied[data-tooltip]::after {
+  background-color: green;
+}
+
+.snackbar.cleared[data-tooltip]::after {
+  background-color: lightslategray;
+}
+
+.snackbar.formatted[data-tooltip]::after {
+  background-color: mediumvioletred;
+}
+
+.snackbar[data-tooltip]::after {
+  pointer-events: none;
+  content: attr(data-tooltip);
+  opacity: 0;
+  background-color: #121212;
+  color: white;
+  box-shadow: 0 0 10px -3px #121212;
+  border-radius: 3px;
+  z-index: 1;
+  padding: 8px;
+  width: max-content;
+  transition: 0.25s linear;
+}
+
+.snackbar.appeared[data-tooltip]::after {
+  opacity: 1;
+  transition: 0.25s linear;
+}
+
+.snackbar.disappearing[data-tooltip]::after {
+  opacity: 0;
+  transition: 0.25s linear;
+}
