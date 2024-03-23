@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Rule Engine GUI</title>
+
+    <!-- Libraries -->
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://baijudodhia.github.io/cdn/font-awesome-5.15.4/icons/all.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://baijudodhia.github.io/assets/styles/reset.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://baijudodhia.github.io/assets/styles/index.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="./index.css"
+    />
+
+    <!-- Scripts -->
+    <script src="https://baijudodhia.github.io/assets/scripts/helper.js"></script>
+    <script src="https://baijudodhia.github.io/assets/scripts/component.js"></script>
+
+    <script src="./components/source/source.js"></script>
+    <script src="./components/trigger/trigger.js"></script>
+    <script src="./components/rule/rule.js"></script>
+    <script src="./components/action/action.js"></script>
+
+    <script src="./index.js"></script>
+  </head>
+  <body>
+    <div id="container">
+      <header>
+        <h2>Rule Engine GUI</h2>
+        <button
+          class="copy-btn"
+          id="re-text-copy-btn"
+          title="copy text"
+        >
+          Full Copy&nbsp;<i class="fas fa-copy"> </i>
+        </button>
+        <textarea
+          id="re-text"
+          class="hidden-textarea"
+        ></textarea>
+      </header>
+      <main>
+        <div id="trigger-engine-container">
+          <app-trigger id="trigger-engine"></app-trigger>
+          <div
+            id="trigger-engine-output"
+            class="text-container"
+          >
+            <div class="btn-container">
+              <button
+                aria-label="format code"
+                title="format json code"
+                class="format-btn"
+                id="trigger-list-format-btn"
+                onclick="formatText('trigger-list')"
+              >
+                <i class="fas fa-code"> </i>
+              </button>
+              <button
+                class="copy-btn"
+                id="trigger-list-copy-btn"
+                title="copy text"
+                onclick="copy('trigger-list')"
+              >
+                <i class="fas fa-copy"> </i>
+              </button>
+              <button
+                class="clear-btn"
+                id="trigger-list-clear-btn"
+                title="clear text"
+                onclick="clearText('trigger-list')"
+              >
+                <i class="fas fa-backspace"> </i>
+              </button>
+            </div>
+            <textarea
+              id="trigger-list"
+              placeholder="Triggers list will appear here"
+            ></textarea>
+          </div>
+        </div>
+        <div id="rule-engine-container">
+          <app-rule id="rule-engine"></app-rule>
+          <div
+            id="rule-engine-output"
+            class="text-container"
+          >
+            <div class="btn-container">
+              <button
+                aria-label="format code"
+                title="format json code"
+                class="format-btn"
+                id="rule-list-format-btn"
+                onclick="formatText('rule-list')"
+              >
+                <i class="fas fa-code"> </i>
+              </button>
+              <button
+                class="copy-btn"
+                id="rule-list-copy-btn"
+                title="copy text"
+                onclick="copy('rule-list')"
+              >
+                <i class="fas fa-copy"> </i>
+              </button>
+              <button
+                class="clear-btn"
+                id="rule-list-clear-btn"
+                title="clear text"
+                onclick="clearText('rule-list')"
+              >
+                <i class="fas fa-backspace"> </i>
+              </button>
+            </div>
+            <textarea
+              id="rule-list"
+              placeholder="Rules list will appear here"
+            ></textarea>
+          </div>
+        </div>
+        <div id="action-engine-container">
+          <app-action id="action-engine"></app-action>
+          <div
+            id="action-engine-output"
+            class="text-container"
+          >
+            <div class="btn-container">
+              <button
+                aria-label="format code"
+                title="format json code"
+                class="format-btn"
+                id="action-list-format-btn"
+                onclick="formatText('action-list')"
+              >
+                <i class="fas fa-code"> </i>
+              </button>
+              <button
+                class="copy-btn"
+                id="action-list-copy-btn"
+                title="copy text"
+                onclick="copy('action-list')"
+              >
+                <i class="fas fa-copy"> </i>
+              </button>
+              <button
+                class="clear-btn"
+                id="action-list-clear-btn"
+                title="clear text"
+                onclick="clearText('action-list')"
+              >
+                <i class="fas fa-backspace"> </i>
+              </button>
+            </div>
+            <textarea
+              id="action-list"
+              placeholder="Actions list will appear here"
+            ></textarea>
+          </div>
+        </div>
+      </main>
+      <footer>
+        <span>
+          Developed by
+          <a
+            target="_blank"
+            href="https://github.com/baijudodhia"
+          >
+            @baijudodhia
+          </a>
+        </span>
+      </footer>
+
+      <div id="snackbar-container">
+        <template id="snackbar-template">
+          <div class="snackbar"></div>
+        </template>
+      </div>
+    </div>
+
+    <script>
+      let triggers = [];
+      let rules = [];
+      let actions = [];
+    </script>
+
+    <!-- Script to Handle Triggers -->
+    <script>
+      document.querySelector("#trigger-engine").addEventListener("onSave", (e) => {
+        if (!triggers.includes(e.detail)) {
+          triggers.push(e.detail);
+        }
+
+        const triggerList = document.querySelector("#trigger-list");
+        triggerList.innerHTML = JSON.stringify(triggers, undefined, 2);
+      });
+    </script>
+
+    <!-- Script to Handle Rules -->
+    <script>
+      document.querySelector("#rule-engine").addEventListener("onSave", (e) => {
+        rules.push(JSON.parse(e.detail));
+
+        const ruleList = document.querySelector("#rule-list");
+        ruleList.innerHTML = JSON.stringify(rules, undefined, 2);
+      });
+    </script>
+
+    <!-- Script to Handle Actions -->
+    <script>
+      document.querySelector("#action-engine").addEventListener("onSave", (e) => {
+        actions.push(JSON.parse(e.detail));
+
+        const actionList = document.querySelector("#action-list");
+        actionList.innerHTML = JSON.stringify(actions, undefined, 2);
+      });
+    </script>
+
+    <!-- Script to copy whole config -->
+    <script>
+      document.querySelector("#re-text-copy-btn").addEventListener("click", (e) => {
+        const config = {
+          triggers: triggers,
+          rules: rules,
+          actions: actions,
+        };
+
+        const hiddenTextarea = document.querySelector("#re-text");
+        hiddenTextarea.innerHTML = JSON.stringify(config, undefined, 2);
+
+        copy("re-text");
+      });
+    </script>
+  </body>
+</html>

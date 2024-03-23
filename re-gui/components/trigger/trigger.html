@@ -1,0 +1,34 @@
+<div
+  id="trigger"
+  class="trigger"
+></div>
+
+<template id="trigger-template">
+  <form id="trigger-form">
+    <div class="form-group">
+      <label for="trigger-label">Select trigger:</label>
+      <select
+        id="trigger-key"
+        name="key"
+      ></select>
+    </div>
+
+    <div id="trigger-key-form"></div>
+
+    <div id="trigger-footer">
+      <button
+        id="trigger-save-btn"
+        type="button"
+      >
+        Add
+      </button>
+    </div>
+  </form>
+</template>
+
+<template id="trigger-options-template">
+  <option value="ON_INIT">On Init</option>
+  <option value="ON_CHANGE">On Change</option>
+  <option value="ON_ACTION">On Action</option>
+  <option value="ON_SAVE">On Save</option>
+</template>

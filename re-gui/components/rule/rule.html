@@ -1,0 +1,138 @@
+<div
+  id="rule"
+  class="rule"
+></div>
+
+<template id="rule-template">
+  <form id="rule-form">
+    <div class="form-group">
+      <label for="rule-id">Rule Id:</label>
+      <input
+        type="text"
+        id="rule-id"
+        name="id"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="rule-label">Select Rule:</label>
+      <select
+        id="rule-key"
+        name="key"
+      ></select>
+    </div>
+
+    <div id="rule-key-form"></div>
+
+    <div id="rule-footer">
+      <button
+        id="rule-save-btn"
+        type="button"
+      >
+        Add
+      </button>
+    </div>
+  </form>
+</template>
+
+<template id="rule-options-template">
+  <!-- <option value="VALUE_CHECK">Value Check</option> -->
+  <option value="VALUE_COMPARE">Value Compare</option>
+  <option value="OBJECT_PATH_EXISTS">Object Path Exists</option>
+</template>
+
+<template id="rule-value_check-template">
+  <div class="form-group">
+    <label for="valueSource">Value Source:</label>
+    <button
+      id="showValueSource"
+      type="button"
+    >
+      Select Source
+    </button>
+    <app-source
+      id="sg2-vc-vs"
+      style="display: none"
+    ></app-source>
+    <input
+      required
+      type="text"
+      id="valueSource"
+      name="valueSource"
+      readonly
+    />
+  </div>
+  <div class="form-group">
+    <label for="patternKey">Pattern Key:</label>
+    <input
+      required
+      type="text"
+      id="patternKey"
+      name="patternKey"
+    />
+  </div>
+</template>
+
+<template id="rule-object_path_exists-template">
+  <div class="form-group">
+    <label for="objectKey">Object Key:</label>
+    <input
+      required
+      type="text"
+      id="objectKey"
+      name="objectKey"
+    />
+  </div>
+  <div class="form-group">
+    <label for="objectPath">Object Path:</label>
+    <input
+      required
+      type="text"
+      id="objectPath"
+      name="objectPath"
+    />
+  </div>
+</template>
+
+<template id="rule-value_compare-template">
+  <div class="form-group">
+    <label for="leftSource">Left Value Source:</label>
+    <button
+      id="showLeftSource"
+      type="button"
+    >
+      Select Source
+    </button>
+    <app-source
+      id="sg2-vc-ls"
+      style="display: none"
+    ></app-source>
+    <input
+      required
+      type="text"
+      id="leftSource"
+      name="leftSource"
+      readonly
+    />
+  </div>
+  <div class="form-group">
+    <label for="rightSource">Right Value Source:</label>
+    <button
+      id="showRightSource"
+      type="button"
+    >
+      Select Source
+    </button>
+    <app-source
+      id="sg2-vc-rs"
+      style="display: none"
+    ></app-source>
+    <input
+      required
+      type="text"
+      id="rightSource"
+      name="rightSource"
+      readonly
+    />
+  </div>
+</template>
