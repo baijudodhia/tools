@@ -4,9 +4,11 @@
  */
 
 class InferredTelemetry {
-  constructor(staticData, continuousSamples) {
+  constructor(staticData, continuousSamples, intervalMs = 5000) {
     this.staticData = staticData;
     this.continuousSamples = continuousSamples;
+    this.intervalMs = intervalMs;
+    this.permissionMetrics = null;
   }
 
   /**
@@ -14,9 +16,9 @@ class InferredTelemetry {
    */
   infer() {
     return {
-      device: this.inferDeviceMetrics(),
-      network: this.inferNetworkMetrics(),
-      behavioral: this.inferBehavioralMetrics(),
+      agentPresence: this.inferAgentPresence(),
+      sessionIntegrity: this.inferSessionIntegrity(),
+      riskScores: this.inferRiskScores(),
       timestamp: new Date().toISOString()
     };
   }
@@ -258,28 +260,174 @@ class InferredTelemetry {
   }
 
   /**
-   * 5.3 Behavioral & Security Inference
+   * 1️⃣6️⃣ Inferred – Agent Presence & Behaviour
    */
-  inferBehavioralMetrics() {
+  inferAgentPresence() {
     if (this.continuousSamples.length === 0) {
       return {
-        activeVsPassiveBehavior: null,
-        abnormalFocusLossPatterns: null,
-        heavyExtensionLikelihood: null,
-        throttlingDetection: null,
-        fingerprintConsistencyScore: null,
-        capabilityMismatchAnomalies: null
+        screen_presence_ratio: null,
+        camera_presence_ratio: null,
+        mic_presence_ratio: null,
+        idle_ratio: null,
+        multitasking_likelihood: null
       };
     }
 
+    const activitySamples = this.continuousSamples.map(s => s.activity);
+    const visibleSamples = activitySamples.filter(a => a.tabVisibility === 'visible');
+    const screenPresenceRatio = visibleSamples.length / activitySamples.length;
+
+    // Get permission-based metrics if available
+    const permissionMetrics = this.permissionMetrics || {};
+    const cameraPresenceRatio = permissionMetrics.camera?.camera_active_ratio || 0;
+    const micPresenceRatio = permissionMetrics.microphone?.mic_activity_ratio || 0;
+
+    // Calculate idle ratio
+    const totalIdleTime = activitySamples.reduce((sum, a) => sum + (a.idleDuration || 0), 0);
+    const totalTime = activitySamples.length * (this.intervalMs || 5000) / 1000;
+    const idleRatio = totalTime > 0 ? Math.round((totalIdleTime / totalTime) * 100) / 100 : 0;
+
+    // Multitasking likelihood
+    const multitaskingLikelihood = this.inferMultitaskingLikelihood(activitySamples);
+
     return {
-      activeVsPassiveBehavior: this.inferUserBehavior(),
-      abnormalFocusLossPatterns: this.detectAbnormalFocusLoss(),
-      heavyExtensionLikelihood: this.inferExtensionUsage(),
-      throttlingDetection: this.detectThrottling(),
-      fingerprintConsistencyScore: this.calculateFingerprintConsistency(),
-      capabilityMismatchAnomalies: this.detectCapabilityMismatches()
+      screen_presence_ratio: Math.round(screenPresenceRatio * 100) / 100,
+      camera_presence_ratio: Math.round(cameraPresenceRatio * 100) / 100,
+      mic_presence_ratio: Math.round(micPresenceRatio * 100) / 100,
+      idle_ratio: idleRatio,
+      multitasking_likelihood: multitaskingLikelihood
     };
+  }
+
+  inferMultitaskingLikelihood(activitySamples) {
+    const focusLossCount = activitySamples.filter(a => a.focusLossCount > 0).length;
+    const focusLossRatio = focusLossCount / activitySamples.length;
+
+    const hiddenSamples = activitySamples.filter(a => a.tabVisibility === 'hidden').length;
+    const hiddenRatio = hiddenSamples / activitySamples.length;
+
+    if (focusLossRatio > 0.3 || hiddenRatio > 0.4) return 'High';
+    if (focusLossRatio > 0.1 || hiddenRatio > 0.2) return 'Medium';
+    return 'Low';
+  }
+
+  /**
+   * 1️⃣7️⃣ Inferred – Session Integrity & Network Quality
+   */
+  inferSessionIntegrity() {
+    if (this.continuousSamples.length === 0) {
+      return {
+        network_stability_score: null,
+        session_reliability_score: null,
+        throttling_likelihood: null,
+        device_stability_score: null
+      };
+    }
+
+    const networkSamples = this.continuousSamples.map(s => s.network);
+    const performanceSamples = this.continuousSamples.map(s => s.performance);
+
+    return {
+      network_stability_score: this.calculateNetworkStability(networkSamples),
+      session_reliability_score: this.calculateSessionReliability(),
+      throttling_likelihood: this.inferThrottlingLikelihood(performanceSamples),
+      device_stability_score: this.calculateDeviceStability()
+    };
+  }
+
+  inferThrottlingLikelihood(performanceSamples) {
+    const throttlingDetected = performanceSamples.filter(p => p.timerThrottlingDetected).length;
+    const throttlingRatio = throttlingDetected / performanceSamples.length;
+
+    if (throttlingRatio > 0.3) return 'High';
+    if (throttlingRatio > 0.1) return 'Medium';
+    return 'Low';
+  }
+
+  calculateDeviceStability() {
+    // Based on memory consistency, performance consistency, etc.
+    const memorySamples = this.continuousSamples
+      .map(s => s.memory)
+      .filter(m => m.available);
+
+    if (memorySamples.length < 2) return null;
+
+    const heapLimits = memorySamples.map(m => m.jsHeapLimit);
+    const uniqueLimits = new Set(heapLimits);
+    const limitConsistency = uniqueLimits.size === 1 ? 100 : 50;
+
+    // Performance consistency
+    const eventLoopDelays = this.continuousSamples.map(s => s.performance?.eventLoopDelay || 0);
+    const avgDelay = eventLoopDelays.reduce((a, b) => a + b, 0) / eventLoopDelays.length;
+    const delayScore = Math.max(0, 100 - (avgDelay * 10));
+
+    return Math.round((limitConsistency + delayScore) / 2);
+  }
+
+  /**
+   * 1️⃣8️⃣ Inferred – Supervision & Risk Scores
+   */
+  inferRiskScores() {
+    if (this.continuousSamples.length === 0) {
+      return {
+        agent_presence_score: null,
+        session_integrity_score: null,
+        network_reliability_score: null,
+        composite_agent_risk_score: null,
+        risk_level: null
+      };
+    }
+
+    const agentPresence = this.inferAgentPresence();
+    const sessionIntegrity = this.inferSessionIntegrity();
+
+    const agentPresenceScore = this.calculateAgentPresenceScore(agentPresence);
+    const sessionIntegrityScore = sessionIntegrity.session_reliability_score || 0;
+    const networkReliabilityScore = sessionIntegrity.network_stability_score || 0;
+
+    const compositeRiskScore = Math.round(
+      (agentPresenceScore * 0.4) +
+      (sessionIntegrityScore * 0.3) +
+      (networkReliabilityScore * 0.3)
+    );
+
+    const riskLevel = this.determineRiskLevel(compositeRiskScore);
+
+    return {
+      agent_presence_score: agentPresenceScore,
+      session_integrity_score: sessionIntegrityScore,
+      network_reliability_score: networkReliabilityScore,
+      composite_agent_risk_score: compositeRiskScore,
+      risk_level: riskLevel
+    };
+  }
+
+  calculateAgentPresenceScore(agentPresence) {
+    let score = 100;
+
+    // Lower score for low presence
+    if (agentPresence.screen_presence_ratio < 0.5) score -= 30;
+    if (agentPresence.camera_presence_ratio < 0.3) score -= 20;
+    if (agentPresence.mic_presence_ratio < 0.3) score -= 20;
+    if (agentPresence.idle_ratio > 0.7) score -= 20;
+    if (agentPresence.multitasking_likelihood === 'High') score -= 10;
+
+    return Math.max(0, Math.min(100, score));
+  }
+
+  determineRiskLevel(compositeScore) {
+    if (compositeScore >= 80) return 'Low';
+    if (compositeScore >= 60) return 'Medium';
+    if (compositeScore >= 40) return 'High';
+    return 'Critical';
+  }
+
+  setPermissionMetrics(permissionMetrics) {
+    this.permissionMetrics = permissionMetrics;
+  }
+
+  setIntervalMs(intervalMs) {
+    this.intervalMs = intervalMs;
   }
 
   inferUserBehavior() {

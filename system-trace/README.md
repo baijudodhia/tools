@@ -1,21 +1,28 @@
 # System Trace Telemetry Collection
 
-A comprehensive client-side telemetry collection system implementing the FSD (Functional Specification Document) for device, browser, and runtime telemetry.
+A comprehensive client-side telemetry collection system implementing the FSD (Functional Specification Document) for device, browser, and runtime telemetry. **Excel-ready flat schema export** aligned with RBI / CERT-In audit requirements.
 
 ## Features
 
-- **Static Telemetry**: Fixed context captured once per session (device, browser, display, APIs, storage)
+- **Static Telemetry**: Fixed context captured once per session (device, browser, display, APIs, storage, permission-aware capabilities)
 - **Continuous Telemetry**: Runtime metrics sampled periodically (network, memory, performance, activity, battery)
-- **Inferred Telemetry**: Derived signals computed from collected data (device inference, network quality, behavioral patterns)
+- **Permission-Based Monitoring**: Camera, microphone, screen share, location, clipboard, and advanced device tracking (requires user consent)
+- **Inferred Telemetry**: Derived signals (agent presence, session integrity, risk scores)
+- **Excel-Ready Export**: Flat schema CSV export matching DATA_SCHEMA.md column headers
+- **Metadata & Governance**: Session tracking, consent management, audit fields
 
 ## Files
 
+- `metadata.js` - Record & session metadata management
 - `static-telemetry.js` - Static telemetry collection module
 - `continuous-telemetry.js` - Continuous monitoring module
+- `permission-telemetry.js` - Permission-based monitoring (camera, mic, screen share, location, clipboard)
 - `inferred-telemetry.js` - Inferred telemetry generation
+- `schema-exporter.js` - Excel-ready flat schema exporter
 - `telemetry.js` - Main orchestrator class
 - `index.html` - Demo page (zero CSS)
 - `FSD.md` - Functional Specification Document
+- `DATA_SCHEMA.md` - Excel column header schema
 
 ## Usage
 
@@ -68,8 +75,48 @@ telemetry.start();
 // Export as JSON string
 const json = telemetry.exportJSON();
 
-// Or get structured data
-const data = telemetry.getAllTelemetry();
+// Export as CSV (Excel-ready, flat schema)
+const csv = telemetry.exportToCSV();
+
+// Export static row
+const staticRow = telemetry.exportStaticRow();
+
+// Export continuous rows
+const continuousRows = telemetry.exportContinuousRows();
+
+// Get column headers for Excel
+const headers = telemetry.getColumnHeaders();
+```
+
+### Permission-Based Monitoring
+
+```javascript
+// Start camera monitoring (requires user permission)
+await telemetry.startCameraMonitoring();
+
+// Start microphone monitoring
+await telemetry.startMicrophoneMonitoring();
+
+// Start screen share monitoring
+await telemetry.startScreenShareMonitoring();
+
+// Start location monitoring
+await telemetry.startLocationMonitoring();
+
+// Stop monitoring
+telemetry.stopCameraMonitoring();
+telemetry.stopMicrophoneMonitoring();
+```
+
+### Metadata Management
+
+```javascript
+// Set user/agent IDs
+telemetry.setUserId('user123');
+telemetry.setAgentId('agent456');
+
+// Update consent
+telemetry.updateConsent('2.0', new Date().toISOString());
 ```
 
 ## Demo
@@ -79,7 +126,8 @@ Open `index.html` in a web browser to see the telemetry collection in action. Th
 - Initialize button to collect static telemetry
 - Start/Stop buttons for continuous collection
 - Real-time display of all telemetry data
-- Export functionality to download JSON
+- Export JSON functionality
+- **Export CSV functionality** (Excel-ready, matches DATA_SCHEMA.md)
 
 ## Compliance
 
@@ -88,6 +136,7 @@ This implementation strictly adheres to:
 - Browser security sandbox constraints
 - User privacy standards
 - RBI / CERT-In / ISO 27001 principles
+- Permission-based data collection (camera, mic, location require explicit user consent)
 
 **No access to:**
 - Installed applications
@@ -96,6 +145,11 @@ This implementation strictly adheres to:
 - Background system activity
 - Personal files or data
 - MAC / IMEI / hardware serials
+
+**Permission-Based Features:**
+- Camera, microphone, screen share, location monitoring only collects data when user grants permission
+- All permission-based telemetry clearly marked in schema
+- Consent version and timestamp tracked for audit compliance
 
 ## Browser Compatibility
 

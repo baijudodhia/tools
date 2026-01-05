@@ -11,16 +11,58 @@ class StaticTelemetry {
   /**
    * Collect all static telemetry
    */
-  collect() {
+  async collect() {
     this.data = {
       device: this.collectDeviceContext(),
       display: this.collectDisplayCapabilities(),
       browser: this.collectBrowserIdentity(),
       webAPIs: this.collectWebAPICapabilities(),
       storage: this.collectStorageContext(),
+      permissions: await this.collectPermissionAwareCapabilities(),
       timestamp: new Date().toISOString()
     };
     return this.data;
+  }
+
+  /**
+   * 6. Static – Permission-Aware Capabilities
+   */
+  async collectPermissionAwareCapabilities() {
+    const result = {
+      camera_available: false,
+      camera_device_count: 0,
+      microphone_available: false,
+      microphone_device_count: 0,
+      location_capable: 'geolocation' in navigator,
+      advanced_device_capable: this.checkAdvancedDeviceCapability()
+    };
+
+    // Check media devices (camera/mic) - requires permission
+    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(d => d.kind === 'videoinput');
+        const audioDevices = devices.filter(d => d.kind === 'audioinput');
+
+        result.camera_available = videoDevices.length > 0;
+        result.camera_device_count = videoDevices.length;
+        result.microphone_available = audioDevices.length > 0;
+        result.microphone_device_count = audioDevices.length;
+      } catch (e) {
+        // Permission not granted or API not available
+      }
+    }
+
+    return result;
+  }
+
+  checkAdvancedDeviceCapability() {
+    const capabilities = [];
+    if ('bluetooth' in navigator) capabilities.push('Bluetooth');
+    if ('usb' in navigator) capabilities.push('USB');
+    if ('hid' in navigator) capabilities.push('HID');
+    if ('nfc' in navigator) capabilities.push('NFC');
+    return capabilities.length > 0 ? capabilities.join('/') : false;
   }
 
   /**
@@ -246,6 +288,7 @@ class StaticTelemetry {
       audioContext: 'AudioContext' in window || 'webkitAudioContext' in window,
       indexedDB: 'indexedDB' in window,
       sharedArrayBuffer: typeof SharedArrayBuffer !== 'undefined',
+      drmSupported: this.checkDRMSupport(),
       intl: {
         locale: typeof Intl !== 'undefined',
         dateTimeFormat: typeof Intl.DateTimeFormat !== 'undefined',
@@ -254,6 +297,15 @@ class StaticTelemetry {
         listFormat: typeof Intl.ListFormat !== 'undefined'
       }
     };
+  }
+
+  checkDRMSupport() {
+    try {
+      // Check for EME (Encrypted Media Extensions)
+      return 'requestMediaKeySystemAccess' in navigator;
+    } catch (e) {
+      return false;
+    }
   }
 
   checkAPI(name) {

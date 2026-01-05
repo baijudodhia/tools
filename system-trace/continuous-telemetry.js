@@ -22,6 +22,10 @@ class ContinuousTelemetry {
     this.backgroundTime = 0;
     this.lastActivityTime = null;
     this.longTaskObserver = null;
+    this.rttHistory = [];
+    this.focusLossCount = 0;
+    this.lastFocusState = null;
+    this.lastHeapSize = null;
   }
 
   /**
@@ -108,6 +112,18 @@ class ContinuousTelemetry {
       result.downlinkSpeed = connection.downlink || null;
       result.saveData = connection.saveData || false;
 
+      // Track RTT jitter
+      if (result.rtt !== null) {
+        this.rttHistory.push(result.rtt);
+        // Keep last 10 samples for jitter calculation
+        if (this.rttHistory.length > 10) {
+          this.rttHistory.shift();
+        }
+        result.rttJitter = this.calculateRTTJitter();
+      } else {
+        result.rttJitter = null;
+      }
+
       // Track network changes
       const currentType = connection.effectiveType;
       if (this.lastNetworkType && this.lastNetworkType !== currentType) {
@@ -118,12 +134,27 @@ class ContinuousTelemetry {
     } else {
       result.effectiveConnectionType = null;
       result.rtt = null;
+      result.rttJitter = null;
       result.downlinkSpeed = null;
       result.saveData = false;
       result.networkChangeCount = this.networkChangeCount;
     }
 
     return result;
+  }
+
+  calculateRTTJitter() {
+    if (this.rttHistory.length < 2) return null;
+
+    const rtts = this.rttHistory;
+    const differences = [];
+    for (let i = 1; i < rtts.length; i++) {
+      differences.push(Math.abs(rtts[i] - rtts[i - 1]));
+    }
+
+    if (differences.length === 0) return null;
+    const avgJitter = differences.reduce((a, b) => a + b, 0) / differences.length;
+    return Math.round(avgJitter * 100) / 100; // Round to 2 decimals
   }
 
   /**
@@ -137,18 +168,20 @@ class ContinuousTelemetry {
     if (performance.memory) {
       result.available = true;
       result.jsHeapLimit = performance.memory.jsHeapSizeLimit || null;
+      result.jsHeapLimitMB = result.jsHeapLimit ? Math.round((result.jsHeapLimit / (1024 * 1024)) * 100) / 100 : null;
       result.totalHeapAllocated = performance.memory.totalJSHeapSize || null;
+      result.jsHeapTotalMB = result.totalHeapAllocated ? Math.round((result.totalHeapAllocated / (1024 * 1024)) * 100) / 100 : null;
       result.usedHeap = performance.memory.usedJSHeapSize || null;
+      result.jsHeapUsedMB = result.usedHeap ? Math.round((result.usedHeap / (1024 * 1024)) * 100) / 100 : null;
 
-      // Calculate heap growth rate if we have previous sample
-      if (this.samples.length > 0) {
-        const prevSample = this.samples[this.samples.length - 1];
-        if (prevSample.memory && prevSample.memory.usedHeap) {
-          const timeDelta = this.intervalMs / 1000; // seconds
-          const heapDelta = result.usedHeap - prevSample.memory.usedHeap;
-          result.heapGrowthRate = heapDelta / timeDelta; // bytes per second
-        }
+      // Calculate heap growth in MB if we have previous sample
+      if (this.lastHeapSize !== null) {
+        const heapDelta = result.usedHeap - this.lastHeapSize;
+        result.heapGrowthMB = Math.round((heapDelta / (1024 * 1024)) * 100) / 100; // MB
+      } else {
+        result.heapGrowthMB = 0;
       }
+      this.lastHeapSize = result.usedHeap;
     }
 
     return result;
@@ -158,11 +191,13 @@ class ContinuousTelemetry {
    * 4.3 Performance & Load Indicators
    */
   collectPerformanceMetrics() {
+    const timerMetrics = this.measureTimerDrift();
     const result = {
       eventLoopDelay: this.measureEventLoopDelay(),
       longTasksCount: this.getLongTasksCount(),
       frameDrops: this.detectFrameDrops(),
-      timerDrift: this.measureTimerDrift(),
+      timerDrift: timerMetrics.drift,
+      timerThrottlingDetected: timerMetrics.throttlingDetected,
       responsivenessScore: this.calculateResponsivenessScore()
     };
 
@@ -222,15 +257,18 @@ class ContinuousTelemetry {
     if (!this.lastTimerCheck) {
       this.lastTimerCheck = Date.now();
       this.timerStart = Date.now();
-      return 0;
+      return { drift: 0, throttlingDetected: false };
     }
 
     const now = Date.now();
     const expected = this.lastTimerCheck + this.intervalMs;
     const drift = now - expected;
 
+    // Detect throttling (significant positive drift)
+    const throttlingDetected = drift > 100; // More than 100ms drift indicates throttling
+
     this.lastTimerCheck = now;
-    return drift;
+    return { drift, throttlingDetected };
   }
 
   calculateResponsivenessScore() {
@@ -247,12 +285,22 @@ class ContinuousTelemetry {
    * 4.4 Page & User Activity
    */
   collectActivityMetrics() {
+    const hasFocus = document.hasFocus();
+    const isVisible = !document.hidden;
+
+    // Track focus loss
+    if (this.lastFocusState !== null && this.lastFocusState === true && hasFocus === false) {
+      this.focusLossCount++;
+    }
+    this.lastFocusState = hasFocus;
+
     const result = {
-      tabVisibility: document.hidden ? 'hidden' : 'visible',
-      focusState: document.hasFocus() ? 'active' : 'inactive',
+      tabVisibility: isVisible ? 'visible' : 'hidden',
+      windowHasFocus: hasFocus,
       foregroundTime: null,
       backgroundTime: null,
-      idleDuration: this.calculateIdleDuration()
+      idleDuration: this.calculateIdleDuration(),
+      focusLossCount: this.focusLossCount
     };
 
     // Calculate foreground/background time
@@ -272,8 +320,9 @@ class ContinuousTelemetry {
       this.backgroundTime = 0;
     }
 
-    result.foregroundTime = this.foregroundTime || 0;
-    result.backgroundTime = this.backgroundTime || 0;
+    result.foregroundTime = Math.round((this.foregroundTime || 0) * 100) / 100;
+    result.backgroundTime = Math.round((this.backgroundTime || 0) * 100) / 100;
+    result.idleDuration = Math.round((result.idleDuration || 0) * 100) / 100;
 
     return result;
   }

@@ -1,268 +1,326 @@
-Below is a **Technical Functional Specification (FSD)** written in **audit-grade, regulator-ready language**, consolidating **all collectable client-side telemetry** into **Static, Continuous, and Inferred** categories.
+Below is the **FINAL, EXCEL-READY COLUMN HEADER FILE** aligned with the **revised FSD** (permission-based fully merged into Static / Continuous / Inferred).
 
-This document is suitable to be:
-
-* Attached to **RBI / CERT-In audits**
-* Reviewed by **Security, Compliance, Legal**
-* Used as a **basis for implementation**
+You can **copy-paste this directly into Excel (Row 1)**.
+This is a **single flat schema**, analytics-friendly, audit-safe, and scalable.
 
 ---
 
-# Technical Functional Specification (FSD)
+# 📊 FINAL EXCEL COLUMN HEADER FILE
 
-## Client-Side Device, Browser & Runtime Telemetry Collection
-
----
-
-## 1. Purpose & Scope
-
-The purpose of this module is to collect **permission-less, browser-exposed client environment telemetry** to support:
-
-* Security monitoring
-* Fraud and anomaly detection
-* Session integrity verification
-* Operational diagnostics
-* Regulatory audit traceability
-
-The solution strictly adheres to:
-
-* Browser security sandbox constraints
-* User privacy standards
-* RBI / CERT-In / ISO 27001 principles
-
-No personal files, installed software, background processes, or system identifiers are accessed.
+## Client / Agent Telemetry – High Scrutiny Mode
 
 ---
 
-## 2. Classification of Telemetry
+## 1️⃣ Record & Session Metadata
 
-Telemetry is classified into:
-
-1. **Static Telemetry** – Fixed context captured once per session
-2. **Continuous Telemetry** – Runtime metrics sampled periodically
-3. **Inferred Telemetry** – Derived signals computed from collected data
-
----
-
-## 3. Static Telemetry (Fixed / Snapshot)
-
-### 3.1 Device & Hardware Context (Indirect)
-
-| Attribute             | Description                         |
-| --------------------- | ----------------------------------- |
-| CPU Logical Cores     | Number of logical processors        |
-| Device Memory         | Approximate RAM (GB)                |
-| GPU Vendor & Renderer | WebGL-exposed graphics info         |
-| Device Class          | Mobile / Tablet / Desktop (derived) |
-| Platform              | OS platform identifier              |
-| Architecture          | CPU architecture (where available)  |
-| Touch Support         | Touch input capability              |
-| Max Touch Points      | Maximum simultaneous touch inputs   |
+```
+record_id
+session_id
+user_id
+agent_id
+record_type                (STATIC / CONTINUOUS)
+collected_at
+page_url
+app_name
+app_version
+environment                (PROD / UAT / QA)
+```
 
 ---
 
-### 3.2 Display & Visual Capabilities
+## 2️⃣ Static – Device & Hardware
 
-| Attribute             | Description              |
-| --------------------- | ------------------------ |
-| Screen Resolution     | Total display resolution |
-| Available Screen Size | Usable resolution        |
-| Pixel Ratio           | Device pixel density     |
-| Color Depth           | Bits per pixel           |
-| Color Gamut           | sRGB / P3                |
-| HDR Support           | HDR capability           |
-| Orientation Support   | Landscape / Portrait     |
-
----
-
-### 3.3 Browser & Runtime Identity
-
-| Attribute            | Description                   |
-| -------------------- | ----------------------------- |
-| User-Agent           | Browser identification string |
-| UA-CH (Client Hints) | Structured browser metadata   |
-| Browser Version      | Major / minor version         |
-| Rendering Engine     | Blink / Gecko / WebKit        |
-| JavaScript Engine    | Inferred                      |
-| Language             | Primary locale                |
-| Languages            | Supported locales             |
-| Timezone             | System timezone offset        |
-| Do-Not-Track         | DNT preference                |
-| PDF Viewer           | Built-in PDF support          |
+```
+platform
+architecture
+cpu_cores
+device_memory_gb
+gpu_vendor
+gpu_renderer
+device_class               (Desktop / Laptop / Mobile)
+touch_supported
+max_touch_points
+battery_supported
+```
 
 ---
 
-### 3.4 Web API Capability Surface
+## 3️⃣ Static – Display & Visual
 
-> Used as a **version proxy and environment fingerprint**
-
-| API                | Availability                |
-| ------------------ | --------------------------- |
-| WebGL / WebGL2     | Graphics support            |
-| WebGPU             | Advanced GPU compute        |
-| WebRTC             | Real-time communication     |
-| WebAssembly        | High-performance runtime    |
-| Service Workers    | Background execution        |
-| Push API           | Push messaging              |
-| Background Sync    | Deferred tasks              |
-| Media Devices      | Camera / Mic availability   |
-| Clipboard API      | Clipboard access            |
-| WebAuthn           | Strong authentication       |
-| Payment Request    | Payment flows               |
-| File System Access | Local file picker           |
-| OffscreenCanvas    | Background rendering        |
-| AudioContext       | Audio processing            |
-| IndexedDB          | Structured storage          |
-| SharedArrayBuffer  | High-performance memory     |
-| Intl APIs          | Locale, calendar, numbering |
+```
+screen_width
+screen_height
+avail_width
+avail_height
+pixel_ratio
+color_depth
+color_gamut                (sRGB / P3)
+hdr_supported
+```
 
 ---
 
-### 3.5 Storage & Security Context
+## 4️⃣ Static – Browser, Runtime & Locale
 
-| Attribute              | Description                 |
-| ---------------------- | --------------------------- |
-| Cookies Enabled        | Cookie support              |
-| Local Storage          | localStorage availability   |
-| Session Storage        | sessionStorage availability |
-| IndexedDB              | IndexedDB availability      |
-| Secure Context         | HTTPS & security isolation  |
-| Cross-Origin Isolation | COOP/COEP enabled           |
-| HTTPS Status           | Encrypted transport         |
-
----
-
-## 4. Continuous Telemetry (Interval-Based)
-
-> Sampled periodically (e.g., every 5–10 seconds)
+```
+browser_name
+browser_version
+rendering_engine
+js_engine_inferred
+user_agent
+ua_arch
+language
+languages
+timezone_offset_minutes
+do_not_track
+pdf_viewer_enabled
+```
 
 ---
 
-### 4.1 Network Runtime Metrics
+## 5️⃣ Static – Web API & Capability Surface
 
-| Metric                    | Description         |
-| ------------------------- | ------------------- |
-| Online / Offline State    | Connectivity status |
-| Effective Connection Type | 2G / 3G / 4G / WiFi |
-| RTT (Latency)             | Round-trip time     |
-| Downlink Speed            | Approx Mbps         |
-| Save-Data Flag            | Data-saving mode    |
-| Network Change Frequency  | Stability indicator |
-
----
-
-### 4.2 Browser Memory Metrics *(Chromium-based)*
-
-| Metric               | Description           |
-| -------------------- | --------------------- |
-| JS Heap Limit        | Max allowed heap      |
-| Total Heap Allocated | Allocated memory      |
-| Used Heap            | Active JS memory      |
-| Heap Growth Rate     | Memory pressure trend |
-
-> Note: Reflects **browser JS memory only**, not OS RAM.
-
----
-
-### 4.3 Performance & Load Indicators
-
-| Metric               | Description          |
-| -------------------- | -------------------- |
-| Event Loop Delay     | JS responsiveness    |
-| Long Tasks Count     | CPU pressure proxy   |
-| Frame Drops          | Rendering stress     |
-| Timer Drift          | Throttling detection |
-| Responsiveness Score | UI health indicator  |
+```
+api_webgl
+api_webgl2
+api_webgpu
+api_webrtc
+api_wasm
+api_service_worker
+api_push
+api_bg_sync
+api_media_devices
+api_clipboard
+api_webauthn
+api_payment_request
+api_file_system_access
+api_offscreen_canvas
+api_audio_context
+api_indexeddb
+api_shared_array_buffer
+api_drm_supported
+```
 
 ---
 
-### 4.4 Page & User Activity
+## 6️⃣ Static – Permission-Aware Capabilities
 
-| Metric          | Description       |
-| --------------- | ----------------- |
-| Tab Visibility  | Visible / Hidden  |
-| Focus State     | Active / Inactive |
-| Foreground Time | Active engagement |
-| Background Time | Inactive duration |
-| Idle Duration   | User inactivity   |
-
----
-
-### 4.5 Battery Metrics *(If Supported)*
-
-| Metric         | Description               |
-| -------------- | ------------------------- |
-| Battery Level  | Charge percentage         |
-| Charging State | Charging / Discharging    |
-| Drain Rate     | Battery consumption trend |
+```
+camera_available
+camera_device_count
+microphone_available
+microphone_device_count
+location_capable
+advanced_device_capable     (Bluetooth/USB/HID/NFC)
+```
 
 ---
 
-## 5. Inferred Telemetry (Derived Signals)
+## 7️⃣ Continuous – Network Metrics
 
-> Derived without collecting additional data
-
----
-
-### 5.1 Device & Environment Inference
-
-* Device performance tier (Low / Medium / High)
-* Mobile vs desktop confidence
-* GPU capability class
-* Memory pressure likelihood
-* VM / sandbox probability (heuristic)
+```
+online
+effective_connection_type
+rtt_ms
+downlink_mbps
+rtt_jitter_ms
+network_change_count
+save_data_enabled
+```
 
 ---
 
-### 5.2 Network & Session Quality Inference
+## 8️⃣ Continuous – Browser Resource & Load
 
-* Network stability score
-* Latency variance (jitter)
-* Session reliability index
-* Corporate / mobile network likelihood
-
----
-
-### 5.3 Behavioral & Security Inference
-
-* Active vs passive user behavior
-* Abnormal focus loss patterns
-* Heavy extension likelihood (indirect)
-* Throttling / power-save detection
-* Device fingerprint consistency score
-* Capability mismatch anomalies
+```
+js_heap_limit_mb
+js_heap_total_mb
+js_heap_used_mb
+heap_growth_mb
+event_loop_delay_ms
+long_task_count
+timer_throttling_detected
+```
 
 ---
 
-## 6. Explicit Technical Limitations (Declared)
+## 9️⃣ Continuous – Page, Focus & Engagement
 
-The system **does not** and **cannot** access:
-
-* Installed applications
-* Browser extensions
-* Running OS processes
-* Background system activity
-* Per-tab memory of other tabs
-* OS CPU usage
-* File system or personal data
-* MAC / IMEI / hardware serials
-
-These limitations are enforced by browser security models.
+```
+tab_visibility              (visible / hidden)
+window_has_focus
+foreground_time_sec
+background_time_sec
+idle_time_sec
+focus_loss_count
+```
 
 ---
 
-## 7. Compliance & Audit Statement (Use As-Is)
+## 🔟 Continuous – Camera Activity (If Permission Granted)
 
-> “The solution collects **static device context**, **continuous runtime telemetry**, and **derived inference signals** strictly limited to browser-exposed information.
-> No access is made to installed software, browser extensions, background processes, or system-level identifiers, ensuring compliance with RBI, CERT-In, ISO 27001, and privacy principles.”
+```
+camera_permission
+camera_active
+camera_active_ratio
+camera_fps
+camera_fps_drops
+camera_freeze_events
+camera_switch_count
+virtual_camera_suspected
+```
 
 ---
 
-If you want, next I can:
+## 1️⃣1️⃣ Continuous – Microphone Activity (If Permission Granted)
 
-* Convert this into **BRD / PRD**
-* Map each item to **RBI / CERT-In clauses**
-* Provide **data schemas & retention strategy**
-* Provide **final hardened JS implementation**
+```
+mic_permission
+mic_active
+mic_activity_ratio
+mic_volume_avg
+mic_silence_ratio
+background_noise_level      (Low / Medium / High)
+mic_mute_toggle_count
+```
 
-Just confirm the next step.
+---
+
+## 1️⃣2️⃣ Continuous – Screen / Tab Share Activity (If Permission Granted)
+
+```
+screen_share_permission
+screen_share_active
+screen_share_type           (Screen / Window / Tab)
+screen_share_resolution
+screen_share_fps
+screen_freeze_events
+screen_focus_loss_count
+screen_share_interruptions
+```
+
+---
+
+## 1️⃣3️⃣ Continuous – Location Runtime (If Permission Granted)
+
+```
+location_permission
+latitude
+longitude
+location_accuracy_m
+movement_speed_mps
+location_change_count
+geofence_violation
+```
+
+---
+
+## 1️⃣4️⃣ Continuous – Clipboard & File Interaction (If Permission Granted)
+
+```
+clipboard_permission
+copy_event_count
+paste_event_count
+file_upload_count
+file_type
+file_size_kb
+file_checksum
+file_reuse_detected
+aborted_upload_count
+```
+
+---
+
+## 1️⃣5️⃣ Continuous – Advanced Device Interaction (If Used)
+
+```
+advanced_device_used
+advanced_device_type         (Bluetooth / USB / HID / NFC)
+device_vendor_id
+device_product_id
+device_interaction_count
+device_disconnect_count
+```
+
+---
+
+## 1️⃣6️⃣ Inferred – Agent Presence & Behaviour
+
+```
+screen_presence_ratio
+camera_presence_ratio
+mic_presence_ratio
+idle_ratio
+multitasking_likelihood     (Low / Medium / High)
+```
+
+---
+
+## 1️⃣7️⃣ Inferred – Session Integrity & Network Quality
+
+```
+network_stability_score
+session_reliability_score
+throttling_likelihood       (Low / Medium / High)
+device_stability_score
+```
+
+---
+
+## 1️⃣8️⃣ Inferred – Supervision & Risk Scores
+
+```
+agent_presence_score
+session_integrity_score
+network_reliability_score
+composite_agent_risk_score
+risk_level                  (Low / Medium / High / Critical)
+```
+
+---
+
+## 1️⃣9️⃣ Governance & Audit
+
+```
+consent_version
+consent_timestamp
+data_retention_policy
+audit_reference_id
+```
+
+---
+
+# ✅ HOW TO USE THIS IN EXCEL (Recommended)
+
+* **Row 1** → Paste all headers
+* **One row per record**
+
+  * STATIC → once per session
+  * CONTINUOUS → every N seconds
+* Use **Pivot Tables** on:
+
+  * `agent_id`
+  * `session_id`
+  * `risk_level`
+* Charts:
+
+  * Presence vs Risk
+  * Network stability vs Failures
+  * Agent score distribution
+
+---
+
+## Final Compliance Note (Internal)
+
+> This schema contains **only browser-exposed and consent-driven telemetry**, structured for analytics without requiring joins or enrichment, and is suitable for RBI / CERT-In audits.
+
+---
+
+### Next (If You Want)
+
+* 📁 **Pre-filled Excel (.xlsx) template**
+* 📈 **Ready-made pivot dashboards**
+* 🧮 **Score calibration thresholds**
+* 🧾 **Audit evidence checklist**
+
+Just tell me what to deliver next.

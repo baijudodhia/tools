@@ -1,211 +1,326 @@
-Below is a **single, flat, Excel-ready data schema** designed so that:
+Below is the **FINAL, EXCEL-READY COLUMN HEADER FILE** aligned with the **revised FSD** (permission-based fully merged into Static / Continuous / Inferred).
 
-* **Each row = one record** (static snapshot or continuous sample)
-* You can **paste directly into Excel**
-* Business, Tech, Risk teams can **analyze without joins**
-* Works for **time-series, averages, pivots, dashboards**
-
-This is a **canonical schema** you can adopt as-is.
+You can **copy-paste this directly into Excel (Row 1)**.
+This is a **single flat schema**, analytics-friendly, audit-safe, and scalable.
 
 ---
 
-# 📊 CLIENT TELEMETRY – EXCEL-READY DATA SCHEMA
+# 📊 FINAL EXCEL COLUMN HEADER FILE
 
-## 1️⃣ Record Metadata (MANDATORY)
+## Client / Agent Telemetry – High Scrutiny Mode
 
-| Column Name  | Type          | Description                               |
-| ------------ | ------------- | ----------------------------------------- |
-| record_id    | String        | UUID for this record                      |
-| session_id   | String        | Logical session identifier                |
-| user_id      | String        | Internal user/customer ID (if applicable) |
-| record_type  | Enum          | STATIC / CONTINUOUS                       |
-| collected_at | ISO Timestamp | When record was captured                  |
-| page_url     | String        | Page where capture happened               |
-| app_version  | String        | Frontend application version              |
+---
+
+## 1️⃣ Record & Session Metadata
+
+```
+record_id
+session_id
+user_id
+agent_id
+record_type                (STATIC / CONTINUOUS)
+collected_at
+page_url
+app_name
+app_version
+environment                (PROD / UAT / QA)
+```
 
 ---
 
 ## 2️⃣ Static – Device & Hardware
 
-| Column Name      | Type    | Description                      |
-| ---------------- | ------- | -------------------------------- |
-| platform         | String  | OS platform (Win32, Linux, etc.) |
-| architecture     | String  | CPU architecture                 |
-| cpu_cores        | Number  | Logical CPU cores                |
-| device_memory_gb | Number  | Approx RAM in GB                 |
-| gpu_vendor       | String  | GPU vendor (WebGL)               |
-| gpu_renderer     | String  | GPU renderer                     |
-| device_class     | Enum    | Mobile / Desktop / Tablet        |
-| touch_supported  | Boolean | Touch capability                 |
-| max_touch_points | Number  | Max touch inputs                 |
+```
+platform
+architecture
+cpu_cores
+device_memory_gb
+gpu_vendor
+gpu_renderer
+device_class               (Desktop / Laptop / Mobile)
+touch_supported
+max_touch_points
+battery_supported
+```
 
 ---
 
 ## 3️⃣ Static – Display & Visual
 
-| Column Name   | Type    | Description        |
-| ------------- | ------- | ------------------ |
-| screen_width  | Number  | Screen width       |
-| screen_height | Number  | Screen height      |
-| avail_width   | Number  | Available width    |
-| avail_height  | Number  | Available height   |
-| pixel_ratio   | Number  | Device pixel ratio |
-| color_depth   | Number  | Color depth (bits) |
-| color_gamut   | Enum    | sRGB / P3          |
-| hdr_supported | Boolean | HDR support        |
+```
+screen_width
+screen_height
+avail_width
+avail_height
+pixel_ratio
+color_depth
+color_gamut                (sRGB / P3)
+hdr_supported
+```
 
 ---
 
-## 4️⃣ Static – Browser & Locale
+## 4️⃣ Static – Browser, Runtime & Locale
 
-| Column Name     | Type    | Description               |
-| --------------- | ------- | ------------------------- |
-| browser_name    | String  | Browser family            |
-| browser_version | String  | Browser version           |
-| user_agent      | String  | Full UA string            |
-| ua_arch         | String  | UA-CH architecture        |
-| language        | String  | Primary language          |
-| languages       | String  | Comma-separated languages |
-| timezone_offset | Number  | Minutes offset            |
-| do_not_track    | Boolean | DNT flag                  |
-| pdf_viewer      | Boolean | Built-in PDF viewer       |
-
----
-
-## 5️⃣ Static – API Capability Surface (BOOLEAN FLAGS)
-
-*(These are extremely valuable for analytics & fingerprinting)*
-
-| Column Name          | Type    | Description        |
-| -------------------- | ------- | ------------------ |
-| api_webgl2           | Boolean | WebGL2 supported   |
-| api_webgpu           | Boolean | WebGPU supported   |
-| api_webrtc           | Boolean | WebRTC supported   |
-| api_wasm             | Boolean | WebAssembly        |
-| api_service_worker   | Boolean | Service Worker     |
-| api_push             | Boolean | Push API           |
-| api_bg_sync          | Boolean | Background Sync    |
-| api_clipboard        | Boolean | Clipboard API      |
-| api_media_devices    | Boolean | Camera/Mic APIs    |
-| api_webauthn         | Boolean | WebAuthn           |
-| api_payment          | Boolean | Payment Request    |
-| api_fs_access        | Boolean | File System Access |
-| api_offscreen_canvas | Boolean | OffscreenCanvas    |
-| api_audio_context    | Boolean | AudioContext       |
-| api_indexeddb        | Boolean | IndexedDB          |
+```
+browser_name
+browser_version
+rendering_engine
+js_engine_inferred
+user_agent
+ua_arch
+language
+languages
+timezone_offset_minutes
+do_not_track
+pdf_viewer_enabled
+```
 
 ---
 
-## 6️⃣ Static – Storage & Security
+## 5️⃣ Static – Web API & Capability Surface
 
-| Column Name           | Type    | Description       |
-| --------------------- | ------- | ----------------- |
-| cookies_enabled       | Boolean | Cookies enabled   |
-| local_storage         | Boolean | localStorage      |
-| session_storage       | Boolean | sessionStorage    |
-| indexeddb             | Boolean | IndexedDB         |
-| https                 | Boolean | HTTPS             |
-| secure_context        | Boolean | Secure context    |
-| cross_origin_isolated | Boolean | COOP/COEP enabled |
+```
+api_webgl
+api_webgl2
+api_webgpu
+api_webrtc
+api_wasm
+api_service_worker
+api_push
+api_bg_sync
+api_media_devices
+api_clipboard
+api_webauthn
+api_payment_request
+api_file_system_access
+api_offscreen_canvas
+api_audio_context
+api_indexeddb
+api_shared_array_buffer
+api_drm_supported
+```
+
+---
+
+## 6️⃣ Static – Permission-Aware Capabilities
+
+```
+camera_available
+camera_device_count
+microphone_available
+microphone_device_count
+location_capable
+advanced_device_capable     (Bluetooth/USB/HID/NFC)
+```
 
 ---
 
 ## 7️⃣ Continuous – Network Metrics
 
-*(New row every interval)*
-
-| Column Name          | Type    | Description                 |
-| -------------------- | ------- | --------------------------- |
-| online               | Boolean | Online state                |
-| effective_connection | String  | 2g / 3g / 4g / wifi         |
-| rtt_ms               | Number  | Round-trip time             |
-| downlink_mbps        | Number  | Downlink speed              |
-| save_data            | Boolean | Save-Data enabled           |
-| network_change_count | Number  | Changes since session start |
-
----
-
-## 8️⃣ Continuous – Memory (Browser JS Only)
-
-| Column Name      | Type   | Description                |
-| ---------------- | ------ | -------------------------- |
-| js_heap_limit_mb | Number | Heap limit                 |
-| js_heap_total_mb | Number | Total allocated            |
-| js_heap_used_mb  | Number | Used heap                  |
-| heap_growth_mb   | Number | Delta from previous sample |
+```
+online
+effective_connection_type
+rtt_ms
+downlink_mbps
+rtt_jitter_ms
+network_change_count
+save_data_enabled
+```
 
 ---
 
-## 9️⃣ Continuous – Performance & Activity
+## 8️⃣ Continuous – Browser Resource & Load
 
-| Column Name         | Type    | Description                  |
-| ------------------- | ------- | ---------------------------- |
-| event_loop_delay_ms | Number  | Avg loop delay               |
-| long_task_count     | Number  | Long tasks since last sample |
-| frame_drop_estimate | Number  | Rendering stress proxy       |
-| tab_visibility      | Enum    | visible / hidden             |
-| has_focus           | Boolean | Window focus                 |
-| idle_time_sec       | Number  | Idle duration                |
-
----
-
-## 🔟 Continuous – Battery (If Available)
-
-| Column Name        | Type    | Description    |
-| ------------------ | ------- | -------------- |
-| battery_level      | Number  | 0–1            |
-| charging           | Boolean | Charging state |
-| battery_drain_rate | Number  | % per minute   |
+```
+js_heap_limit_mb
+js_heap_total_mb
+js_heap_used_mb
+heap_growth_mb
+event_loop_delay_ms
+long_task_count
+timer_throttling_detected
+```
 
 ---
 
-## 1️⃣1️⃣ Inferred / Derived Metrics
+## 9️⃣ Continuous – Page, Focus & Engagement
 
-| Column Name                | Type    | Description         |
-| -------------------------- | ------- | ------------------- |
-| device_tier                | Enum    | Low / Medium / High |
-| network_stability_score    | Number  | 0–100               |
-| latency_jitter_ms          | Number  | RTT variance        |
-| memory_pressure            | Enum    | Low / Medium / High |
-| background_load_likelihood | Enum    | Low / Medium / High |
-| throttling_detected        | Boolean | Timer / rAF drift   |
-| fingerprint_hash           | String  | Stable non-PII hash |
-| risk_score                 | Number  | Composite score     |
+```
+tab_visibility              (visible / hidden)
+window_has_focus
+foreground_time_sec
+background_time_sec
+idle_time_sec
+focus_loss_count
+```
 
 ---
 
-# 📈 HOW THIS WORKS IN EXCEL
+## 🔟 Continuous – Camera Activity (If Permission Granted)
 
-### Typical Analytics You Can Do Immediately
-
-* Pivot by **browser_version vs failures**
-* Avg **RTT vs conversion**
-* Device tier vs success rate
-* Network stability vs drop-off
-* Memory pressure vs crashes
-* Risk score distribution
-
-### Recommended Excel Usage
-
-* **Sheet 1:** Static records
-* **Sheet 2:** Continuous samples
-* Use `session_id` to correlate
-* Use PivotTables + Charts
+```
+camera_permission
+camera_active
+camera_active_ratio
+camera_fps
+camera_fps_drops
+camera_freeze_events
+camera_switch_count
+virtual_camera_suspected
+```
 
 ---
 
-## Final Compliance Statement (Internal Use)
+## 1️⃣1️⃣ Continuous – Microphone Activity (If Permission Granted)
 
-> “All columns are derived exclusively from browser-exposed runtime information and computed inferences. No personal files, installed applications, browser extensions, or system-level identifiers are collected.”
+```
+mic_permission
+mic_active
+mic_activity_ratio
+mic_volume_avg
+mic_silence_ratio
+background_noise_level      (Low / Medium / High)
+mic_mute_toggle_count
+```
 
 ---
 
-### If you want next
+## 1️⃣2️⃣ Continuous – Screen / Tab Share Activity (If Permission Granted)
 
-* Excel **template file (.xlsx)**
-* Sample **dummy dataset**
-* Recommended **pivot dashboards**
-* **Backend table DDL**
-* Data **retention & masking strategy**
+```
+screen_share_permission
+screen_share_active
+screen_share_type           (Screen / Window / Tab)
+screen_share_resolution
+screen_share_fps
+screen_freeze_events
+screen_focus_loss_count
+screen_share_interruptions
+```
 
-Tell me what you want next.
+---
+
+## 1️⃣3️⃣ Continuous – Location Runtime (If Permission Granted)
+
+```
+location_permission
+latitude
+longitude
+location_accuracy_m
+movement_speed_mps
+location_change_count
+geofence_violation
+```
+
+---
+
+## 1️⃣4️⃣ Continuous – Clipboard & File Interaction (If Permission Granted)
+
+```
+clipboard_permission
+copy_event_count
+paste_event_count
+file_upload_count
+file_type
+file_size_kb
+file_checksum
+file_reuse_detected
+aborted_upload_count
+```
+
+---
+
+## 1️⃣5️⃣ Continuous – Advanced Device Interaction (If Used)
+
+```
+advanced_device_used
+advanced_device_type         (Bluetooth / USB / HID / NFC)
+device_vendor_id
+device_product_id
+device_interaction_count
+device_disconnect_count
+```
+
+---
+
+## 1️⃣6️⃣ Inferred – Agent Presence & Behaviour
+
+```
+screen_presence_ratio
+camera_presence_ratio
+mic_presence_ratio
+idle_ratio
+multitasking_likelihood     (Low / Medium / High)
+```
+
+---
+
+## 1️⃣7️⃣ Inferred – Session Integrity & Network Quality
+
+```
+network_stability_score
+session_reliability_score
+throttling_likelihood       (Low / Medium / High)
+device_stability_score
+```
+
+---
+
+## 1️⃣8️⃣ Inferred – Supervision & Risk Scores
+
+```
+agent_presence_score
+session_integrity_score
+network_reliability_score
+composite_agent_risk_score
+risk_level                  (Low / Medium / High / Critical)
+```
+
+---
+
+## 1️⃣9️⃣ Governance & Audit
+
+```
+consent_version
+consent_timestamp
+data_retention_policy
+audit_reference_id
+```
+
+---
+
+# ✅ HOW TO USE THIS IN EXCEL (Recommended)
+
+* **Row 1** → Paste all headers
+* **One row per record**
+
+  * STATIC → once per session
+  * CONTINUOUS → every N seconds
+* Use **Pivot Tables** on:
+
+  * `agent_id`
+  * `session_id`
+  * `risk_level`
+* Charts:
+
+  * Presence vs Risk
+  * Network stability vs Failures
+  * Agent score distribution
+
+---
+
+## Final Compliance Note (Internal)
+
+> This schema contains **only browser-exposed and consent-driven telemetry**, structured for analytics without requiring joins or enrichment, and is suitable for RBI / CERT-In audits.
+
+---
+
+### Next (If You Want)
+
+* 📁 **Pre-filled Excel (.xlsx) template**
+* 📈 **Ready-made pivot dashboards**
+* 🧮 **Score calibration thresholds**
+* 🧾 **Audit evidence checklist**
+
+Just tell me what to deliver next.

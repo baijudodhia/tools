@@ -15,6 +15,7 @@
         <button id="btnStart">Start Continuous</button>
         <button id="btnStop">Stop Continuous</button>
         <button id="btnExport">Export JSON</button>
+        <button id="btnExportCSV">Export CSV (Excel)</button>
         <button id="btnClear">Clear Display</button>
     </div>
 
@@ -48,9 +49,12 @@
         <pre id="allTelemetry"></pre>
     </div>
 
+    <script src="metadata.js"></script>
     <script src="static-telemetry.js"></script>
     <script src="continuous-telemetry.js"></script>
+    <script src="permission-telemetry.js"></script>
     <script src="inferred-telemetry.js"></script>
+    <script src="schema-exporter.js"></script>
     <script src="telemetry.js"></script>
     <script>
         // Initialize telemetry collector
@@ -64,6 +68,7 @@
         const btnStart = document.getElementById('btnStart');
         const btnStop = document.getElementById('btnStop');
         const btnExport = document.getElementById('btnExport');
+        const btnExportCSV = document.getElementById('btnExportCSV');
         const btnClear = document.getElementById('btnClear');
         const statusDiv = document.getElementById('status');
         const staticDiv = document.getElementById('staticTelemetry');
@@ -157,9 +162,27 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                updateStatus('Exported to file');
+                updateStatus('Exported JSON to file');
             } catch (error) {
                 updateStatus(`Export error: ${error.message}`);
+            }
+        });
+
+        btnExportCSV.addEventListener('click', () => {
+            try {
+                const csv = telemetry.exportToCSV();
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `telemetry-${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                updateStatus('Exported CSV to file (Excel-ready)');
+            } catch (error) {
+                updateStatus(`CSV Export error: ${error.message}`);
             }
         });
 

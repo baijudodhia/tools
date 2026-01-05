@@ -8,12 +8,24 @@ class TelemetryCollector {
     this.options = {
       continuousInterval: options.continuousInterval || 5000,
       autoStart: options.autoStart !== false,
+      appName: options.appName || 'SystemTrace',
+      appVersion: options.appVersion || '1.0.0',
+      environment: options.environment || 'PROD',
+      userId: options.userId || null,
+      agentId: options.agentId || null,
+      consentVersion: options.consentVersion || '1.0',
+      consentTimestamp: options.consentTimestamp || new Date().toISOString(),
+      dataRetentionPolicy: options.dataRetentionPolicy || '90d',
+      auditReferenceId: options.auditReferenceId || null,
       ...options
     };
 
+    this.metadata = new MetadataManager(this.options);
     this.staticTelemetry = new StaticTelemetry();
     this.continuousTelemetry = new ContinuousTelemetry(this.options.continuousInterval);
+    this.permissionTelemetry = new PermissionTelemetry();
     this.inferredTelemetry = null;
+    this.schemaExporter = new SchemaExporter(this.metadata);
 
     this.staticData = null;
     this.isInitialized = false;
@@ -31,10 +43,11 @@ class TelemetryCollector {
     if (this.isInitialized) return this.staticData;
 
     try {
-      this.staticData = this.staticTelemetry.collect();
+      this.staticData = await this.staticTelemetry.collect();
       this.inferredTelemetry = new InferredTelemetry(
         this.staticData,
-        this.continuousTelemetry.getSamples()
+        this.continuousTelemetry.getSamples(),
+        this.options.continuousInterval
       );
 
       this.isInitialized = true;
@@ -84,6 +97,7 @@ class TelemetryCollector {
     // Update inferred telemetry with new samples
     if (this.inferredTelemetry) {
       this.inferredTelemetry.continuousSamples = this.continuousTelemetry.getSamples();
+      this.inferredTelemetry.setPermissionMetrics(this.permissionTelemetry.getAllMetrics());
     }
 
     // Trigger callback
@@ -230,18 +244,123 @@ class TelemetryCollector {
   }
 
   /**
+   * Export static telemetry as flat schema row
+   */
+  exportStaticRow() {
+    if (!this.staticData) return null;
+    return this.schemaExporter.exportStatic(this.staticData);
+  }
+
+  /**
+   * Export continuous telemetry as flat schema rows
+   */
+  exportContinuousRows() {
+    const samples = this.continuousTelemetry.getSamples();
+    const permissionMetrics = this.permissionTelemetry.getAllMetrics();
+    const inferred = this.inferredTelemetry ? this.inferredTelemetry.infer() : null;
+
+    return samples.map(sample =>
+      this.schemaExporter.exportContinuous(sample, permissionMetrics, inferred)
+    );
+  }
+
+  /**
+   * Export all telemetry as CSV (Excel-ready)
+   */
+  exportToCSV() {
+    const rows = [];
+
+    // Add static row
+    const staticRow = this.exportStaticRow();
+    if (staticRow) rows.push(staticRow);
+
+    // Add continuous rows
+    const continuousRows = this.exportContinuousRows();
+    rows.push(...continuousRows);
+
+    return this.schemaExporter.exportToCSV(rows);
+  }
+
+  /**
+   * Get Excel column headers
+   */
+  getColumnHeaders() {
+    return this.schemaExporter.getColumnHeaders();
+  }
+
+  /**
+   * Permission-based monitoring controls
+   */
+  async startCameraMonitoring() {
+    await this.permissionTelemetry.startCameraMonitoring();
+  }
+
+  stopCameraMonitoring() {
+    this.permissionTelemetry.stopCameraMonitoring();
+  }
+
+  async startMicrophoneMonitoring() {
+    await this.permissionTelemetry.startMicrophoneMonitoring();
+  }
+
+  stopMicrophoneMonitoring() {
+    this.permissionTelemetry.stopMicrophoneMonitoring();
+  }
+
+  async startScreenShareMonitoring() {
+    await this.permissionTelemetry.startScreenShareMonitoring();
+  }
+
+  stopScreenShareMonitoring() {
+    this.permissionTelemetry.stopScreenShareMonitoring();
+  }
+
+  async startLocationMonitoring() {
+    await this.permissionTelemetry.startLocationMonitoring();
+  }
+
+  stopLocationMonitoring() {
+    this.permissionTelemetry.stopLocationMonitoring();
+  }
+
+  /**
+   * Update metadata
+   */
+  setUserId(userId) {
+    this.metadata.setUserId(userId);
+  }
+
+  setAgentId(agentId) {
+    this.metadata.setAgentId(agentId);
+  }
+
+  updateConsent(version, timestamp) {
+    this.metadata.updateConsent(version, timestamp);
+  }
+
+  /**
    * Reset all telemetry (useful for testing)
    */
   reset() {
     this.stop();
+    this.permissionTelemetry.cleanup();
     this.staticData = null;
     this.isInitialized = false;
     this.continuousTelemetry = new ContinuousTelemetry(this.options.continuousInterval);
+    this.permissionTelemetry = new PermissionTelemetry();
     this.inferredTelemetry = null;
   }
 }
 
 // Export for use in modules or global scope
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { TelemetryCollector, StaticTelemetry, ContinuousTelemetry, InferredTelemetry };
+  module.exports = {
+    TelemetryCollector,
+    StaticTelemetry,
+    ContinuousTelemetry,
+    InferredTelemetry,
+    PermissionTelemetry,
+    MetadataManager,
+    SchemaExporter
+  };
 }
