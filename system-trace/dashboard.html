@@ -245,6 +245,7 @@
 
     <!-- Load telemetry modules -->
     <script src="metadata.js"></script>
+    <script src="network-speed-test.js"></script>
     <script src="static-telemetry.js"></script>
     <script src="continuous-telemetry.js"></script>
     <script src="permission-telemetry.js"></script>
@@ -263,6 +264,7 @@
         // Initialize telemetry
         const telemetry = new TelemetryCollector({
             continuousInterval: 5000,
+            speedTestInterval: 30000, // Speed test every 30 seconds
             autoStart: false
         });
 
@@ -633,7 +635,22 @@
             chartInstances.network.data.labels = dataHistory.timestamps.slice(-20);
             chartInstances.network.data.datasets[0].data = dataHistory.rtt.slice(-20);
             chartInstances.network.data.datasets[1].data = dataHistory.downlink.slice(-20);
+            if (dataHistory.downloadSpeed) {
+                chartInstances.network.data.datasets[2].data = dataHistory.downloadSpeed.slice(-20);
+            }
+            if (dataHistory.uploadSpeed) {
+                chartInstances.network.data.datasets[3].data = dataHistory.uploadSpeed.slice(-20);
+            }
             chartInstances.network.update('none');
+
+            // Update speed test display
+            const speedResult = telemetry.networkSpeedTest.getLatestResult();
+            if (speedResult) {
+                document.getElementById('downloadSpeed').textContent =
+                    (speedResult.download_speed_mbps || '--') + ' Mbps';
+                document.getElementById('uploadSpeed').textContent =
+                    (speedResult.upload_speed_mbps || '--') + ' Mbps';
+            }
 
             chartInstances.memory.data.labels = dataHistory.timestamps.slice(-20);
             chartInstances.memory.data.datasets[0].data = dataHistory.memoryUsed.slice(-20);

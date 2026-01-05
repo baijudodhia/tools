@@ -27,6 +27,7 @@ class TelemetryCollector {
     this.productTelemetry = new ProductTelemetry();
     this.performanceTelemetry = new PerformanceTelemetry();
     this.networkTelemetry = new NetworkTelemetry();
+    this.networkSpeedTest = new NetworkSpeedTest(this.options.speedTestInterval || 30000);
     this.reliabilityTelemetry = new ReliabilityTelemetry();
     this.mediaTelemetry = new MediaTelemetry();
     this.environmentTelemetry = new EnvironmentTelemetry();
@@ -69,6 +70,10 @@ class TelemetryCollector {
 
       // Start network monitoring
       this.networkTelemetry.startObserving();
+
+      // Start network speed testing
+      this.networkSpeedTest.start();
+      this.continuousTelemetry.setSpeedTest(this.networkSpeedTest);
 
       // Start reliability monitoring
       this.reliabilityTelemetry.startMonitoring();
@@ -514,6 +519,7 @@ class TelemetryCollector {
     this.permissionTelemetry.cleanup();
     this.performanceTelemetry.cleanup();
     this.networkTelemetry.stopObserving();
+    this.networkSpeedTest.stop();
     this.mediaTelemetry.stopWebRTCCollection();
     this.staticData = null;
     this.isInitialized = false;
@@ -522,6 +528,7 @@ class TelemetryCollector {
     this.productTelemetry = new ProductTelemetry();
     this.performanceTelemetry = new PerformanceTelemetry();
     this.networkTelemetry = new NetworkTelemetry();
+    this.networkSpeedTest = new NetworkSpeedTest(this.options.speedTestInterval || 30000);
     this.reliabilityTelemetry = new ReliabilityTelemetry();
     this.mediaTelemetry = new MediaTelemetry();
     this.environmentTelemetry = new EnvironmentTelemetry();

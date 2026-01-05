@@ -101,6 +101,7 @@
 
     <!-- Core Telemetry Modules -->
     <script src="metadata.js"></script>
+    <script src="network-speed-test.js"></script>
     <script src="static-telemetry.js"></script>
     <script src="continuous-telemetry.js"></script>
     <script src="permission-telemetry.js"></script>
@@ -139,8 +140,9 @@
         const allDiv = document.getElementById('allTelemetry');
         const productDiv = document.getElementById('productTelemetry');
         const performanceDiv = document.getElementById('performanceTelemetry');
-        const networkDiv = document.getElementById('networkTelemetry');
-        const reliabilityDiv = document.getElementById('reliabilityTelemetry');
+                const networkDiv = document.getElementById('networkTelemetry');
+                const speedTestDiv = document.getElementById('speedTestTelemetry');
+                const reliabilityDiv = document.getElementById('reliabilityTelemetry');
         const tableHeader = document.getElementById('tableHeader');
         const tableBody = document.getElementById('tableBody');
         const tableRowCount = document.getElementById('tableRowCount');
@@ -203,6 +205,17 @@
                     productDiv.textContent = JSON.stringify(extended.product, null, 2);
                     performanceDiv.textContent = JSON.stringify(extended.performance, null, 2);
                     networkDiv.textContent = JSON.stringify(extended.network, null, 2);
+
+                    // Speed test results
+                    const speedStats = telemetry.networkSpeedTest.getStatistics();
+                    const speedTrend = telemetry.networkSpeedTest.getSpeedTrend();
+                    const latestSpeed = telemetry.networkSpeedTest.getLatestResult();
+                    speedTestDiv.textContent = JSON.stringify({
+                        latest: latestSpeed,
+                        statistics: speedStats,
+                        trend: speedTrend
+                    }, null, 2);
+
                     reliabilityDiv.textContent = JSON.stringify(extended.reliability.summary, null, 2);
                 } catch (e) {
                     // Extended data not available yet

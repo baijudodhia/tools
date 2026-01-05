@@ -140,7 +140,25 @@ class ContinuousTelemetry {
       result.networkChangeCount = this.networkChangeCount;
     }
 
+    // Add speed test results if available
+    if (this.speedTest) {
+      const speedResult = this.speedTest.getLatestResult();
+      if (speedResult) {
+        result.download_speed_mbps = speedResult.download_speed_mbps;
+        result.upload_speed_mbps = speedResult.upload_speed_mbps;
+        result.speed_test_timestamp = speedResult.timestamp;
+        result.speed_test_method = speedResult.method;
+      }
+    }
+
     return result;
+  }
+
+  /**
+   * Set speed test instance
+   */
+  setSpeedTest(speedTest) {
+    this.speedTest = speedTest;
   }
 
   calculateRTTJitter() {

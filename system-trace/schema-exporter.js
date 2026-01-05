@@ -106,6 +106,10 @@ class SchemaExporter {
       rtt_jitter_ms: null,
       network_change_count: null,
       save_data_enabled: null,
+      download_speed_mbps: null,
+      upload_speed_mbps: null,
+      speed_test_method: null,
+      speed_test_timestamp: null,
       connection_tier: null,
       slow_connection_detected: null,
       js_heap_limit_mb: null,
@@ -330,9 +334,15 @@ class SchemaExporter {
       network_change_count: network.networkChangeCount || 0,
       save_data_enabled: network.saveData || false,
 
+      // Speed Test Results
+      download_speed_mbps: network.download_speed_mbps || null,
+      upload_speed_mbps: network.upload_speed_mbps || null,
+      speed_test_method: network.speed_test_method || null,
+      speed_test_timestamp: network.speed_test_timestamp || null,
+
       // Connection-Aware UX Detection
-      connection_tier: this.detectConnectionTier(network.rtt, network.downlinkSpeed),
-      slow_connection_detected: this.isSlowConnection(network.rtt, network.downlinkSpeed),
+      connection_tier: this.detectConnectionTier(network.rtt, network.downlinkSpeed || network.download_speed_mbps),
+      slow_connection_detected: this.isSlowConnection(network.rtt, network.downlinkSpeed || network.download_speed_mbps),
 
       // Resource Timing Summary (Network Telemetry)
       resource_timing_avg_total_ms: net.avg_total_ms || null,
@@ -481,7 +491,7 @@ class SchemaExporter {
       'browser_name', 'browser_version', 'rendering_engine', 'js_engine_inferred', 'user_agent', 'ua_arch', 'language', 'languages', 'timezone_offset_minutes', 'do_not_track', 'pdf_viewer_enabled',
       'api_webgl', 'api_webgl2', 'api_webgpu', 'api_webrtc', 'api_wasm', 'api_service_worker', 'api_push', 'api_bg_sync', 'api_media_devices', 'api_clipboard', 'api_webauthn', 'api_payment_request', 'api_file_system_access', 'api_offscreen_canvas', 'api_audio_context', 'api_indexeddb', 'api_shared_array_buffer', 'api_drm_supported',
       'camera_available', 'camera_device_count', 'microphone_available', 'microphone_device_count', 'location_capable', 'advanced_device_capable',
-      'online', 'effective_connection_type', 'rtt_ms', 'downlink_mbps', 'rtt_jitter_ms', 'network_change_count', 'save_data_enabled', 'connection_tier', 'slow_connection_detected',
+      'online', 'effective_connection_type', 'rtt_ms', 'downlink_mbps', 'rtt_jitter_ms', 'network_change_count', 'save_data_enabled', 'download_speed_mbps', 'upload_speed_mbps', 'speed_test_method', 'speed_test_timestamp', 'connection_tier', 'slow_connection_detected',
       'js_heap_limit_mb', 'js_heap_total_mb', 'js_heap_used_mb', 'heap_growth_mb', 'event_loop_delay_ms', 'long_task_count', 'timer_throttling_detected',
       'LCP_ms', 'INP_ms', 'CLS', 'TTFB_ms', 'FCP_ms', 'DOMContentLoaded_ms', 'Load_ms', 'time_to_interactive_ms',
       'hardware_acceleration', 'renderer_path',
