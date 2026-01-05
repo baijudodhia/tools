@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Trace Telemetry</title>
+</head>
+<body>
+    <h1>System Trace Telemetry Collection</h1>
+    <p>Client-side device, browser & runtime telemetry collection system</p>
+
+    <div>
+        <h2>Controls</h2>
+        <button id="btnInit">Initialize</button>
+        <button id="btnStart">Start Continuous</button>
+        <button id="btnStop">Stop Continuous</button>
+        <button id="btnExport">Export JSON</button>
+        <button id="btnClear">Clear Display</button>
+    </div>
+
+    <div>
+        <h2>Status</h2>
+        <div id="status">Not initialized</div>
+    </div>
+
+    <div>
+        <h2>Static Telemetry</h2>
+        <pre id="staticTelemetry"></pre>
+    </div>
+
+    <div>
+        <h2>Continuous Telemetry (Latest Sample)</h2>
+        <pre id="continuousTelemetry"></pre>
+    </div>
+
+    <div>
+        <h2>Continuous Statistics</h2>
+        <pre id="continuousStats"></pre>
+    </div>
+
+    <div>
+        <h2>Inferred Telemetry</h2>
+        <pre id="inferredTelemetry"></pre>
+    </div>
+
+    <div>
+        <h2>All Telemetry (JSON)</h2>
+        <pre id="allTelemetry"></pre>
+    </div>
+
+    <script src="static-telemetry.js"></script>
+    <script src="continuous-telemetry.js"></script>
+    <script src="inferred-telemetry.js"></script>
+    <script src="telemetry.js"></script>
+    <script>
+        // Initialize telemetry collector
+        const telemetry = new TelemetryCollector({
+            continuousInterval: 5000,
+            autoStart: false
+        });
+
+        // UI Elements
+        const btnInit = document.getElementById('btnInit');
+        const btnStart = document.getElementById('btnStart');
+        const btnStop = document.getElementById('btnStop');
+        const btnExport = document.getElementById('btnExport');
+        const btnClear = document.getElementById('btnClear');
+        const statusDiv = document.getElementById('status');
+        const staticDiv = document.getElementById('staticTelemetry');
+        const continuousDiv = document.getElementById('continuousTelemetry');
+        const continuousStatsDiv = document.getElementById('continuousStats');
+        const inferredDiv = document.getElementById('inferredTelemetry');
+        const allDiv = document.getElementById('allTelemetry');
+
+        // Update status
+        function updateStatus(message) {
+            statusDiv.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+        }
+
+        // Update displays
+        function updateDisplays() {
+            try {
+                const allData = telemetry.getAllTelemetry();
+
+                // Static
+                staticDiv.textContent = JSON.stringify(allData.static, null, 2);
+
+                // Continuous latest
+                if (allData.continuous.latest) {
+                    continuousDiv.textContent = JSON.stringify(allData.continuous.latest, null, 2);
+                } else {
+                    continuousDiv.textContent = 'No samples yet';
+                }
+
+                // Continuous statistics
+                if (allData.continuous.statistics) {
+                    continuousStatsDiv.textContent = JSON.stringify(allData.continuous.statistics, null, 2);
+                } else {
+                    continuousStatsDiv.textContent = 'No statistics available';
+                }
+
+                // Inferred
+                if (allData.inferred) {
+                    inferredDiv.textContent = JSON.stringify(allData.inferred, null, 2);
+                } else {
+                    inferredDiv.textContent = 'No inferred data yet';
+                }
+
+                // All data
+                allDiv.textContent = telemetry.exportJSON();
+            } catch (error) {
+                updateStatus(`Error updating displays: ${error.message}`);
+            }
+        }
+
+        // Event handlers
+        btnInit.addEventListener('click', async () => {
+            try {
+                updateStatus('Initializing...');
+                await telemetry.initialize();
+                updateStatus('Initialized');
+                updateDisplays();
+            } catch (error) {
+                updateStatus(`Initialization error: ${error.message}`);
+            }
+        });
+
+        btnStart.addEventListener('click', () => {
+            try {
+                telemetry.start();
+                updateStatus('Continuous collection started');
+                updateDisplays();
+            } catch (error) {
+                updateStatus(`Start error: ${error.message}`);
+            }
+        });
+
+        btnStop.addEventListener('click', () => {
+            try {
+                telemetry.stop();
+                updateStatus('Continuous collection stopped');
+                updateDisplays();
+            } catch (error) {
+                updateStatus(`Stop error: ${error.message}`);
+            }
+        });
+
+        btnExport.addEventListener('click', () => {
+            try {
+                const json = telemetry.exportJSON();
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `telemetry-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                updateStatus('Exported to file');
+            } catch (error) {
+                updateStatus(`Export error: ${error.message}`);
+            }
+        });
+
+        btnClear.addEventListener('click', () => {
+            staticDiv.textContent = '';
+            continuousDiv.textContent = '';
+            continuousStatsDiv.textContent = '';
+            inferredDiv.textContent = '';
+            allDiv.textContent = '';
+            updateStatus('Display cleared');
+        });
+
+        // Set up callbacks
+        telemetry.onSample((sample) => {
+            updateDisplays();
+        });
+
+        telemetry.onInferred((inferred) => {
+            updateDisplays();
+        });
+
+        telemetry.onError((error) => {
+            updateStatus(`Error: ${error.message}`);
+            console.error('Telemetry error:', error);
+        });
+
+        // Auto-update display every second
+        setInterval(() => {
+            try {
+                if (telemetry.staticData) {
+                    updateDisplays();
+                }
+            } catch (e) {
+                // Not initialized yet
+            }
+        }, 1000);
+
+        // Auto-initialize on load
+        window.addEventListener('load', () => {
+            btnInit.click();
+        });
+    </script>
+</body>
+</html>
