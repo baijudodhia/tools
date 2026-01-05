@@ -10,6 +10,7 @@ class ReliabilityTelemetry {
     this.websocketDisconnects = [];
     this.webrtcDisconnects = [];
     this.serviceWorkerIssues = [];
+    this.browserReports = [];
     this.crashHints = {
       longTaskMax: 0,
       memPressureEvents: 0,
@@ -278,6 +279,29 @@ class ReliabilityTelemetry {
   }
 
   /**
+   * Track browser report (deprecation, intervention, crash)
+   */
+  trackBrowserReport(report) {
+    if (!report) return;
+
+    const browserReport = {
+      type: report.type || 'unknown',
+      url: report.url || window.location.href,
+      body: report.body || null,
+      timestamp: new Date().toISOString()
+    };
+
+    this.browserReports.push(browserReport);
+
+    // Keep last 100 reports
+    if (this.browserReports.length > 100) {
+      this.browserReports.shift();
+    }
+
+    return browserReport;
+  }
+
+  /**
    * Get all reliability data
    */
   getAllData() {
@@ -287,10 +311,18 @@ class ReliabilityTelemetry {
       websocket_disconnects: this.websocketDisconnects,
       webrtc_disconnects: this.webrtcDisconnects,
       service_worker_issues: this.serviceWorkerIssues,
+      browser_reports: this.browserReports,
       crash_hints: this.getCrashHints(),
       summary: {
         errors: this.getErrorSummary(),
-        network_failures: this.getNetworkFailureSummary()
+        network_failures: this.getNetworkFailureSummary(),
+        browser_reports: {
+          total: this.browserReports.length,
+          by_type: this.browserReports.reduce((acc, report) => {
+            acc[report.type] = (acc[report.type] || 0) + 1;
+            return acc;
+          }, {})
+        }
       }
     };
   }

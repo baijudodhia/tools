@@ -10,6 +10,13 @@ class PerformanceTelemetry {
     this.appTimings = {};
     this.observers = [];
     this.isObserving = false;
+    this.domMutations = {
+      total: 0,
+      childList: 0,
+      attributes: 0,
+      characterData: 0,
+      lastMutationTime: null
+    };
   }
 
   /**
@@ -186,6 +193,28 @@ class PerformanceTelemetry {
   }
 
   /**
+   * Track DOM mutations
+   */
+  trackDOMMutation(count = 1) {
+    this.domMutations.total += count;
+    this.domMutations.lastMutationTime = new Date().toISOString();
+  }
+
+  /**
+   * Track specific DOM mutation type
+   */
+  trackDOMMutationType(type) {
+    if (type === 'childList') {
+      this.domMutations.childList++;
+    } else if (type === 'attributes') {
+      this.domMutations.attributes++;
+    } else if (type === 'characterData') {
+      this.domMutations.characterData++;
+    }
+    this.trackDOMMutation(1);
+  }
+
+  /**
    * Get all performance metrics
    */
   getMetrics() {
@@ -196,7 +225,8 @@ class PerformanceTelemetry {
         CLS: this.coreWebVitals.CLS || null
       },
       navigation_timings: this.navigationTimings,
-      app_timings: this.appTimings
+      app_timings: this.appTimings,
+      dom_mutations: this.domMutations
     };
   }
 

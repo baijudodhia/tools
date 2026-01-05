@@ -26,6 +26,12 @@ class ContinuousTelemetry {
     this.focusLossCount = 0;
     this.lastFocusState = null;
     this.lastHeapSize = null;
+    this.visibilityData = {
+      is_visible: true,
+      intersection_ratio: 1.0,
+      last_visibility_change: null,
+      visibility_history: []
+    };
   }
 
   /**
@@ -342,7 +348,44 @@ class ContinuousTelemetry {
     result.backgroundTime = Math.round((this.backgroundTime || 0) * 100) / 100;
     result.idleDuration = Math.round((result.idleDuration || 0) * 100) / 100;
 
+    // Include visibility data if available
+    if (this.visibilityData) {
+      result.visibility = {
+        is_visible: this.visibilityData.is_visible,
+        intersection_ratio: this.visibilityData.intersection_ratio,
+        last_visibility_change: this.visibilityData.last_visibility_change
+      };
+    }
+
     return result;
+  }
+
+  /**
+   * Track visibility changes from IntersectionObserver
+   */
+  trackVisibility(data) {
+    if (!data) return;
+
+    this.visibilityData.is_visible = data.is_visible !== undefined ? data.is_visible : this.visibilityData.is_visible;
+    this.visibilityData.intersection_ratio = data.intersection_ratio !== undefined
+      ? data.intersection_ratio
+      : this.visibilityData.intersection_ratio;
+    this.visibilityData.last_visibility_change = new Date().toISOString();
+
+    // Store bounding rect if provided
+    if (data.bounding_rect) {
+      this.visibilityData.last_bounding_rect = data.bounding_rect;
+    }
+
+    // Keep history (last 10 entries)
+    this.visibilityData.visibility_history.push({
+      is_visible: this.visibilityData.is_visible,
+      intersection_ratio: this.visibilityData.intersection_ratio,
+      timestamp: this.visibilityData.last_visibility_change
+    });
+    if (this.visibilityData.visibility_history.length > 10) {
+      this.visibilityData.visibility_history.shift();
+    }
   }
 
   calculateIdleDuration() {
