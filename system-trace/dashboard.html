@@ -99,8 +99,8 @@
     </div>
 
     <div class="container mx-auto px-4 py-6">
-        <!-- KPI Metric Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- KPI Metric Cards Row 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <!-- Risk Score -->
             <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
                 <div class="flex items-center justify-between mb-2">
@@ -142,6 +142,264 @@
             </div>
         </div>
 
+        <!-- KPI Metric Cards Row 2 - Performance & Network -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- LCP -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">LCP</span>
+                    <span class="text-xs text-obs-text-muted">ms</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="lcpValue">--</div>
+                <div class="text-xs text-obs-text-muted" id="lcpStatus">--</div>
+            </div>
+
+            <!-- INP -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">INP</span>
+                    <span class="text-xs text-obs-text-muted">ms</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="inpValue">--</div>
+                <div class="text-xs text-obs-text-muted" id="inpStatus">--</div>
+            </div>
+
+            <!-- Download Speed -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">Download Speed</span>
+                    <span class="text-xs text-obs-text-muted">Mbps</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="downloadSpeedKPI">--</div>
+                <div class="text-xs text-obs-text-muted" id="downloadSpeedTrend">--</div>
+            </div>
+
+            <!-- Memory Usage -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">Memory Used</span>
+                    <span class="text-xs text-obs-text-muted">MB</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="memoryUsedKPI">--</div>
+                <div class="text-xs text-obs-text-muted" id="memoryTrend">--</div>
+            </div>
+        </div>
+
+        <!-- KPI Metric Cards Row 3 - Engagement & Errors -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Session Duration -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">Session Duration</span>
+                    <span class="text-xs text-obs-text-muted">sec</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="sessionDuration">--</div>
+                <div class="text-xs text-obs-text-muted" id="sessionDurationTrend">--</div>
+            </div>
+
+            <!-- Click Count -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">User Interactions</span>
+                    <span class="text-xs text-obs-text-muted">clicks</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="clickCount">--</div>
+                <div class="text-xs text-obs-text-muted" id="clickTrend">--</div>
+            </div>
+
+            <!-- Error Count -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">JS Errors</span>
+                    <span class="text-xs text-obs-text-muted">count</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="errorCount">--</div>
+                <div class="text-xs text-obs-text-muted" id="errorTrend">--</div>
+            </div>
+
+            <!-- Network Requests -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">Network Requests</span>
+                    <span class="text-xs text-obs-text-muted">total</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="networkRequests">--</div>
+                <div class="text-xs text-obs-text-muted" id="networkRequestsTrend">--</div>
+            </div>
+        </div>
+
+        <!-- Video KYC Section -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-4 text-obs-text">📹 Video KYC Metrics</h2>
+
+            <!-- Camera & Microphone Status Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <!-- Camera Status -->
+                <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-obs-text-muted">Camera</span>
+                        <span class="text-xs px-2 py-1 rounded" id="cameraStatusBadge">--</span>
+                    </div>
+                    <div class="text-2xl font-bold mb-1" id="cameraFPS">--</div>
+                    <div class="text-xs text-obs-text-muted">
+                        <div>FPS: <span id="cameraFPSValue">--</span></div>
+                        <div>Freezes: <span id="cameraFreezes">--</span></div>
+                        <div>Virtual: <span id="cameraVirtual">--</span></div>
+                    </div>
+                </div>
+
+                <!-- Microphone Status -->
+                <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-obs-text-muted">Microphone</span>
+                        <span class="text-xs px-2 py-1 rounded" id="micStatusBadge">--</span>
+                    </div>
+                    <div class="text-2xl font-bold mb-1" id="micVolume">--</div>
+                    <div class="text-xs text-obs-text-muted">
+                        <div>Activity: <span id="micActivity">--%</span></div>
+                        <div>Noise: <span id="micNoise">--</span></div>
+                        <div>Mute Toggles: <span id="micMuteToggles">--</span></div>
+                    </div>
+                </div>
+
+                <!-- Media Quality (WebRTC) -->
+                <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-obs-text-muted">Media Quality</span>
+                        <span class="text-xs px-2 py-1 rounded" id="mediaQualityBadge">--</span>
+                    </div>
+                    <div class="text-2xl font-bold mb-1" id="mosScore">--</div>
+                    <div class="text-xs text-obs-text-muted">
+                        <div>Video Bitrate: <span id="videoBitrate">-- kbps</span></div>
+                        <div>Audio Bitrate: <span id="audioBitrate">-- kbps</span></div>
+                        <div>Packet Loss: <span id="packetLoss">--%</span></div>
+                    </div>
+                </div>
+
+                <!-- Network for Video -->
+                <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-obs-text-muted">Video Network</span>
+                        <span class="text-xs text-obs-text-muted">Quality</span>
+                    </div>
+                    <div class="text-2xl font-bold mb-1" id="videoRTT">--</div>
+                    <div class="text-xs text-obs-text-muted">
+                        <div>RTT: <span id="videoRTTValue">-- ms</span></div>
+                        <div>Jitter: <span id="videoJitter">-- ms</span></div>
+                        <div>Frame Rate: <span id="videoFrameRate">-- fps</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Device & Browser Capabilities Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <!-- Device Capabilities -->
+                <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                    <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Device Capabilities</h3>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <span class="text-obs-text-muted">Device Class:</span>
+                            <span class="ml-2 font-mono text-obs-text" id="deviceClassValue">--</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">Hardware Accel:</span>
+                            <span class="ml-2 font-mono text-obs-text" id="hardwareAccel">--</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">Renderer:</span>
+                            <span class="ml-2 font-mono text-obs-text" id="rendererPath">--</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">WebGL:</span>
+                            <span class="ml-2 font-mono text-obs-text" id="webglSupported">--</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">WebGPU:</span>
+                            <span class="ml-2 font-mono text-obs-text" id="webgpuSupported">--</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">OS:</span>
+                            <span class="ml-2 font-mono text-obs-text" id="osInfo">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Browser Compatibility -->
+                <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                    <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Browser Compatibility</h3>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <span class="text-obs-text-muted">Browser:</span>
+                            <span class="ml-2 font-mono text-obs-text" id="browserName">--</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">Version:</span>
+                            <span class="ml-2 font-mono text-obs-text" id="browserVersion">--</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">Color Scheme:</span>
+                            <span class="ml-2 font-mono text-obs-text" id="colorScheme">--</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">Reduced Motion:</span>
+                            <span class="ml-2 font-mono text-obs-text" id="reducedMotion">--</span>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="text-obs-text-muted">User Agent:</span>
+                            <span class="ml-2 font-mono text-xs text-obs-text break-all" id="userAgent">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Quality Chart -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <!-- WebRTC Quality Trends -->
+                <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                    <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">WebRTC Quality Trends</h3>
+                    <div class="chart-container">
+                        <canvas id="webrtcQualityChart"></canvas>
+                    </div>
+                    <div class="mt-4 grid grid-cols-3 gap-2 text-xs">
+                        <div>
+                            <span class="text-obs-text-muted">Avg RTT:</span>
+                            <span class="ml-2 font-mono" id="avgRTT">-- ms</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">Avg Jitter:</span>
+                            <span class="ml-2 font-mono" id="avgJitter">-- ms</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">Avg Packet Loss:</span>
+                            <span class="ml-2 font-mono" id="avgPacketLoss">--%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camera & Microphone Activity -->
+                <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                    <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Camera & Microphone Activity</h3>
+                    <div class="chart-container">
+                        <canvas id="mediaActivityChart"></canvas>
+                    </div>
+                    <div class="mt-4 grid grid-cols-3 gap-2 text-xs">
+                        <div>
+                            <span class="text-obs-text-muted">Camera Active:</span>
+                            <span class="ml-2 font-mono" id="cameraActiveRatio">--%</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">Mic Active:</span>
+                            <span class="ml-2 font-mono" id="micActiveRatio">--%</span>
+                        </div>
+                        <div>
+                            <span class="text-obs-text-muted">Camera Switches:</span>
+                            <span class="ml-2 font-mono" id="cameraSwitches">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Performance Metrics Row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
             <!-- Core Web Vitals -->
@@ -176,6 +434,212 @@
                 <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Performance Indicators</h3>
                 <div class="chart-container">
                     <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Metrics Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <!-- Resource Timing Breakdown -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Resource Timing Breakdown</h3>
+                <div class="chart-container">
+                    <canvas id="resourceTimingChart"></canvas>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                        <span class="text-obs-text-muted">Avg Total:</span>
+                        <span class="ml-2 font-mono" id="avgTotalMs">-- ms</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Cache Hit:</span>
+                        <span class="ml-2 font-mono" id="cacheHitRatio">--%</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Total Req:</span>
+                        <span class="ml-2 font-mono" id="totalRequests">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error & Reliability Trends -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Error & Reliability Trends</h3>
+                <div class="chart-container">
+                    <canvas id="errorTrendChart"></canvas>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                        <span class="text-obs-text-muted">JS Errors:</span>
+                        <span class="ml-2 font-mono" id="jsErrorCount">--</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Net Failures:</span>
+                        <span class="ml-2 font-mono" id="netFailureCount">--</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Long Tasks:</span>
+                        <span class="ml-2 font-mono" id="longTaskCount">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Engagement & Product Metrics -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <!-- User Engagement -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">User Engagement</h3>
+                <div class="chart-container">
+                    <canvas id="engagementChart"></canvas>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                        <span class="text-obs-text-muted">Scroll Depth:</span>
+                        <span class="ml-2 font-mono" id="scrollDepth">--%</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Dwell Time:</span>
+                        <span class="ml-2 font-mono" id="dwellTime">-- sec</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Features Used:</span>
+                        <span class="ml-2 font-mono" id="featuresUsed">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Speed Test History -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Speed Test History</h3>
+                <div class="chart-container">
+                    <canvas id="speedTestChart"></canvas>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                        <span class="text-obs-text-muted">Avg Download:</span>
+                        <span class="ml-2 font-mono" id="avgDownloadSpeed">-- Mbps</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Avg Upload:</span>
+                        <span class="ml-2 font-mono" id="avgUploadSpeed">-- Mbps</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Tests Run:</span>
+                        <span class="ml-2 font-mono" id="speedTestsRun">--</span>
+                    </div>
+                </div>
+                <div class="mt-2 grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                        <span class="text-obs-text-muted">Max Download:</span>
+                        <span class="ml-2 font-mono" id="maxDownloadSpeed">-- Mbps</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Min Download:</span>
+                        <span class="ml-2 font-mono" id="minDownloadSpeed">-- Mbps</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Trend:</span>
+                        <span class="ml-2 font-mono" id="speedTrend">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Continuous Statistics Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <!-- Network Statistics -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Network Statistics</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                        <span class="text-obs-text-muted">Online %:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="onlinePercentage">--%</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Network Changes:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="networkChanges">--</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Avg RTT:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="avgRTTStats">-- ms</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Avg Downlink:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="avgDownlinkStats">-- Mbps</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory Statistics -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Memory Statistics</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                        <span class="text-obs-text-muted">Avg Used Heap:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="avgUsedHeap">-- MB</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Max Used Heap:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="maxUsedHeap">-- MB</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Avg Growth Rate:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="avgHeapGrowthRate">-- MB/s</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Total Samples:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="totalSamples">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Statistics Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <!-- Performance Statistics -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Performance Statistics</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                        <span class="text-obs-text-muted">Avg Event Loop Delay:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="avgEventLoopDelay">-- ms</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Total Long Tasks:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="totalLongTasks">--</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Total Frame Drops:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="totalFrameDrops">--</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Session Duration:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="sessionDurationStats">-- sec</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Statistics -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Activity Statistics</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                        <span class="text-obs-text-muted">Visibility %:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="visibilityPercentage">--%</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Total Foreground:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="totalForegroundTime">-- sec</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Total Background:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="totalBackgroundTime">-- sec</span>
+                    </div>
+                    <div>
+                        <span class="text-obs-text-muted">Focus Loss Count:</span>
+                        <span class="ml-2 font-mono text-obs-text" id="focusLossCountStats">--</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -263,8 +727,8 @@
     <script>
         // Initialize telemetry
         const telemetry = new TelemetryCollector({
-            continuousInterval: 5000,
-            speedTestInterval: 30000, // Speed test every 30 seconds
+            continuousInterval: 1000,
+            speedTestInterval: 1000, // Speed test every 1 second
             autoStart: false
         });
 
@@ -285,12 +749,26 @@
             cls: [],
             rtt: [],
             downlink: [],
+            downloadSpeed: [],
+            uploadSpeed: [],
             memoryUsed: [],
             memoryTotal: [],
             eventLoopDelay: [],
+            jsErrors: [],
+            netFailures: [],
+            longTasks: [],
+            scrollDepth: [],
+            clickCount: [],
+            speedTestDownload: [],
+            speedTestUpload: [],
             connectionTiers: { A: 0, B: 0, C: 0 },
             deviceClasses: {},
-            riskLevels: {}
+            riskLevels: {},
+            webrtcRTT: [],
+            webrtcJitter: [],
+            webrtcPacketLoss: [],
+            cameraFPS: [],
+            micActivity: []
         };
 
         // Initialize charts
@@ -359,6 +837,22 @@
                             data: [],
                             borderColor: '#10b981',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Download Speed (Mbps)',
+                            data: [],
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Upload Speed (Mbps)',
+                            data: [],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
                             tension: 0.4,
                             yAxisID: 'y1'
                         }
@@ -521,40 +1015,569 @@
                     }
                 }
             });
+
+            // Resource Timing Chart
+            const resourceCtx = document.getElementById('resourceTimingChart')?.getContext('2d');
+            if (resourceCtx) {
+                chartInstances.resourceTiming = new Chart(resourceCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['DNS', 'TLS', 'Connect', 'Request', 'Response', 'Download'],
+                        datasets: [{
+                            label: 'Time (ms)',
+                            data: [0, 0, 0, 0, 0, 0],
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // Error Trend Chart
+            const errorCtx = document.getElementById('errorTrendChart')?.getContext('2d');
+            if (errorCtx) {
+                chartInstances.errorTrend = new Chart(errorCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'JS Errors',
+                                data: [],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Network Failures',
+                                data: [],
+                                borderColor: '#f59e0b',
+                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Long Tasks',
+                                data: [],
+                                borderColor: '#8b5cf6',
+                                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#94a3b8' } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // Engagement Chart
+            const engagementCtx = document.getElementById('engagementChart')?.getContext('2d');
+            if (engagementCtx) {
+                chartInstances.engagement = new Chart(engagementCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Scroll Depth (%)',
+                                data: [],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Click Count',
+                                data: [],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#94a3b8' } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, beginAtZero: true },
+                            y1: { ticks: { color: '#94a3b8' }, grid: { display: false }, position: 'right' }
+                        }
+                    }
+                });
+            }
+
+            // Speed Test Chart
+            const speedCtx = document.getElementById('speedTestChart')?.getContext('2d');
+            if (speedCtx) {
+                chartInstances.speedTest = new Chart(speedCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Download (Mbps)',
+                                data: [],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Upload (Mbps)',
+                                data: [],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#94a3b8' } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // WebRTC Quality Chart
+            const webrtcCtx = document.getElementById('webrtcQualityChart')?.getContext('2d');
+            if (webrtcCtx) {
+                chartInstances.webrtcQuality = new Chart(webrtcCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'RTT (ms)',
+                                data: [],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Jitter (ms)',
+                                data: [],
+                                borderColor: '#f59e0b',
+                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                tension: 0.4,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Packet Loss (%)',
+                                data: [],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#94a3b8' } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                            y: {
+                                ticks: { color: '#94a3b8' },
+                                grid: { color: '#334155' },
+                                beginAtZero: true,
+                                position: 'left'
+                            },
+                            y1: {
+                                ticks: { color: '#94a3b8' },
+                                grid: { display: false },
+                                beginAtZero: true,
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Media Activity Chart
+            const mediaCtx = document.getElementById('mediaActivityChart')?.getContext('2d');
+            if (mediaCtx) {
+                chartInstances.mediaActivity = new Chart(mediaCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Camera FPS',
+                                data: [],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Mic Activity (%)',
+                                data: [],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#94a3b8' } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                            y: {
+                                ticks: { color: '#94a3b8' },
+                                grid: { color: '#334155' },
+                                beginAtZero: true,
+                                position: 'left'
+                            },
+                            y1: {
+                                ticks: { color: '#94a3b8' },
+                                grid: { display: false },
+                                beginAtZero: true,
+                                position: 'right',
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         // Update KPI cards
         function updateKPICards(data) {
-            const riskScore = data.inferred?.riskScores?.composite_agent_risk_score;
-            const riskLevel = data.inferred?.riskScores?.risk_level || 'Unknown';
-            const networkStability = data.inferred?.sessionIntegrity?.network_stability_score;
-            const sessionReliability = data.inferred?.sessionIntegrity?.session_reliability_score;
-            const agentPresence = data.inferred?.riskScores?.agent_presence_score;
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards',message:'Update KPIs called',data:{dataKeys:Object.keys(data),hasInferred:!!data.inferred,hasPerformance:!!data.performance,hasContinuous:!!data.continuous,hasProduct:!!data.product},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
 
-            // Risk Score
-            if (riskScore !== undefined) {
-                document.getElementById('riskScore').textContent = riskScore;
-                const badge = document.getElementById('riskLevelBadge');
-                badge.textContent = riskLevel;
-                badge.className = 'text-xs px-2 py-1 rounded ' +
-                    (riskLevel === 'Low' ? 'bg-obs-success' :
-                     riskLevel === 'Medium' ? 'bg-obs-warning' :
-                     riskLevel === 'High' ? 'bg-orange-600' : 'bg-obs-error');
+            try {
+                const riskScore = data.inferred?.riskScores?.composite_agent_risk_score;
+                const riskLevel = data.inferred?.riskScores?.risk_level || 'Unknown';
+                const networkStability = data.inferred?.sessionIntegrity?.network_stability_score;
+                const sessionReliability = data.inferred?.sessionIntegrity?.session_reliability_score;
+                const agentPresence = data.inferred?.riskScores?.agent_presence_score;
+
+                // Risk Score
+                if (riskScore !== undefined && riskScore !== null) {
+                    const riskScoreEl = document.getElementById('riskScore');
+                    if (riskScoreEl) {
+                        riskScoreEl.textContent = riskScore;
+                        // #region agent log
+                        fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards',message:'Set riskScore',data:{riskScore,elementFound:true},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'J'})}).catch(()=>{});
+                        // #endregion
+                    } else {
+                        // #region agent log
+                        fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards',message:'Missing element riskScore',data:{riskScore},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'G'})}).catch(()=>{});
+                        // #endregion
+                    }
+                    const badge = document.getElementById('riskLevelBadge');
+                    if (badge) {
+                        badge.textContent = riskLevel;
+                        badge.className = 'text-xs px-2 py-1 rounded ' +
+                            (riskLevel === 'Low' ? 'bg-obs-success' :
+                             riskLevel === 'Medium' ? 'bg-obs-warning' :
+                             riskLevel === 'High' ? 'bg-orange-600' : 'bg-obs-error');
+                    }
+                } else {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards',message:'riskScore undefined',data:{riskScore,hasInferred:!!data.inferred,hasRiskScores:!!data.inferred?.riskScores},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'K'})}).catch(()=>{});
+                    // #endregion
+                }
+
+                // Network Stability
+                if (networkStability !== undefined) {
+                    const networkStabilityEl = document.getElementById('networkStability');
+                    if (networkStabilityEl) {
+                        networkStabilityEl.textContent = networkStability;
+                    }
+                }
+
+                // Session Reliability
+                if (sessionReliability !== undefined) {
+                    const sessionReliabilityEl = document.getElementById('sessionReliability');
+                    if (sessionReliabilityEl) {
+                        sessionReliabilityEl.textContent = sessionReliability;
+                    }
+                }
+
+                // Agent Presence
+                if (agentPresence !== undefined) {
+                    const agentPresenceEl = document.getElementById('agentPresence');
+                    if (agentPresenceEl) {
+                        agentPresenceEl.textContent = agentPresence;
+                    }
+                }
+            } catch (e) {
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards:catch',message:'Error in updateKPICards part1',data:{error:e.message,stack:e.stack},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H'})}).catch(()=>{});
+                // #endregion
+                console.error('Error updating KPI cards (part 1):', e);
             }
 
-            // Network Stability
-            if (networkStability !== undefined) {
-                document.getElementById('networkStability').textContent = networkStability;
-            }
+            try {
+                // Additional KPIs - Performance
+                const perf = data.performance;
+                const latest = data.continuous?.latest;
 
-            // Session Reliability
-            if (sessionReliability !== undefined) {
-                document.getElementById('sessionReliability').textContent = sessionReliability;
-            }
+                if (perf?.core_web_vitals) {
+                    const lcp = perf.core_web_vitals.LCP_ms;
+                    if (lcp !== undefined && lcp !== null) {
+                        const lcpValueEl = document.getElementById('lcpValue');
+                        const lcpStatusEl = document.getElementById('lcpStatus');
+                        if (lcpValueEl) lcpValueEl.textContent = lcp;
+                        if (lcpStatusEl) {
+                            const lcpStatus = lcp <= 2500 ? 'Good' : lcp <= 4000 ? 'Needs Improvement' : 'Poor';
+                            lcpStatusEl.textContent = lcpStatus;
+                            lcpStatusEl.className = 'text-xs ' +
+                                (lcp <= 2500 ? 'text-obs-success' : lcp <= 4000 ? 'text-obs-warning' : 'text-obs-error');
+                        }
+                    }
 
-            // Agent Presence
-            if (agentPresence !== undefined) {
-                document.getElementById('agentPresence').textContent = agentPresence;
+                    const inp = perf.core_web_vitals.INP_ms;
+                    if (inp !== undefined && inp !== null) {
+                        const inpValueEl = document.getElementById('inpValue');
+                        const inpStatusEl = document.getElementById('inpStatus');
+                        if (inpValueEl) inpValueEl.textContent = inp;
+                        if (inpStatusEl) {
+                            const inpStatus = inp <= 200 ? 'Good' : inp <= 500 ? 'Needs Improvement' : 'Poor';
+                            inpStatusEl.textContent = inpStatus;
+                            inpStatusEl.className = 'text-xs ' +
+                                (inp <= 200 ? 'text-obs-success' : inp <= 500 ? 'text-obs-warning' : 'text-obs-error');
+                        }
+                    }
+                }
+
+                // Network Speed
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards:speed',message:'Checking speed test',data:{hasNetworkSpeedTest:!!telemetry.networkSpeedTest},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'M'})}).catch(()=>{});
+                // #endregion
+                const speedResult = telemetry.networkSpeedTest?.getLatestResult();
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards:speed',message:'Got speed result',data:{hasSpeedResult:!!speedResult,speedResultKeys:speedResult?Object.keys(speedResult):[],downloadSpeed:speedResult?.download_speed_mbps,downlinkMbps:speedResult?.downlink_mbps,continuousDownlink:latest?.network?.downlinkSpeed},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'M'})}).catch(()=>{});
+                // #endregion
+                // Get download speed with fallbacks
+                let downloadSpeedForKPI = speedResult?.download_speed_mbps;
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards:speed:fallback',message:'Before fallback check',data:{downloadSpeedForKPI,downlinkMbps:speedResult?.downlink_mbps,hasDownlinkMbps:!!speedResult?.downlink_mbps,downlinkMbpsValue:speedResult?.downlink_mbps},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'S'})}).catch(()=>{});
+                // #endregion
+                if ((downloadSpeedForKPI === null || downloadSpeedForKPI === undefined || downloadSpeedForKPI === 0) && speedResult?.downlink_mbps && speedResult.downlink_mbps > 0) {
+                    downloadSpeedForKPI = speedResult.downlink_mbps;
+                    // #region agent log
+                    fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards:speed:fallback',message:'Using downlink_mbps fallback',data:{downloadSpeedForKPI,downlinkMbps:speedResult.downlink_mbps},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'S'})}).catch(()=>{});
+                    // #endregion
+                }
+                if ((downloadSpeedForKPI === null || downloadSpeedForKPI === undefined || downloadSpeedForKPI === 0) && latest?.network?.downlinkSpeed && latest.network.downlinkSpeed > 0) {
+                    downloadSpeedForKPI = latest.network.downlinkSpeed;
+                    // #region agent log
+                    fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards:speed:fallback',message:'Using continuous downlink fallback',data:{downloadSpeedForKPI,continuousDownlink:latest.network.downlinkSpeed},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'S'})}).catch(()=>{});
+                    // #endregion
+                }
+
+                if (downloadSpeedForKPI !== undefined && downloadSpeedForKPI !== null) {
+                    const downloadSpeedKPIEl = document.getElementById('downloadSpeedKPI');
+                    if (downloadSpeedKPIEl) {
+                        downloadSpeedKPIEl.textContent = downloadSpeedForKPI.toFixed(2);
+                        // #region agent log
+                        fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards:speed',message:'Set download speed',data:{downloadSpeed:downloadSpeedForKPI,source:speedResult?.download_speed_mbps?'speed_test':speedResult?.downlink_mbps?'network_info_api':'continuous_telemetry',elementFound:true},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'M'})}).catch(()=>{});
+                        // #endregion
+                    } else {
+                        // #region agent log
+                        fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards:speed',message:'Missing downloadSpeedKPI element',data:{downloadSpeed:downloadSpeedForKPI},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'N'})}).catch(()=>{});
+                        // #endregion
+                    }
+                } else {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards:speed',message:'No download speed data',data:{hasSpeedResult:!!speedResult,downloadSpeed:speedResult?.download_speed_mbps,downlinkMbps:speedResult?.downlink_mbps,continuousDownlink:latest?.network?.downlinkSpeed},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'O'})}).catch(()=>{});
+                    // #endregion
+                }
+
+                // Memory
+                if (latest?.memory) {
+                    const memory = latest.memory;
+                    if (memory.jsHeapUsedMB) {
+                        const memoryUsedKPIEl = document.getElementById('memoryUsedKPI');
+                        if (memoryUsedKPIEl) memoryUsedKPIEl.textContent = Math.round(memory.jsHeapUsedMB);
+                    }
+                }
+
+                // Engagement
+                const product = data.product;
+                if (product?.session) {
+                    const duration = product.session.session_duration_sec || 0;
+                    const sessionDurationEl = document.getElementById('sessionDuration');
+                    if (sessionDurationEl) sessionDurationEl.textContent = Math.round(duration);
+
+                    const engagement = product.engagement;
+                    if (engagement) {
+                        const clickCountEl = document.getElementById('clickCount');
+                        const scrollDepthEl = document.getElementById('scrollDepth');
+                        const dwellTimeEl = document.getElementById('dwellTime');
+                        const featuresUsedEl = document.getElementById('featuresUsed');
+                        if (clickCountEl) clickCountEl.textContent = engagement.click_count || 0;
+                        if (scrollDepthEl) scrollDepthEl.textContent = (engagement.scroll_depth_pct || 0).toFixed(1) + '%';
+                        if (dwellTimeEl) dwellTimeEl.textContent = Math.round(engagement.dwell_time_sec || 0);
+                        if (featuresUsedEl) featuresUsedEl.textContent = engagement.features_used_count || 0;
+                    }
+                }
+
+                // Errors
+                const reliability = data.reliability;
+                if (reliability?.summary) {
+                    const errorCount = reliability.summary.errors?.total_errors || 0;
+                    const errorCountEl = document.getElementById('errorCount');
+                    const jsErrorCountEl = document.getElementById('jsErrorCount');
+                    const netFailureCountEl = document.getElementById('netFailureCount');
+                    if (errorCountEl) errorCountEl.textContent = errorCount;
+                    if (jsErrorCountEl) jsErrorCountEl.textContent = errorCount;
+                    if (netFailureCountEl) netFailureCountEl.textContent = reliability.summary.network_failures?.total_failures || 0;
+                }
+
+                // Network Requests
+                const network = data.network;
+                if (network?.summary) {
+                    const networkRequestsEl = document.getElementById('networkRequests');
+                    const totalRequestsEl = document.getElementById('totalRequests');
+                    if (networkRequestsEl) networkRequestsEl.textContent = network.summary.total_requests || 0;
+                    if (totalRequestsEl) totalRequestsEl.textContent = network.summary.total_requests || 0;
+                }
+
+                // Video KYC Metrics - Permission Telemetry
+                const staticData = data.static;
+                // Access permission metrics from telemetry instance directly
+                const permissionMetrics = telemetry?.permissionTelemetry?.getAllMetrics() || {};
+                const camera = permissionMetrics.camera || {};
+                const mic = permissionMetrics.microphone || {};
+
+                // Camera Status
+                const cameraStatus = camera.permission || 'unknown';
+                const cameraStatusBadge = document.getElementById('cameraStatusBadge');
+                if (cameraStatusBadge) {
+                    cameraStatusBadge.textContent = camera.active ? 'Active' : (cameraStatus === 'granted' ? 'Granted' : cameraStatus);
+                    cameraStatusBadge.className = 'text-xs px-2 py-1 rounded ' +
+                        (camera.active ? 'bg-obs-success' : cameraStatus === 'granted' ? 'bg-obs-warning' : 'bg-obs-error');
+                }
+                const cameraFPSEl = document.getElementById('cameraFPS');
+                const cameraFPSValueEl = document.getElementById('cameraFPSValue');
+                const cameraFreezesEl = document.getElementById('cameraFreezes');
+                const cameraVirtualEl = document.getElementById('cameraVirtual');
+                if (cameraFPSEl) cameraFPSEl.textContent = camera.fps || 0;
+                if (cameraFPSValueEl) cameraFPSValueEl.textContent = camera.fps || 0;
+                if (cameraFreezesEl) cameraFreezesEl.textContent = camera.freezeEvents || 0;
+                if (cameraVirtualEl) cameraVirtualEl.textContent = camera.virtualCameraSuspected ? 'Yes' : 'No';
+
+                // Microphone Status
+                const micStatus = mic.permission || 'unknown';
+                const micStatusBadge = document.getElementById('micStatusBadge');
+                if (micStatusBadge) {
+                    micStatusBadge.textContent = mic.active ? 'Active' : (micStatus === 'granted' ? 'Granted' : micStatus);
+                    micStatusBadge.className = 'text-xs px-2 py-1 rounded ' +
+                        (mic.active ? 'bg-obs-success' : micStatus === 'granted' ? 'bg-obs-warning' : 'bg-obs-error');
+                }
+                const micVolumeEl = document.getElementById('micVolume');
+                const micActivityEl = document.getElementById('micActivity');
+                const micNoiseEl = document.getElementById('micNoise');
+                const micMuteTogglesEl = document.getElementById('micMuteToggles');
+                if (micVolumeEl) micVolumeEl.textContent = (mic.volumeAvg || 0).toFixed(1);
+                if (micActivityEl) micActivityEl.textContent = ((mic.activityRatio || 0) * 100).toFixed(1);
+                if (micNoiseEl) micNoiseEl.textContent = mic.backgroundNoiseLevel || 'Low';
+                if (micMuteTogglesEl) micMuteTogglesEl.textContent = mic.muteToggleCount || 0;
+
+                // Media Quality (WebRTC)
+                const media = data.media;
+                const latestWebRTC = media?.webrtc && media.webrtc.length > 0 ? media.webrtc[media.webrtc.length - 1] : null;
+                if (latestWebRTC) {
+                    const mosScore = latestWebRTC.mos_estimate || 0;
+                    const mediaQualityBadge = document.getElementById('mediaQualityBadge');
+                    if (mediaQualityBadge) {
+                        const quality = mosScore >= 4 ? 'Excellent' : mosScore >= 3.5 ? 'Good' : mosScore >= 3 ? 'Fair' : 'Poor';
+                        mediaQualityBadge.textContent = quality;
+                        mediaQualityBadge.className = 'text-xs px-2 py-1 rounded ' +
+                            (mosScore >= 4 ? 'bg-obs-success' : mosScore >= 3.5 ? 'bg-obs-warning' : 'bg-obs-error');
+                    }
+                    const mosScoreEl = document.getElementById('mosScore');
+                    const videoBitrateEl = document.getElementById('videoBitrate');
+                    const audioBitrateEl = document.getElementById('audioBitrate');
+                    const packetLossEl = document.getElementById('packetLoss');
+                    const videoRTTEl = document.getElementById('videoRTT');
+                    const videoRTTValueEl = document.getElementById('videoRTTValue');
+                    const videoJitterEl = document.getElementById('videoJitter');
+                    const videoFrameRateEl = document.getElementById('videoFrameRate');
+                    if (mosScoreEl) mosScoreEl.textContent = mosScore.toFixed(2);
+                    if (videoBitrateEl) videoBitrateEl.textContent = (latestWebRTC.video_bitrate_kbps || 0).toFixed(0);
+                    if (audioBitrateEl) audioBitrateEl.textContent = (latestWebRTC.audio_bitrate_kbps || 0).toFixed(0);
+                    if (packetLossEl) packetLossEl.textContent = (latestWebRTC.packet_loss_pct || 0).toFixed(2);
+                    if (videoRTTEl) videoRTTEl.textContent = (latestWebRTC.rtt_ms || 0).toFixed(0);
+                    if (videoRTTValueEl) videoRTTValueEl.textContent = (latestWebRTC.rtt_ms || 0).toFixed(0);
+                    if (videoJitterEl) videoJitterEl.textContent = (latestWebRTC.jitter_ms || 0).toFixed(2);
+                    if (videoFrameRateEl) videoFrameRateEl.textContent = (latestWebRTC.frame_rate_fps || 0).toFixed(1);
+                }
+
+                // Device Capabilities
+                const env = data.environment || {};
+                const deviceClassEl = document.getElementById('deviceClassValue');
+                const hardwareAccelEl = document.getElementById('hardwareAccel');
+                const rendererPathEl = document.getElementById('rendererPath');
+                const webglSupportedEl = document.getElementById('webglSupported');
+                const webgpuSupportedEl = document.getElementById('webgpuSupported');
+                const osInfoEl = document.getElementById('osInfo');
+                if (deviceClassEl) deviceClassEl.textContent = env.device_class || 'Unknown';
+                if (hardwareAccelEl) hardwareAccelEl.textContent = env.hardware_acceleration ? 'Yes' : 'No';
+                if (rendererPathEl) rendererPathEl.textContent = env.renderer_path || 'Unknown';
+                if (webglSupportedEl) webglSupportedEl.textContent = env.webgl_supported ? 'Yes' : 'No';
+                if (webgpuSupportedEl) webgpuSupportedEl.textContent = env.webgpu_supported ? 'Yes' : 'No';
+                if (osInfoEl) osInfoEl.textContent = `${env.os_name || 'Unknown'} ${env.os_version || ''}`.trim();
+
+                // Browser Compatibility
+                const browserNameEl = document.getElementById('browserName');
+                const browserVersionEl = document.getElementById('browserVersion');
+                const colorSchemeEl = document.getElementById('colorScheme');
+                const reducedMotionEl = document.getElementById('reducedMotion');
+                const userAgentEl = document.getElementById('userAgent');
+                if (browserNameEl) browserNameEl.textContent = env.browser_name || 'Unknown';
+                if (browserVersionEl) browserVersionEl.textContent = env.browser_version || 'Unknown';
+                if (colorSchemeEl) colorSchemeEl.textContent = env.color_scheme || 'Unknown';
+                if (reducedMotionEl) reducedMotionEl.textContent = env.reduced_motion_pref ? 'Yes' : 'No';
+                if (userAgentEl && staticData?.browser?.userAgent) {
+                    userAgentEl.textContent = staticData.browser.userAgent.substring(0, 80) + '...';
+                }
+            } catch (e) {
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateKPICards:catch2',message:'Error in updateKPICards part2',data:{error:e.message,stack:e.stack},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'I'})}).catch(()=>{});
+                // #endregion
+                console.error('Error updating KPI cards (part 2):', e);
             }
         }
 
@@ -575,17 +1598,24 @@
 
             // Update Web Vitals
             if (perf) {
-                if (perf.core_web_vitals?.LCP_ms) {
-                    dataHistory.lcp.push(perf.core_web_vitals.LCP_ms);
-                    if (dataHistory.lcp.length > 50) dataHistory.lcp.shift();
-                }
-                if (perf.core_web_vitals?.INP_ms) {
-                    dataHistory.inp.push(perf.core_web_vitals.INP_ms);
-                    if (dataHistory.inp.length > 50) dataHistory.inp.shift();
-                }
-                if (perf.core_web_vitals?.CLS) {
-                    dataHistory.cls.push(perf.core_web_vitals.CLS);
-                    if (dataHistory.cls.length > 50) dataHistory.cls.shift();
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateCharts:perf',message:'Performance data structure',data:{perfKeys:Object.keys(perf),hasCoreWebVitals:!!perf.core_web_vitals,coreWebVitalsKeys:perf.core_web_vitals?Object.keys(perf.core_web_vitals):[]},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'F'})}).catch(()=>{});
+                // #endregion
+
+                const coreWebVitals = perf.core_web_vitals;
+                if (coreWebVitals) {
+                    if (coreWebVitals.LCP_ms !== undefined && coreWebVitals.LCP_ms !== null) {
+                        dataHistory.lcp.push(coreWebVitals.LCP_ms);
+                        if (dataHistory.lcp.length > 50) dataHistory.lcp.shift();
+                    }
+                    if (coreWebVitals.INP_ms !== undefined && coreWebVitals.INP_ms !== null) {
+                        dataHistory.inp.push(coreWebVitals.INP_ms);
+                        if (dataHistory.inp.length > 50) dataHistory.inp.shift();
+                    }
+                    if (coreWebVitals.CLS !== undefined && coreWebVitals.CLS !== null) {
+                        dataHistory.cls.push(coreWebVitals.CLS);
+                        if (dataHistory.cls.length > 50) dataHistory.cls.shift();
+                    }
                 }
             }
 
@@ -600,6 +1630,53 @@
                     if (dataHistory.downlink.length > 50) dataHistory.downlink.shift();
                 }
             }
+
+            // Update Speed Test Data for Network Chart
+            const speedResultForNetwork = telemetry.networkSpeedTest?.getLatestResult();
+            if (!dataHistory.downloadSpeed) dataHistory.downloadSpeed = [];
+            if (!dataHistory.uploadSpeed) dataHistory.uploadSpeed = [];
+
+            let downloadSpeedValue = null;
+            let uploadSpeedValue = null;
+
+            if (speedResultForNetwork) {
+                downloadSpeedValue = speedResultForNetwork.download_speed_mbps;
+                uploadSpeedValue = speedResultForNetwork.upload_speed_mbps;
+
+                // Fallback to downlink_mbps from speed result if download test failed
+                if ((downloadSpeedValue === null || downloadSpeedValue === undefined || downloadSpeedValue === 0) && speedResultForNetwork.downlink_mbps && speedResultForNetwork.downlink_mbps > 0) {
+                    downloadSpeedValue = speedResultForNetwork.downlink_mbps;
+                }
+            }
+
+            // Fallback to Network Information API from continuous telemetry if speed test didn't provide download speed
+            if ((downloadSpeedValue === null || downloadSpeedValue === undefined || downloadSpeedValue === 0) && latest?.network?.downlinkSpeed && latest.network.downlinkSpeed > 0) {
+                downloadSpeedValue = latest.network.downlinkSpeed;
+            }
+
+            // Use speed test result or fallback value
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateCharts:speedValue',message:'Final download speed value',data:{downloadSpeedValue,hasSpeedResult:!!speedResultForNetwork,downlinkMbps:speedResultForNetwork?.downlink_mbps,continuousDownlink:latest?.network?.downlinkSpeed},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'T'})}).catch(()=>{});
+            // #endregion
+            if (downloadSpeedValue !== null && downloadSpeedValue !== undefined && downloadSpeedValue > 0) {
+                dataHistory.downloadSpeed.push(downloadSpeedValue);
+            } else {
+                // Push 0 to maintain array length when download speed is not available
+                dataHistory.downloadSpeed.push(0);
+            }
+            if (dataHistory.downloadSpeed.length > 50) dataHistory.downloadSpeed.shift();
+
+            if (uploadSpeedValue !== null && uploadSpeedValue !== undefined) {
+                dataHistory.uploadSpeed.push(uploadSpeedValue);
+            } else {
+                // Push 0 to maintain array length when upload speed is not available
+                dataHistory.uploadSpeed.push(0);
+            }
+            if (dataHistory.uploadSpeed.length > 50) dataHistory.uploadSpeed.shift();
+
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateCharts:speedData',message:'Speed data for charts',data:{downloadSpeedValue,uploadSpeedValue,downlinkSpeed:latest?.network?.downlinkSpeed,downloadSpeedArrayLength:dataHistory.downloadSpeed.length,uploadSpeedArrayLength:dataHistory.uploadSpeed.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'Q'})}).catch(()=>{});
+            // #endregion
 
             // Update Memory
             if (latest?.memory?.jsHeapUsedMB) {
@@ -626,40 +1703,417 @@
             }
 
             // Update chart data
-            chartInstances.webVitals.data.labels = dataHistory.timestamps.slice(-20);
-            chartInstances.webVitals.data.datasets[0].data = dataHistory.lcp.slice(-20);
-            chartInstances.webVitals.data.datasets[1].data = dataHistory.inp.slice(-20);
-            chartInstances.webVitals.data.datasets[2].data = dataHistory.cls.slice(-20);
-            chartInstances.webVitals.update('none');
+            if (chartInstances.webVitals && chartInstances.webVitals.data && chartInstances.webVitals.data.datasets) {
+                chartInstances.webVitals.data.labels = dataHistory.timestamps.slice(-20);
+                if (chartInstances.webVitals.data.datasets[0]) {
+                    chartInstances.webVitals.data.datasets[0].data = dataHistory.lcp.slice(-20);
+                }
+                if (chartInstances.webVitals.data.datasets[1]) {
+                    chartInstances.webVitals.data.datasets[1].data = dataHistory.inp.slice(-20);
+                }
+                if (chartInstances.webVitals.data.datasets[2]) {
+                    chartInstances.webVitals.data.datasets[2].data = dataHistory.cls.slice(-20);
+                }
+                chartInstances.webVitals.update('none');
+            }
 
-            chartInstances.network.data.labels = dataHistory.timestamps.slice(-20);
-            chartInstances.network.data.datasets[0].data = dataHistory.rtt.slice(-20);
-            chartInstances.network.data.datasets[1].data = dataHistory.downlink.slice(-20);
-            if (dataHistory.downloadSpeed) {
-                chartInstances.network.data.datasets[2].data = dataHistory.downloadSpeed.slice(-20);
+            if (chartInstances.network && chartInstances.network.data && chartInstances.network.data.datasets) {
+                chartInstances.network.data.labels = dataHistory.timestamps.slice(-20);
+                if (chartInstances.network.data.datasets[0]) {
+                    chartInstances.network.data.datasets[0].data = dataHistory.rtt.slice(-20);
+                }
+                if (chartInstances.network.data.datasets[1]) {
+                    chartInstances.network.data.datasets[1].data = dataHistory.downlink.slice(-20);
+                }
+                // Always update download/upload speed datasets if they exist, even if array has zeros
+                if (chartInstances.network.data.datasets[2]) {
+                    chartInstances.network.data.datasets[2].data = (dataHistory.downloadSpeed || []).slice(-20);
+                }
+                if (chartInstances.network.data.datasets[3]) {
+                    chartInstances.network.data.datasets[3].data = (dataHistory.uploadSpeed || []).slice(-20);
+                }
+                chartInstances.network.update('none');
             }
-            if (dataHistory.uploadSpeed) {
-                chartInstances.network.data.datasets[3].data = dataHistory.uploadSpeed.slice(-20);
-            }
-            chartInstances.network.update('none');
 
             // Update speed test display
-            const speedResult = telemetry.networkSpeedTest.getLatestResult();
+            const speedResult = telemetry.networkSpeedTest?.getLatestResult();
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateCharts:speed',message:'Speed result in charts',data:{hasSpeedResult:!!speedResult,downloadSpeed:speedResult?.download_speed_mbps,uploadSpeed:speedResult?.upload_speed_mbps},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'P'})}).catch(()=>{});
+            // #endregion
             if (speedResult) {
-                document.getElementById('downloadSpeed').textContent =
-                    (speedResult.download_speed_mbps || '--') + ' Mbps';
-                document.getElementById('uploadSpeed').textContent =
-                    (speedResult.upload_speed_mbps || '--') + ' Mbps';
+                const downloadEl = document.getElementById('downloadSpeed');
+                const uploadEl = document.getElementById('uploadSpeed');
+                const methodEl = document.getElementById('speedTestMethod');
+
+                // Get download speed with fallbacks
+                let downloadSpeedForDisplay = speedResult.download_speed_mbps;
+                if ((downloadSpeedForDisplay === null || downloadSpeedForDisplay === undefined) && speedResult.downlink_mbps) {
+                    downloadSpeedForDisplay = speedResult.downlink_mbps;
+                }
+                if ((downloadSpeedForDisplay === null || downloadSpeedForDisplay === undefined) && latest?.network?.downlinkSpeed) {
+                    downloadSpeedForDisplay = latest.network.downlinkSpeed;
+                }
+
+                if (downloadEl) {
+                    downloadEl.textContent = (downloadSpeedForDisplay !== undefined && downloadSpeedForDisplay !== null ? downloadSpeedForDisplay.toFixed(2) : '--') + ' Mbps';
+                }
+                if (uploadEl) {
+                    uploadEl.textContent = (speedResult.upload_speed_mbps !== undefined && speedResult.upload_speed_mbps !== null ? speedResult.upload_speed_mbps.toFixed(2) : '--') + ' Mbps';
+                }
+                if (methodEl) {
+                    methodEl.textContent = speedResult.method || '--';
+                }
             }
 
-            chartInstances.memory.data.labels = dataHistory.timestamps.slice(-20);
-            chartInstances.memory.data.datasets[0].data = dataHistory.memoryUsed.slice(-20);
-            chartInstances.memory.data.datasets[1].data = dataHistory.memoryTotal.slice(-20);
-            chartInstances.memory.update('none');
+            if (chartInstances.memory && chartInstances.memory.data && chartInstances.memory.data.datasets) {
+                chartInstances.memory.data.labels = dataHistory.timestamps.slice(-20);
+                if (chartInstances.memory.data.datasets[0]) {
+                    chartInstances.memory.data.datasets[0].data = dataHistory.memoryUsed.slice(-20);
+                }
+                if (chartInstances.memory.data.datasets[1]) {
+                    chartInstances.memory.data.datasets[1].data = dataHistory.memoryTotal.slice(-20);
+                }
+                chartInstances.memory.update('none');
+            }
 
-            chartInstances.performance.data.labels = dataHistory.timestamps.slice(-20);
-            chartInstances.performance.data.datasets[0].data = dataHistory.eventLoopDelay.slice(-20);
-            chartInstances.performance.update('none');
+            // Update Resource Timing Chart
+            if (chartInstances.resourceTiming && data.network?.summary) {
+                const net = data.network.summary;
+                if (net.avg_timing) {
+                    chartInstances.resourceTiming.data.datasets[0].data = [
+                        net.avg_timing.dns || 0,
+                        net.avg_timing.tls || 0,
+                        net.avg_timing.tcp || 0,
+                        net.avg_timing.request || 0,
+                        net.avg_timing.response || 0,
+                        net.avg_timing.total || 0
+                    ];
+                    chartInstances.resourceTiming.update('none');
+                }
+
+                // Update resource timing stats
+                const avgTotalEl = document.getElementById('avgTotalMs');
+                if (avgTotalEl && net.avg_total_ms) {
+                    avgTotalEl.textContent = net.avg_total_ms + ' ms';
+                }
+                const cacheHitEl = document.getElementById('cacheHitRatio');
+                if (cacheHitEl && net.cache_hit_ratio !== undefined) {
+                    cacheHitEl.textContent = (net.cache_hit_ratio * 100).toFixed(1) + '%';
+                }
+            }
+
+            // Update Error Trend Chart
+            if (chartInstances.errorTrend && chartInstances.errorTrend.data && chartInstances.errorTrend.data.datasets) {
+                if (!dataHistory.jsErrors) dataHistory.jsErrors = [];
+                if (!dataHistory.netFailures) dataHistory.netFailures = [];
+                if (!dataHistory.longTasks) dataHistory.longTasks = [];
+
+                const reliability = data.reliability;
+                if (reliability?.summary) {
+                    dataHistory.jsErrors.push(reliability.summary.errors?.total_errors || 0);
+                    dataHistory.netFailures.push(reliability.summary.network_failures?.total_failures || 0);
+                }
+                if (latest?.performance?.longTasksCount !== undefined) {
+                    dataHistory.longTasks.push(latest.performance.longTasksCount);
+                } else {
+                    dataHistory.longTasks.push(0);
+                }
+
+                // Keep last 20
+                if (dataHistory.jsErrors.length > 20) dataHistory.jsErrors.shift();
+                if (dataHistory.netFailures.length > 20) dataHistory.netFailures.shift();
+                if (dataHistory.longTasks.length > 20) dataHistory.longTasks.shift();
+
+                chartInstances.errorTrend.data.labels = dataHistory.timestamps.slice(-20);
+                if (chartInstances.errorTrend.data.datasets[0]) {
+                    chartInstances.errorTrend.data.datasets[0].data = dataHistory.jsErrors.slice(-20);
+                }
+                if (chartInstances.errorTrend.data.datasets[1]) {
+                    chartInstances.errorTrend.data.datasets[1].data = dataHistory.netFailures.slice(-20);
+                }
+                if (chartInstances.errorTrend.data.datasets[2]) {
+                    chartInstances.errorTrend.data.datasets[2].data = dataHistory.longTasks.slice(-20);
+                }
+                chartInstances.errorTrend.update('none');
+
+                // Update error count displays
+                const jsErrorEl = document.getElementById('jsErrorCount');
+                const netFailureEl = document.getElementById('netFailureCount');
+                const longTaskEl = document.getElementById('longTaskCount');
+                if (jsErrorEl && dataHistory.jsErrors.length > 0) {
+                    jsErrorEl.textContent = dataHistory.jsErrors[dataHistory.jsErrors.length - 1];
+                }
+                if (netFailureEl && dataHistory.netFailures.length > 0) {
+                    netFailureEl.textContent = dataHistory.netFailures[dataHistory.netFailures.length - 1];
+                }
+                if (longTaskEl && dataHistory.longTasks.length > 0) {
+                    longTaskEl.textContent = dataHistory.longTasks[dataHistory.longTasks.length - 1];
+                }
+            }
+
+            // Update Engagement Chart
+            if (chartInstances.engagement && chartInstances.engagement.data && chartInstances.engagement.data.datasets) {
+                if (!dataHistory.scrollDepth) dataHistory.scrollDepth = [];
+                if (!dataHistory.clickCount) dataHistory.clickCount = [];
+
+                const product = data.product;
+                if (product?.engagement) {
+                    dataHistory.scrollDepth.push(product.engagement.scroll_depth_pct || 0);
+                    dataHistory.clickCount.push(product.engagement.click_count || 0);
+                }
+
+                if (dataHistory.scrollDepth.length > 20) dataHistory.scrollDepth.shift();
+                if (dataHistory.clickCount.length > 20) dataHistory.clickCount.shift();
+
+                chartInstances.engagement.data.labels = dataHistory.timestamps.slice(-20);
+                if (chartInstances.engagement.data.datasets[0]) {
+                    chartInstances.engagement.data.datasets[0].data = dataHistory.scrollDepth.slice(-20);
+                }
+                if (chartInstances.engagement.data.datasets[1]) {
+                    chartInstances.engagement.data.datasets[1].data = dataHistory.clickCount.slice(-20);
+                }
+                chartInstances.engagement.update('none');
+            }
+
+            // Update Speed Test Chart
+            if (chartInstances.speedTest && chartInstances.speedTest.data && chartInstances.speedTest.data.datasets) {
+                if (!dataHistory.speedTestDownload) dataHistory.speedTestDownload = [];
+                if (!dataHistory.speedTestUpload) dataHistory.speedTestUpload = [];
+
+                const speedResult = telemetry.networkSpeedTest?.getLatestResult();
+                if (speedResult) {
+                    // Get download speed with fallbacks
+                    let downloadSpeedForChart = speedResult.download_speed_mbps;
+                    if ((downloadSpeedForChart === null || downloadSpeedForChart === undefined || downloadSpeedForChart === 0) && speedResult.downlink_mbps) {
+                        downloadSpeedForChart = speedResult.downlink_mbps;
+                    }
+                    if ((downloadSpeedForChart === null || downloadSpeedForChart === undefined || downloadSpeedForChart === 0) && latest?.network?.downlinkSpeed) {
+                        downloadSpeedForChart = latest.network.downlinkSpeed;
+                    }
+
+                    if (downloadSpeedForChart && downloadSpeedForChart > 0) {
+                        dataHistory.speedTestDownload.push(downloadSpeedForChart);
+                    }
+                    if (speedResult.upload_speed_mbps && speedResult.upload_speed_mbps > 0) {
+                        dataHistory.speedTestUpload.push(speedResult.upload_speed_mbps);
+                    }
+                }
+
+                if (dataHistory.speedTestDownload.length > 20) dataHistory.speedTestDownload.shift();
+                if (dataHistory.speedTestUpload.length > 20) dataHistory.speedTestUpload.shift();
+
+                chartInstances.speedTest.data.labels = dataHistory.timestamps.slice(-20);
+                if (chartInstances.speedTest.data.datasets[0]) {
+                    chartInstances.speedTest.data.datasets[0].data = dataHistory.speedTestDownload.slice(-20);
+                }
+                if (chartInstances.speedTest.data.datasets[1]) {
+                    chartInstances.speedTest.data.datasets[1].data = dataHistory.speedTestUpload.slice(-20);
+                }
+                chartInstances.speedTest.update('none');
+
+                // Update speed test stats
+                const speedStats = telemetry.networkSpeedTest?.getStatistics();
+                if (speedStats) {
+                    const avgDownloadEl = document.getElementById('avgDownloadSpeed');
+                    const avgUploadEl = document.getElementById('avgUploadSpeed');
+                    const speedTestsRunEl = document.getElementById('speedTestsRun');
+                    const maxDownloadEl = document.getElementById('maxDownloadSpeed');
+                    const minDownloadEl = document.getElementById('minDownloadSpeed');
+                    const speedTrendEl = document.getElementById('speedTrend');
+
+                    if (avgDownloadEl && speedStats.avg_download_mbps) {
+                        avgDownloadEl.textContent = speedStats.avg_download_mbps.toFixed(2) + ' Mbps';
+                    }
+                    if (avgUploadEl && speedStats.avg_upload_mbps) {
+                        avgUploadEl.textContent = speedStats.avg_upload_mbps.toFixed(2) + ' Mbps';
+                    }
+                    if (speedTestsRunEl && speedStats.total_tests) {
+                        speedTestsRunEl.textContent = speedStats.total_tests;
+                    }
+                    if (maxDownloadEl && speedStats.max_download_mbps) {
+                        maxDownloadEl.textContent = speedStats.max_download_mbps.toFixed(2) + ' Mbps';
+                    }
+                    if (minDownloadEl && speedStats.min_download_mbps) {
+                        minDownloadEl.textContent = speedStats.min_download_mbps.toFixed(2) + ' Mbps';
+                    }
+                }
+
+                // Update speed trend
+                const speedTrend = telemetry.networkSpeedTest?.getSpeedTrend();
+                if (speedTrend && speedTrendEl) {
+                    const trendText = speedTrend.trend === 'improving' ? '↑ Improving' :
+                                     speedTrend.trend === 'degrading' ? '↓ Degrading' : '→ Stable';
+                    const trendColor = speedTrend.trend === 'improving' ? 'text-obs-success' :
+                                      speedTrend.trend === 'degrading' ? 'text-obs-error' : 'text-obs-text-muted';
+                    speedTrendEl.textContent = `${trendText} (${speedTrend.change_percent > 0 ? '+' : ''}${speedTrend.change_percent.toFixed(1)}%)`;
+                    speedTrendEl.className = 'ml-2 font-mono ' + trendColor;
+                } else if (speedTrendEl) {
+                    speedTrendEl.textContent = '--';
+                }
+            }
+
+            // Update WebRTC Quality Chart
+            const media = data.media;
+            if (media?.webrtc && media.webrtc.length > 0) {
+                const latestWebRTC = media.webrtc[media.webrtc.length - 1];
+                if (latestWebRTC) {
+                    if (!dataHistory.webrtcRTT) dataHistory.webrtcRTT = [];
+                    if (!dataHistory.webrtcJitter) dataHistory.webrtcJitter = [];
+                    if (!dataHistory.webrtcPacketLoss) dataHistory.webrtcPacketLoss = [];
+
+                    dataHistory.webrtcRTT.push(latestWebRTC.rtt_ms || 0);
+                    dataHistory.webrtcJitter.push(latestWebRTC.jitter_ms || 0);
+                    dataHistory.webrtcPacketLoss.push(latestWebRTC.packet_loss_pct || 0);
+
+                    if (dataHistory.webrtcRTT.length > 50) dataHistory.webrtcRTT.shift();
+                    if (dataHistory.webrtcJitter.length > 50) dataHistory.webrtcJitter.shift();
+                    if (dataHistory.webrtcPacketLoss.length > 50) dataHistory.webrtcPacketLoss.shift();
+
+                    // Update WebRTC stats display
+                    const avgRTTEl = document.getElementById('avgRTT');
+                    const avgJitterEl = document.getElementById('avgJitter');
+                    const avgPacketLossEl = document.getElementById('avgPacketLoss');
+                    if (avgRTTEl && dataHistory.webrtcRTT.length > 0) {
+                        const avg = dataHistory.webrtcRTT.reduce((a, b) => a + b, 0) / dataHistory.webrtcRTT.length;
+                        avgRTTEl.textContent = avg.toFixed(0) + ' ms';
+                    }
+                    if (avgJitterEl && dataHistory.webrtcJitter.length > 0) {
+                        const avg = dataHistory.webrtcJitter.reduce((a, b) => a + b, 0) / dataHistory.webrtcJitter.length;
+                        avgJitterEl.textContent = avg.toFixed(2) + ' ms';
+                    }
+                    if (avgPacketLossEl && dataHistory.webrtcPacketLoss.length > 0) {
+                        const avg = dataHistory.webrtcPacketLoss.reduce((a, b) => a + b, 0) / dataHistory.webrtcPacketLoss.length;
+                        avgPacketLossEl.textContent = avg.toFixed(2) + '%';
+                    }
+                }
+            }
+
+            if (chartInstances.webrtcQuality && chartInstances.webrtcQuality.data && chartInstances.webrtcQuality.data.datasets) {
+                chartInstances.webrtcQuality.data.labels = dataHistory.timestamps.slice(-20);
+                if (chartInstances.webrtcQuality.data.datasets[0]) {
+                    chartInstances.webrtcQuality.data.datasets[0].data = (dataHistory.webrtcRTT || []).slice(-20);
+                }
+                if (chartInstances.webrtcQuality.data.datasets[1]) {
+                    chartInstances.webrtcQuality.data.datasets[1].data = (dataHistory.webrtcJitter || []).slice(-20);
+                }
+                if (chartInstances.webrtcQuality.data.datasets[2]) {
+                    chartInstances.webrtcQuality.data.datasets[2].data = (dataHistory.webrtcPacketLoss || []).slice(-20);
+                }
+                chartInstances.webrtcQuality.update('none');
+            }
+
+            // Update Media Activity Chart
+            const permissionMetrics = telemetry?.permissionTelemetry?.getAllMetrics() || {};
+            const camera = permissionMetrics.camera || {};
+            const mic = permissionMetrics.microphone || {};
+
+            if (!dataHistory.cameraFPS) dataHistory.cameraFPS = [];
+            if (!dataHistory.micActivity) dataHistory.micActivity = [];
+
+            dataHistory.cameraFPS.push(camera.fps || 0);
+            dataHistory.micActivity.push((mic.activityRatio || 0) * 100);
+
+            if (dataHistory.cameraFPS.length > 50) dataHistory.cameraFPS.shift();
+            if (dataHistory.micActivity.length > 50) dataHistory.micActivity.shift();
+
+            // Update media activity display
+            const cameraActiveRatioEl = document.getElementById('cameraActiveRatio');
+            const micActiveRatioEl = document.getElementById('micActiveRatio');
+            const cameraSwitchesEl = document.getElementById('cameraSwitches');
+            if (cameraActiveRatioEl) cameraActiveRatioEl.textContent = ((camera.activeRatio || 0) * 100).toFixed(1) + '%';
+            if (micActiveRatioEl) micActiveRatioEl.textContent = ((mic.activityRatio || 0) * 100).toFixed(1) + '%';
+            if (cameraSwitchesEl) cameraSwitchesEl.textContent = camera.switchCount || 0;
+
+            if (chartInstances.mediaActivity && chartInstances.mediaActivity.data && chartInstances.mediaActivity.data.datasets) {
+                chartInstances.mediaActivity.data.labels = dataHistory.timestamps.slice(-20);
+                if (chartInstances.mediaActivity.data.datasets[0]) {
+                    chartInstances.mediaActivity.data.datasets[0].data = (dataHistory.cameraFPS || []).slice(-20);
+                }
+                if (chartInstances.mediaActivity.data.datasets[1]) {
+                    chartInstances.mediaActivity.data.datasets[1].data = (dataHistory.micActivity || []).slice(-20);
+                }
+                chartInstances.mediaActivity.update('none');
+            }
+
+            if (chartInstances.performance && chartInstances.performance.data && chartInstances.performance.data.datasets) {
+                chartInstances.performance.data.labels = dataHistory.timestamps.slice(-20);
+                if (chartInstances.performance.data.datasets[0]) {
+                    chartInstances.performance.data.datasets[0].data = dataHistory.eventLoopDelay.slice(-20);
+                }
+                if (chartInstances.performance.data.datasets[1]) {
+                    chartInstances.performance.data.datasets[1].data = dataHistory.longTasks.slice(-20);
+                }
+                chartInstances.performance.update('none');
+            }
+        }
+
+        // Update Continuous Statistics
+        function updateStatistics(data) {
+            try {
+                const allData = telemetry.getAllTelemetry();
+                const continuousStats = allData.continuous?.statistics;
+
+                // Network Statistics
+                if (continuousStats?.network) {
+                    const onlinePercentageEl = document.getElementById('onlinePercentage');
+                    const networkChangesEl = document.getElementById('networkChanges');
+                    const avgRTTStatsEl = document.getElementById('avgRTTStats');
+                    const avgDownlinkStatsEl = document.getElementById('avgDownlinkStats');
+
+                    if (onlinePercentageEl) onlinePercentageEl.textContent = (continuousStats.network.onlinePercentage || 0).toFixed(1) + '%';
+                    if (networkChangesEl) networkChangesEl.textContent = continuousStats.network.networkChanges || 0;
+                    if (avgRTTStatsEl) avgRTTStatsEl.textContent = (continuousStats.network.avgRTT || 0).toFixed(0) + ' ms';
+                    if (avgDownlinkStatsEl) avgDownlinkStatsEl.textContent = (continuousStats.network.avgDownlink || 0).toFixed(2) + ' Mbps';
+                }
+
+                // Memory Statistics
+                if (continuousStats?.memory) {
+                    const avgUsedHeapEl = document.getElementById('avgUsedHeap');
+                    const maxUsedHeapEl = document.getElementById('maxUsedHeap');
+                    const avgHeapGrowthRateEl = document.getElementById('avgHeapGrowthRate');
+                    const totalSamplesEl = document.getElementById('totalSamples');
+
+                    if (avgUsedHeapEl) avgUsedHeapEl.textContent = Math.round((continuousStats.memory.avgUsedHeap || 0) / 1024 / 1024) + ' MB';
+                    if (maxUsedHeapEl) maxUsedHeapEl.textContent = Math.round((continuousStats.memory.maxUsedHeap || 0) / 1024 / 1024) + ' MB';
+                    if (avgHeapGrowthRateEl) avgHeapGrowthRateEl.textContent = (continuousStats.memory.avgHeapGrowthRate || 0).toFixed(2) + ' MB/s';
+                    if (totalSamplesEl && continuousStats.totalSamples) totalSamplesEl.textContent = continuousStats.totalSamples;
+                }
+
+                // Performance Statistics
+                if (continuousStats?.performance) {
+                    const avgEventLoopDelayEl = document.getElementById('avgEventLoopDelay');
+                    const totalLongTasksEl = document.getElementById('totalLongTasks');
+                    const totalFrameDropsEl = document.getElementById('totalFrameDrops');
+                    const sessionDurationStatsEl = document.getElementById('sessionDurationStats');
+
+                    if (avgEventLoopDelayEl) avgEventLoopDelayEl.textContent = (continuousStats.performance.avgEventLoopDelay || 0).toFixed(2) + ' ms';
+                    if (totalLongTasksEl) totalLongTasksEl.textContent = continuousStats.performance.totalLongTasks || 0;
+                    if (totalFrameDropsEl) totalFrameDropsEl.textContent = continuousStats.performance.totalFrameDrops || 0;
+                    if (sessionDurationStatsEl && continuousStats.duration) {
+                        sessionDurationStatsEl.textContent = Math.round(continuousStats.duration / 1000) + ' sec';
+                    }
+                }
+
+                // Activity Statistics
+                if (continuousStats?.activity) {
+                    const visibilityPercentageEl = document.getElementById('visibilityPercentage');
+                    const totalForegroundTimeEl = document.getElementById('totalForegroundTime');
+                    const totalBackgroundTimeEl = document.getElementById('totalBackgroundTime');
+                    const focusLossCountStatsEl = document.getElementById('focusLossCountStats');
+
+                    if (visibilityPercentageEl) visibilityPercentageEl.textContent = (continuousStats.activity.visibilityPercentage || 0).toFixed(1) + '%';
+                    if (totalForegroundTimeEl) totalForegroundTimeEl.textContent = Math.round(continuousStats.activity.totalForegroundTime || 0) + ' sec';
+                    if (totalBackgroundTimeEl) totalBackgroundTimeEl.textContent = Math.round(continuousStats.activity.totalBackgroundTime || 0) + ' sec';
+
+                    // Get focus loss count from latest sample
+                    const latest = allData.continuous?.latest;
+                    if (focusLossCountStatsEl && latest?.activity?.focusLossCount !== undefined) {
+                        focusLossCountStatsEl.textContent = latest.activity.focusLossCount || 0;
+                    }
+                }
+            } catch (e) {
+                console.error('Error updating statistics:', e);
+            }
         }
 
         // Update distribution charts
@@ -798,15 +2252,20 @@
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('tableRowCount').textContent = `${tableRows.length} rows`;
-            document.getElementById('tableFilteredCount').textContent = `${filteredRows.length} filtered`;
+            const tableRowCountEl = document.getElementById('tableRowCount');
+            const tableFilteredCountEl = document.getElementById('tableFilteredCount');
+            if (tableRowCountEl) tableRowCountEl.textContent = `${tableRows.length} rows`;
+            if (tableFilteredCountEl) tableFilteredCountEl.textContent = `${filteredRows.length} filtered`;
         }
 
         // Event handlers
-        document.getElementById('btnPause').addEventListener('click', () => {
-            isPaused = !isPaused;
-            document.getElementById('btnPause').textContent = isPaused ? 'Resume' : 'Pause';
-        });
+        const btnPauseEl = document.getElementById('btnPause');
+        if (btnPauseEl) {
+            btnPauseEl.addEventListener('click', () => {
+                isPaused = !isPaused;
+                if (btnPauseEl) btnPauseEl.textContent = isPaused ? 'Resume' : 'Pause';
+            });
+        }
 
         document.getElementById('btnExport').addEventListener('click', () => {
             const csv = telemetry.exportToCSV();
@@ -824,17 +2283,30 @@
 
         // Main update loop
         function updateDashboard() {
-            if (!telemetry.staticData) return;
+            if (!telemetry.staticData) {
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'No static data',data:{isInitialized:telemetry.isInitialized},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                return;
+            }
 
             try {
                 const allData = telemetry.getAllTelemetryExtended();
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Got extended data',data:{keys:Object.keys(allData),hasInferred:!!allData.inferred,hasPerformance:!!allData.performance},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+                // #endregion
                 updateKPICards(allData);
                 updateCharts(allData);
+                updateStatistics(allData);
                 updateTable();
 
-                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                const lastUpdateEl = document.getElementById('lastUpdate');
+                if (lastUpdateEl) lastUpdateEl.textContent = new Date().toLocaleTimeString();
             } catch (e) {
-                // Not ready
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Error in updateDashboard',data:{error:e.message,stack:e.stack},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
+                console.error('Dashboard update error:', e);
             }
         }
 
@@ -846,7 +2318,7 @@
             telemetry.start();
             initializeTable();
 
-            setInterval(updateDashboard, 2000);
+            setInterval(updateDashboard, 1000);
             updateDashboard();
         });
     </script>

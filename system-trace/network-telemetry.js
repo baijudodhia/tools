@@ -257,10 +257,64 @@ class NetworkTelemetry {
       .reduce((sum, t) => sum + (t.transfer_size_kb || 0), 0) /
       timings.filter(t => t.transfer_size_kb !== null).length;
 
+    // Calculate cache hit ratio
+    const cacheHits = byCacheStatus['hit'] || 0;
+    const cacheMisses = byCacheStatus['miss'] || 0;
+    const cacheRevalidated = byCacheStatus['revalidated'] || 0;
+    const totalCacheable = cacheHits + cacheMisses + cacheRevalidated;
+    const cacheHitRatio = totalCacheable > 0 ? cacheHits / totalCacheable : 0;
+
+    // Calculate average status code
+    const statusCodes = timings.filter(t => t.status_code !== null).map(t => t.status_code);
+    const avgStatusCode = statusCodes.length > 0
+      ? Math.round(statusCodes.reduce((sum, code) => sum + code, 0) / statusCodes.length)
+      : null;
+
+    // Calculate average timing breakdown
+    const avgTiming = {
+      dns: 0,
+      tls: 0,
+      tcp: 0,
+      request: 0,
+      response: 0,
+      total: Math.round(avgTotal)
+    };
+
+    let timingCount = 0;
+    timings.forEach(t => {
+      if (t.dns_ms) {
+        avgTiming.dns += t.dns_ms;
+        timingCount++;
+      }
+      if (t.tls_ms) {
+        avgTiming.tls += t.tls_ms;
+      }
+      if (t.connect_ms) {
+        avgTiming.tcp += t.connect_ms;
+      }
+      if (t.request_ms) {
+        avgTiming.request += t.request_ms;
+      }
+      if (t.response_ms) {
+        avgTiming.response += t.response_ms;
+      }
+    });
+
+    if (timingCount > 0) {
+      avgTiming.dns = Math.round(avgTiming.dns / timingCount);
+      avgTiming.tls = Math.round(avgTiming.tls / timingCount);
+      avgTiming.tcp = Math.round(avgTiming.tcp / timingCount);
+      avgTiming.request = Math.round(avgTiming.request / timingCount);
+      avgTiming.response = Math.round(avgTiming.response / timingCount);
+    }
+
     return {
       total_requests: timings.length,
       avg_total_ms: Math.round(avgTotal),
       avg_transfer_size_kb: Math.round(avgTransfer * 100) / 100,
+      cache_hit_ratio: Math.round(cacheHitRatio * 1000) / 1000,
+      avg_status_code: avgStatusCode,
+      avg_timing: avgTiming,
       by_type: byType,
       by_protocol: byProtocol,
       by_cache_status: byCacheStatus

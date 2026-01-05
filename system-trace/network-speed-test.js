@@ -4,7 +4,7 @@
  */
 
 class NetworkSpeedTest {
-  constructor(intervalMs = 30000) {
+  constructor(intervalMs = 1000) {
     this.intervalMs = intervalMs;
     this.intervalId = null;
     this.isRunning = false;
@@ -52,26 +52,39 @@ class NetworkSpeedTest {
    * Run speed test using multiple methods
    */
   async runSpeedTest() {
-    // Method 1: Download test using cache-busted image
+    // Method 1: Try URL-based speed test first (most accurate)
     const downloadResult = await this.testDownloadSpeed();
-
-    // Method 2: Upload test using fetch
     const uploadResult = await this.testUploadSpeed();
 
-    // Method 3: Use Network Information API if available
+    // Method 2: Get Network Information API data (for reference and fallback)
     const networkInfo = this.getNetworkInfo();
+
+    // If URL-based test failed, use Network Information API as fallback
+    let finalDownloadSpeed = downloadResult.speed;
+    let finalUploadSpeed = uploadResult.speed;
+    let finalMethod = downloadResult.method || 'image';
+
+    if ((!finalDownloadSpeed || finalDownloadSpeed === 0) && networkInfo.downlink && networkInfo.downlink > 0) {
+      finalDownloadSpeed = networkInfo.downlink;
+      finalMethod = 'network_api_fallback';
+    }
+
+    if ((!finalUploadSpeed || finalUploadSpeed === 0) && networkInfo.downlink && networkInfo.downlink > 0) {
+      // Estimate upload as 10% of downlink (typical ratio)
+      finalUploadSpeed = Math.round((networkInfo.downlink * 0.1) * 100) / 100;
+    }
 
     const result = {
       timestamp: new Date().toISOString(),
-      download_speed_mbps: downloadResult.speed || null,
-      upload_speed_mbps: uploadResult.speed || null,
+      download_speed_mbps: finalDownloadSpeed || null,
+      upload_speed_mbps: finalUploadSpeed || null,
       download_latency_ms: downloadResult.latency || null,
       upload_latency_ms: uploadResult.latency || null,
       effective_connection_type: networkInfo.effectiveType || null,
       downlink_mbps: networkInfo.downlink || null,
       rtt_ms: networkInfo.rtt || null,
       save_data: networkInfo.saveData || false,
-      method: downloadResult.method || 'image'
+      method: finalMethod
     };
 
     this.testResults.push(result);
@@ -89,121 +102,103 @@ class NetworkSpeedTest {
    */
   async testDownloadSpeed() {
     return new Promise((resolve) => {
-      const testSizes = [
-        { url: this.getTestImageUrl(100), size: 100 * 1024 }, // 100KB
-        { url: this.getTestImageUrl(500), size: 500 * 1024 }, // 500KB
-        { url: this.getTestImageUrl(1000), size: 1000 * 1024 } // 1MB
-      ];
-
-      let bestResult = { speed: null, latency: null, method: 'image' };
-      let completed = 0;
-
-      testSizes.forEach(({ url, size }) => {
-        const startTime = performance.now();
-        const img = new Image();
-
-        img.onload = () => {
-          const endTime = performance.now();
-          const duration = (endTime - startTime) / 1000; // seconds
-          const speedMbps = (size * 8) / (duration * 1000000); // Convert to Mbps
-          const latency = endTime - startTime;
-
-          if (!bestResult.speed || speedMbps > bestResult.speed) {
-            bestResult = {
-              speed: Math.round(speedMbps * 100) / 100,
-              latency: Math.round(latency),
-              method: 'image'
-            };
-          }
-
-          completed++;
-          if (completed === testSizes.length) {
-            resolve(bestResult);
-          }
-        };
-
-        img.onerror = () => {
-          completed++;
-          if (completed === testSizes.length) {
-            resolve(bestResult);
-          }
-        };
-
-        // Add cache buster
-        img.src = url + '?t=' + Date.now();
-      });
-
-      // Timeout after 10 seconds
-      setTimeout(() => {
-        if (completed < testSizes.length) {
-          resolve(bestResult);
-        }
-      }, 10000);
-    });
-  }
-
-  /**
-   * Test upload speed using fetch POST
-   */
-  async testUploadSpeed() {
-    return new Promise((resolve) => {
-      // Generate test data (100KB)
-      const testData = new Array(100 * 1024).fill('0').join('');
-      const blob = new Blob([testData], { type: 'application/octet-stream' });
-
+      const url = this.getTestImageUrl();
+      const cacheBusterUrl = url + '?t=' + Date.now();
       const startTime = performance.now();
+      const img = new Image();
 
-      // Use a test endpoint or data URL
-      fetch('https://httpbin.org/post', {
-        method: 'POST',
-        body: blob,
-        mode: 'no-cors' // Avoid CORS issues
-      }).then(() => {
+      img.onload = () => {
         const endTime = performance.now();
-        const duration = (endTime - startTime) / 1000;
-        const speedMbps = (blob.size * 8) / (duration * 1000000);
+        const duration = (endTime - startTime) / 1000; // seconds
+
+        // Get actual transfer size from Resource Timing API
+        let actualSize = 0;
+        try {
+          const resources = performance.getEntriesByType('resource');
+          const resourceEntry = resources.find(entry =>
+            entry.name.includes('kwikid-logo.png') || entry.name === cacheBusterUrl
+          );
+
+          if (resourceEntry) {
+            // Prefer transferSize (actual bytes transferred over network)
+            actualSize = resourceEntry.transferSize || resourceEntry.decodedBodySize || 0;
+          }
+        } catch (e) {
+          // Resource Timing API not available
+        }
+
+        // If we couldn't get the size from Resource Timing, estimate from image dimensions
+        if (actualSize === 0 && img.naturalWidth && img.naturalHeight) {
+          // Rough estimate: PNG with compression (typically 1-2 bytes per pixel for logos)
+          actualSize = Math.max(img.naturalWidth * img.naturalHeight * 1.5, 10000); // Minimum 10KB
+        }
+
+        // If still no size, use a reasonable default (most logos are 20-100KB)
+        if (actualSize === 0) {
+          actualSize = 50000; // Default to 50KB
+        }
+
+        const speedMbps = actualSize > 0
+          ? (actualSize * 8) / (duration * 1000000) // Convert to Mbps
+          : null;
         const latency = endTime - startTime;
 
         resolve({
-          speed: Math.round(speedMbps * 100) / 100,
+          speed: speedMbps ? Math.round(speedMbps * 100) / 100 : null,
           latency: Math.round(latency),
-          method: 'fetch'
+          method: 'image'
         });
-      }).catch(() => {
-        // Fallback: Use navigator.connection if available
-        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        if (conn && conn.downlink) {
-          // Estimate upload as 10% of downlink (typical ratio)
-          resolve({
-            speed: Math.round((conn.downlink * 0.1) * 100) / 100,
-            latency: conn.rtt || null,
-            method: 'estimated'
-          });
-        } else {
-          resolve({ speed: null, latency: null, method: 'none' });
-        }
-      });
+      };
 
-      // Timeout
+      img.onerror = () => {
+        resolve({ speed: null, latency: null, method: 'image_error' });
+      };
+
+      // Add cache buster to ensure fresh download
+      img.src = cacheBusterUrl;
+
+      // Timeout after 10 seconds
       setTimeout(() => {
-        resolve({ speed: null, latency: null, method: 'timeout' });
+        if (!img.complete) {
+          resolve({ speed: null, latency: null, method: 'timeout' });
+        }
       }, 10000);
     });
   }
 
   /**
-   * Get test image URL (using placeholder services)
+   * Test upload speed using Network Information API
+   * Note: Direct upload testing requires external endpoints which may be blocked.
+   * We use Network Information API as the primary method with estimation.
+   */
+  async testUploadSpeed() {
+    return new Promise((resolve) => {
+      // Use Network Information API as primary method (no external dependency)
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (conn && conn.downlink) {
+        // Estimate upload as 10% of downlink (typical ratio for most connections)
+        // For fiber/symmetric connections, this could be higher, but 10% is a safe default
+        const estimatedUpload = conn.downlink * 0.1;
+        resolve({
+          speed: Math.round(estimatedUpload * 100) / 100,
+          latency: conn.rtt || null,
+          method: 'estimated'
+        });
+      } else {
+        // No network information available
+        resolve({ speed: null, latency: null, method: 'none' });
+      }
+    });
+  }
+
+  /**
+   * Get test image URL for download speed testing
+   * Uses a reliable S3-hosted image for consistent testing
    */
   getTestImageUrl(sizeKB) {
-    // Use placeholder image services
-    const services = [
-      `https://via.placeholder.com/${sizeKB * 10}.png`,
-      `https://picsum.photos/${sizeKB * 10}`,
-      `https://httpbin.org/image/png?size=${sizeKB}`
-    ];
-
-    // Try first service, fallback to others
-    return services[0];
+    // Use the provided S3-hosted image URL for speed testing
+    // The image size doesn't matter as we measure download time
+    return 'https://kwikid.s3.ap-south-1.amazonaws.com/CONFIG/AGENT/assets/logo/kwikid-logo.png';
   }
 
   /**

@@ -9,6 +9,60 @@
     <h1>System Trace Telemetry Collection</h1>
     <p>Client-side device, browser & runtime telemetry collection system</p>
 
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .metric-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .metric-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+        .metric-card .label {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+        .status-good { color: #10b981; }
+        .status-warning { color: #f59e0b; }
+        .status-error { color: #ef4444; }
+        h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        pre {
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+
     <div>
         <h2>Controls</h2>
         <div style="margin-bottom: 10px;">
@@ -28,6 +82,73 @@
     <div>
         <h2>Status</h2>
         <div id="status">Not initialized</div>
+    </div>
+
+    <!-- Quick Metrics Dashboard -->
+    <div id="quickMetrics" style="display: none;">
+        <h2>Quick Metrics Dashboard</h2>
+        <div class="metric-grid">
+            <div class="metric-card">
+                <h3>LCP</h3>
+                <div class="value" id="quickLCP">--</div>
+                <div class="label" id="quickLCPStatus">--</div>
+            </div>
+            <div class="metric-card">
+                <h3>INP</h3>
+                <div class="value" id="quickINP">--</div>
+                <div class="label" id="quickINPStatus">--</div>
+            </div>
+            <div class="metric-card">
+                <h3>CLS</h3>
+                <div class="value" id="quickCLS">--</div>
+                <div class="label">Cumulative Layout Shift</div>
+            </div>
+            <div class="metric-card">
+                <h3>Download Speed</h3>
+                <div class="value" id="quickDownload">--</div>
+                <div class="label">Mbps</div>
+            </div>
+            <div class="metric-card">
+                <h3>Upload Speed</h3>
+                <div class="value" id="quickUpload">--</div>
+                <div class="label">Mbps</div>
+            </div>
+            <div class="metric-card">
+                <h3>Memory Used</h3>
+                <div class="value" id="quickMemory">--</div>
+                <div class="label">MB</div>
+            </div>
+            <div class="metric-card">
+                <h3>RTT</h3>
+                <div class="value" id="quickRTT">--</div>
+                <div class="label">ms</div>
+            </div>
+            <div class="metric-card">
+                <h3>Session Duration</h3>
+                <div class="value" id="quickSession">--</div>
+                <div class="label">seconds</div>
+            </div>
+            <div class="metric-card">
+                <h3>Click Count</h3>
+                <div class="value" id="quickClicks">--</div>
+                <div class="label">interactions</div>
+            </div>
+            <div class="metric-card">
+                <h3>JS Errors</h3>
+                <div class="value" id="quickErrors">--</div>
+                <div class="label">total errors</div>
+            </div>
+            <div class="metric-card">
+                <h3>Network Requests</h3>
+                <div class="value" id="quickRequests">--</div>
+                <div class="label">total requests</div>
+            </div>
+            <div class="metric-card">
+                <h3>Risk Score</h3>
+                <div class="value" id="quickRisk">--</div>
+                <div class="label" id="quickRiskLevel">--</div>
+            </div>
+        </div>
     </div>
 
     <div id="jsonView">
@@ -217,6 +338,9 @@
                     }, null, 2);
 
                     reliabilityDiv.textContent = JSON.stringify(extended.reliability.summary, null, 2);
+
+                    // Update quick metrics
+                    updateQuickMetrics(extended);
                 } catch (e) {
                     // Extended data not available yet
                 }
@@ -424,6 +548,92 @@
             staticRowAdded = false;
             tableRowCount.textContent = 'Rows: 0';
         });
+
+        // Update quick metrics dashboard
+        function updateQuickMetrics(extended) {
+            const quickMetrics = document.getElementById('quickMetrics');
+            if (!quickMetrics) return;
+
+            quickMetrics.style.display = 'block';
+
+            // Performance metrics
+            const perf = extended.performance;
+            if (perf?.core_web_vitals) {
+                const lcp = perf.core_web_vitals.LCP_ms;
+                if (lcp !== null && lcp !== undefined) {
+                    document.getElementById('quickLCP').textContent = lcp;
+                    const status = lcp <= 2500 ? 'Good' : lcp <= 4000 ? 'Needs Improvement' : 'Poor';
+                    const statusClass = lcp <= 2500 ? 'status-good' : lcp <= 4000 ? 'status-warning' : 'status-error';
+                    document.getElementById('quickLCPStatus').textContent = status;
+                    document.getElementById('quickLCPStatus').className = 'label ' + statusClass;
+                }
+
+                const inp = perf.core_web_vitals.INP_ms;
+                if (inp !== null && inp !== undefined) {
+                    document.getElementById('quickINP').textContent = inp;
+                    const status = inp <= 200 ? 'Good' : inp <= 500 ? 'Needs Improvement' : 'Poor';
+                    const statusClass = inp <= 200 ? 'status-good' : inp <= 500 ? 'status-warning' : 'status-error';
+                    document.getElementById('quickINPStatus').textContent = status;
+                    document.getElementById('quickINPStatus').className = 'label ' + statusClass;
+                }
+
+                const cls = perf.core_web_vitals.CLS;
+                if (cls !== null && cls !== undefined) {
+                    document.getElementById('quickCLS').textContent = cls.toFixed(3);
+                }
+            }
+
+            // Speed test
+            const speedResult = telemetry.networkSpeedTest?.getLatestResult();
+            if (speedResult) {
+                if (speedResult.download_speed_mbps) {
+                    document.getElementById('quickDownload').textContent = speedResult.download_speed_mbps.toFixed(2);
+                }
+                if (speedResult.upload_speed_mbps) {
+                    document.getElementById('quickUpload').textContent = speedResult.upload_speed_mbps.toFixed(2);
+                }
+            }
+
+            // Network
+            const network = extended.network;
+            if (network?.summary) {
+                document.getElementById('quickRequests').textContent = network.summary.total_requests || 0;
+            }
+
+            // Memory
+            const latest = allData.continuous?.latest;
+            if (latest?.memory?.jsHeapUsedMB) {
+                document.getElementById('quickMemory').textContent = Math.round(latest.memory.jsHeapUsedMB);
+            }
+
+            // RTT
+            if (latest?.network?.rtt) {
+                document.getElementById('quickRTT').textContent = latest.network.rtt;
+            }
+
+            // Product/Engagement
+            const product = extended.product;
+            if (product?.session) {
+                const duration = product.session.session_duration_sec || 0;
+                document.getElementById('quickSession').textContent = Math.round(duration);
+            }
+            if (product?.engagement) {
+                document.getElementById('quickClicks').textContent = product.engagement.click_count || 0;
+            }
+
+            // Errors
+            const reliability = extended.reliability;
+            if (reliability?.summary?.errors) {
+                document.getElementById('quickErrors').textContent = reliability.summary.errors.total_errors || 0;
+            }
+
+            // Risk
+            const inferred = allData.inferred;
+            if (inferred?.riskScores) {
+                document.getElementById('quickRisk').textContent = inferred.riskScores.composite_agent_risk_score || '--';
+                document.getElementById('quickRiskLevel').textContent = inferred.riskScores.risk_level || '--';
+            }
+        }
 
         // Auto-initialize on load
         window.addEventListener('load', () => {
