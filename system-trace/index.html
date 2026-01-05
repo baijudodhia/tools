@@ -95,6 +95,11 @@
         </div>
     </div>
 
+    <!-- External Libraries for Enhanced Collection -->
+    <script src="https://unpkg.com/web-vitals@3.5.0/dist/web-vitals.attribution.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.37/dist/ua-parser.min.js"></script>
+
+    <!-- Core Telemetry Modules -->
     <script src="metadata.js"></script>
     <script src="static-telemetry.js"></script>
     <script src="continuous-telemetry.js"></script>
@@ -108,12 +113,16 @@
     <script src="inferred-telemetry.js"></script>
     <script src="schema-exporter.js"></script>
     <script src="telemetry.js"></script>
+    <script src="enhanced-collection.js"></script>
     <script>
         // Initialize telemetry collector
         const telemetry = new TelemetryCollector({
             continuousInterval: 5000,
             autoStart: false
         });
+
+        // Initialize enhanced collection
+        const enhancedCollector = new EnhancedTelemetryCollector(telemetry);
 
         // UI Elements
         const btnInit = document.getElementById('btnInit');
@@ -208,7 +217,8 @@
             try {
                 updateStatus('Initializing...');
                 await telemetry.initialize();
-                updateStatus('Initialized');
+                await enhancedCollector.initialize();
+                updateStatus('Initialized with enhanced collection');
                 updateDisplays();
                 initializeTable(); // Initialize table after telemetry is ready
             } catch (error) {

@@ -239,6 +239,10 @@
         </div>
     </div>
 
+    <!-- External Libraries for Enhanced Collection -->
+    <script src="https://unpkg.com/web-vitals@3.5.0/dist/web-vitals.attribution.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.37/dist/ua-parser.min.js"></script>
+
     <!-- Load telemetry modules -->
     <script src="metadata.js"></script>
     <script src="static-telemetry.js"></script>
@@ -253,6 +257,7 @@
     <script src="inferred-telemetry.js"></script>
     <script src="schema-exporter.js"></script>
     <script src="telemetry.js"></script>
+    <script src="enhanced-collection.js"></script>
 
     <script>
         // Initialize telemetry
@@ -260,6 +265,9 @@
             continuousInterval: 5000,
             autoStart: false
         });
+
+        // Initialize enhanced collection
+        const enhancedCollector = new EnhancedTelemetryCollector(telemetry);
 
         // Dashboard state
         let isPaused = false;
@@ -817,6 +825,7 @@
         window.addEventListener('load', async () => {
             initializeCharts();
             await telemetry.initialize();
+            await enhancedCollector.initialize();
             telemetry.start();
             initializeTable();
 
