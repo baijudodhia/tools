@@ -13,6 +13,7 @@ A comprehensive client-side telemetry collection system implementing the FSD (Fu
 
 ## Files
 
+### Core Modules
 - `metadata.js` - Record & session metadata management
 - `static-telemetry.js` - Static telemetry collection module
 - `continuous-telemetry.js` - Continuous monitoring module
@@ -20,9 +21,20 @@ A comprehensive client-side telemetry collection system implementing the FSD (Fu
 - `inferred-telemetry.js` - Inferred telemetry generation
 - `schema-exporter.js` - Excel-ready flat schema exporter
 - `telemetry.js` - Main orchestrator class
+
+### Extended Telemetry Modules
+- `product-telemetry.js` - Product outcomes & engagement tracking
+- `performance-telemetry.js` - Core Web Vitals & navigation timings
+- `network-telemetry.js` - Network & resource timing details
+- `reliability-telemetry.js` - JS errors, network failures, crashes
+- `media-telemetry.js` - WebRTC stats & playback metrics
+- `environment-telemetry.js` - Hardware acceleration, renderer path, OS details
+
+### Documentation
 - `index.html` - Demo page (zero CSS)
 - `FSD.md` - Functional Specification Document
 - `DATA_SCHEMA.md` - Excel column header schema
+- `PIVOT_GUIDE.md` - Excel pivot table guide
 
 ## Usage
 
@@ -117,6 +129,78 @@ telemetry.setAgentId('agent456');
 
 // Update consent
 telemetry.updateConsent('2.0', new Date().toISOString());
+```
+
+### Product & Engagement Tracking
+
+```javascript
+// Track feature usage
+telemetry.trackFeature('file_upload', { file_type: 'pdf' });
+
+// Track conversion events
+telemetry.trackConversion('purchase_complete', 99.99);
+
+// Get engagement metrics
+const engagement = telemetry.productTelemetry.getEngagementSummary();
+```
+
+### Performance Monitoring
+
+```javascript
+// Core Web Vitals are automatically collected
+// Get performance metrics
+const perf = telemetry.performanceTelemetry.getMetrics();
+// Returns: { LCP_ms, INP_ms, CLS, TTFB_ms, FCP_ms, etc. }
+
+// Track app-specific timings
+const startTime = performance.now();
+// ... do something ...
+telemetry.performanceTelemetry.trackAppTiming('api_call', startTime);
+```
+
+### Network Resource Timing
+
+```javascript
+// Automatically collects all resource timings
+// Get resource timing summary
+const network = telemetry.networkTelemetry.getSummary();
+// Returns: avg_total_ms, by_type, by_protocol, by_cache_status
+```
+
+### Reliability & Error Tracking
+
+```javascript
+// Errors are automatically tracked
+// Get error summary
+const errors = telemetry.reliabilityTelemetry.getErrorSummary();
+
+// Track network failures manually
+telemetry.reliabilityTelemetry.trackNetworkFailure(
+  'https://api.example.com/data',
+  500,
+  2, // retry count
+  5000 // timeout ms
+);
+```
+
+### Media/WebRTC Monitoring
+
+```javascript
+// Start WebRTC monitoring
+const pc = new RTCPeerConnection();
+telemetry.startWebRTCMonitoring(pc, 10000); // Collect every 10s
+
+// Track video playback
+const video = document.querySelector('video');
+telemetry.trackPlayback(video, { drmUsed: true });
+```
+
+### Get Extended Telemetry
+
+```javascript
+// Get all telemetry including new modules
+const allData = telemetry.getAllTelemetryExtended();
+// Includes: product, performance, network, reliability, media, environment
 ```
 
 ## Demo

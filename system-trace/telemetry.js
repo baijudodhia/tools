@@ -24,6 +24,12 @@ class TelemetryCollector {
     this.staticTelemetry = new StaticTelemetry();
     this.continuousTelemetry = new ContinuousTelemetry(this.options.continuousInterval);
     this.permissionTelemetry = new PermissionTelemetry();
+    this.productTelemetry = new ProductTelemetry();
+    this.performanceTelemetry = new PerformanceTelemetry();
+    this.networkTelemetry = new NetworkTelemetry();
+    this.reliabilityTelemetry = new ReliabilityTelemetry();
+    this.mediaTelemetry = new MediaTelemetry();
+    this.environmentTelemetry = new EnvironmentTelemetry();
     this.inferredTelemetry = null;
     this.schemaExporter = new SchemaExporter(this.metadata);
 
@@ -43,7 +49,34 @@ class TelemetryCollector {
     if (this.isInitialized) return this.staticData;
 
     try {
+      // Set session IDs
+      const sessionId = this.metadata.sessionId;
+      this.productTelemetry.setSessionId(sessionId);
+      this.performanceTelemetry.setSessionId(sessionId);
+      this.networkTelemetry.setSessionId(sessionId);
+      this.reliabilityTelemetry.setSessionId(sessionId);
+      this.mediaTelemetry.setSessionId(sessionId);
+      this.environmentTelemetry.setSessionId(sessionId);
+
+      // Collect static data
       this.staticData = await this.staticTelemetry.collect();
+
+      // Collect environment data
+      this.environmentTelemetry.collect();
+
+      // Initialize performance monitoring
+      await this.performanceTelemetry.initialize();
+
+      // Start network monitoring
+      this.networkTelemetry.startObserving();
+
+      // Start reliability monitoring
+      this.reliabilityTelemetry.startMonitoring();
+
+      // Setup product telemetry auto-tracking
+      this.productTelemetry.setupAutoTracking();
+
+      // Initialize inferred telemetry
       this.inferredTelemetry = new InferredTelemetry(
         this.staticData,
         this.continuousTelemetry.getSamples(),
@@ -339,15 +372,88 @@ class TelemetryCollector {
   }
 
   /**
+   * Get all telemetry data including new modules
+   */
+  getAllTelemetryExtended() {
+    if (!this.isInitialized) {
+      throw new Error('Telemetry not initialized. Call initialize() first.');
+    }
+
+    return {
+      ...this.getAllTelemetry(),
+      product: {
+        session: this.productTelemetry.getSessionMetrics(),
+        engagement: this.productTelemetry.getEngagementSummary(),
+        events: this.productTelemetry.getEvents()
+      },
+      performance: this.performanceTelemetry.getMetrics(),
+      network: {
+        resource_timings: this.networkTelemetry.getResourceTimings(),
+        summary: this.networkTelemetry.getSummary()
+      },
+      reliability: this.reliabilityTelemetry.getAllData(),
+      media: {
+        webrtc: this.mediaTelemetry.getWebRTCStats(),
+        playback: this.mediaTelemetry.getPlaybackStats()
+      },
+      environment: this.environmentTelemetry.getData()
+    };
+  }
+
+  /**
+   * Track feature usage
+   */
+  trackFeature(featureName, metadata = {}) {
+    return this.productTelemetry.trackFeatureUsed(featureName, metadata);
+  }
+
+  /**
+   * Track conversion
+   */
+  trackConversion(eventName, value = null, metadata = {}) {
+    return this.productTelemetry.trackConversion(eventName, value, metadata);
+  }
+
+  /**
+   * Start WebRTC monitoring
+   */
+  startWebRTCMonitoring(peerConnection, intervalMs = 10000) {
+    this.mediaTelemetry.startWebRTCCollection(peerConnection, intervalMs);
+  }
+
+  /**
+   * Stop WebRTC monitoring
+   */
+  stopWebRTCMonitoring() {
+    this.mediaTelemetry.stopWebRTCCollection();
+  }
+
+  /**
+   * Track playback
+   */
+  trackPlayback(mediaElement, metadata = {}) {
+    return this.mediaTelemetry.trackPlayback(mediaElement, metadata);
+  }
+
+  /**
    * Reset all telemetry (useful for testing)
    */
   reset() {
     this.stop();
     this.permissionTelemetry.cleanup();
+    this.performanceTelemetry.cleanup();
+    this.networkTelemetry.stopObserving();
+    this.mediaTelemetry.stopWebRTCCollection();
     this.staticData = null;
     this.isInitialized = false;
     this.continuousTelemetry = new ContinuousTelemetry(this.options.continuousInterval);
     this.permissionTelemetry = new PermissionTelemetry();
+    this.productTelemetry = new ProductTelemetry();
+    this.performanceTelemetry = new PerformanceTelemetry();
+    this.networkTelemetry = new NetworkTelemetry();
+    this.reliabilityTelemetry = new ReliabilityTelemetry();
+    this.mediaTelemetry = new MediaTelemetry();
+    this.environmentTelemetry = new EnvironmentTelemetry();
     this.inferredTelemetry = null;
   }
 }
@@ -360,6 +466,12 @@ if (typeof module !== 'undefined' && module.exports) {
     ContinuousTelemetry,
     InferredTelemetry,
     PermissionTelemetry,
+    ProductTelemetry,
+    PerformanceTelemetry,
+    NetworkTelemetry,
+    ReliabilityTelemetry,
+    MediaTelemetry,
+    EnvironmentTelemetry,
     MetadataManager,
     SchemaExporter
   };
