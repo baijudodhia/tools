@@ -11,6 +11,12 @@
 
     <div>
         <h2>Controls</h2>
+        <div style="margin-bottom: 10px;">
+            <label>
+                <input type="checkbox" id="viewToggle" checked>
+                Show Table View (uncheck for JSON view)
+            </label>
+        </div>
         <button id="btnInit">Initialize</button>
         <button id="btnStart">Start Continuous</button>
         <button id="btnStop">Stop Continuous</button>
@@ -24,49 +30,69 @@
         <div id="status">Not initialized</div>
     </div>
 
-    <div>
-        <h2>Static Telemetry</h2>
-        <pre id="staticTelemetry"></pre>
+    <div id="jsonView">
+        <div>
+            <h2>Static Telemetry</h2>
+            <pre id="staticTelemetry"></pre>
+        </div>
+
+        <div>
+            <h2>Continuous Telemetry (Latest Sample)</h2>
+            <pre id="continuousTelemetry"></pre>
+        </div>
+
+        <div>
+            <h2>Continuous Statistics</h2>
+            <pre id="continuousStats"></pre>
+        </div>
+
+        <div>
+            <h2>Inferred Telemetry</h2>
+            <pre id="inferredTelemetry"></pre>
+        </div>
+
+        <div>
+            <h2>All Telemetry (JSON)</h2>
+            <pre id="allTelemetry"></pre>
+        </div>
+
+        <div>
+            <h2>Product & Engagement</h2>
+            <pre id="productTelemetry"></pre>
+        </div>
+
+        <div>
+            <h2>Performance (Core Web Vitals)</h2>
+            <pre id="performanceTelemetry"></pre>
+        </div>
+
+        <div>
+            <h2>Network Resource Timings</h2>
+            <pre id="networkTelemetry"></pre>
+        </div>
+
+        <div>
+            <h2>Reliability & Errors</h2>
+            <pre id="reliabilityTelemetry"></pre>
+        </div>
     </div>
 
-    <div>
-        <h2>Continuous Telemetry (Latest Sample)</h2>
-        <pre id="continuousTelemetry"></pre>
-    </div>
-
-    <div>
-        <h2>Continuous Statistics</h2>
-        <pre id="continuousStats"></pre>
-    </div>
-
-    <div>
-        <h2>Inferred Telemetry</h2>
-        <pre id="inferredTelemetry"></pre>
-    </div>
-
-    <div>
-        <h2>All Telemetry (JSON)</h2>
-        <pre id="allTelemetry"></pre>
-    </div>
-
-    <div>
-        <h2>Product & Engagement</h2>
-        <pre id="productTelemetry"></pre>
-    </div>
-
-    <div>
-        <h2>Performance (Core Web Vitals)</h2>
-        <pre id="performanceTelemetry"></pre>
-    </div>
-
-    <div>
-        <h2>Network Resource Timings</h2>
-        <pre id="networkTelemetry"></pre>
-    </div>
-
-    <div>
-        <h2>Reliability & Errors</h2>
-        <pre id="reliabilityTelemetry"></pre>
+    <div id="tableView" style="display: none;">
+        <h2>Excel-Like Data Table (Live Updates)</h2>
+        <div style="overflow-x: auto; max-height: 600px; overflow-y: auto; border: 1px solid #ccc;">
+            <table id="excelTable" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 12px;">
+                <thead id="tableHeader" style="position: sticky; top: 0; background-color: #f0f0f0; z-index: 10;">
+                    <!-- Headers will be populated dynamically -->
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Rows will be added dynamically -->
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 10px;">
+            <button id="btnClearTable">Clear Table</button>
+            <span id="tableRowCount" style="margin-left: 10px;">Rows: 0</span>
+        </div>
     </div>
 
     <script src="metadata.js"></script>
@@ -106,6 +132,24 @@
         const performanceDiv = document.getElementById('performanceTelemetry');
         const networkDiv = document.getElementById('networkTelemetry');
         const reliabilityDiv = document.getElementById('reliabilityTelemetry');
+        const tableHeader = document.getElementById('tableHeader');
+        const tableBody = document.getElementById('tableBody');
+        const tableRowCount = document.getElementById('tableRowCount');
+        const btnClearTable = document.getElementById('btnClearTable');
+        const viewToggle = document.getElementById('viewToggle');
+        const jsonView = document.getElementById('jsonView');
+        const tableView = document.getElementById('tableView');
+
+        // Toggle view
+        viewToggle.addEventListener('change', () => {
+            if (viewToggle.checked) {
+                jsonView.style.display = 'none';
+                tableView.style.display = 'block';
+            } else {
+                jsonView.style.display = 'block';
+                tableView.style.display = 'none';
+            }
+        });
 
         // Update status
         function updateStatus(message) {
@@ -166,6 +210,7 @@
                 await telemetry.initialize();
                 updateStatus('Initialized');
                 updateDisplays();
+                initializeTable(); // Initialize table after telemetry is ready
             } catch (error) {
                 updateStatus(`Initialization error: ${error.message}`);
             }
@@ -255,15 +300,116 @@
             try {
                 if (telemetry.staticData) {
                     updateDisplays();
+                    updateTable(); // Update Excel-like table
                 }
             } catch (e) {
                 // Not initialized yet
             }
         }, 1000);
 
+        // Initialize Excel-like table
+        let tableHeaders = [];
+        let staticRowAdded = false;
+
+        function initializeTable() {
+            // Get column headers from schema exporter
+            tableHeaders = telemetry.getColumnHeaders();
+
+            // Create header row
+            const headerRow = document.createElement('tr');
+            tableHeaders.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                th.style.border = '1px solid #ccc';
+                th.style.padding = '4px 8px';
+                th.style.textAlign = 'left';
+                th.style.backgroundColor = '#e0e0e0';
+                th.style.fontWeight = 'bold';
+                headerRow.appendChild(th);
+            });
+            tableHeader.innerHTML = '';
+            tableHeader.appendChild(headerRow);
+        }
+
+        function addTableRow(data, rowType = 'CONTINUOUS') {
+            const row = document.createElement('tr');
+            row.style.backgroundColor = rowType === 'STATIC' ? '#fff9e6' : '#ffffff';
+
+            tableHeaders.forEach(header => {
+                const td = document.createElement('td');
+                const value = data[header];
+
+                // Format the value
+                if (value === null || value === undefined) {
+                    td.textContent = '';
+                    td.style.color = '#999';
+                } else if (typeof value === 'boolean') {
+                    td.textContent = value ? 'true' : 'false';
+                    td.style.color = value ? '#006400' : '#8b0000';
+                } else if (typeof value === 'number') {
+                    td.textContent = value;
+                    td.style.textAlign = 'right';
+                } else {
+                    td.textContent = String(value);
+                }
+
+                td.style.border = '1px solid #ccc';
+                td.style.padding = '4px 8px';
+                td.style.fontSize = '11px';
+                row.appendChild(td);
+            });
+
+            tableBody.appendChild(row);
+
+            // Update row count
+            const rowCount = tableBody.children.length;
+            tableRowCount.textContent = `Rows: ${rowCount}`;
+
+            // Scroll to bottom
+            const tableContainer = tableBody.parentElement.parentElement;
+            tableContainer.scrollTop = tableContainer.scrollHeight;
+        }
+
+        function updateTable() {
+            try {
+                // Add static row once
+                if (!staticRowAdded && telemetry.staticData) {
+                    const staticRow = telemetry.exportStaticRow();
+                    if (staticRow) {
+                        addTableRow(staticRow, 'STATIC');
+                        staticRowAdded = true;
+                    }
+                }
+
+                // Add continuous rows
+                const continuousRows = telemetry.exportContinuousRows();
+                const currentRowCount = tableBody.children.length - (staticRowAdded ? 1 : 0);
+
+                if (continuousRows.length > currentRowCount) {
+                    // Add new rows
+                    for (let i = currentRowCount; i < continuousRows.length; i++) {
+                        addTableRow(continuousRows[i], 'CONTINUOUS');
+                    }
+                }
+            } catch (error) {
+                // Table not ready yet
+            }
+        }
+
+        btnClearTable.addEventListener('click', () => {
+            tableBody.innerHTML = '';
+            staticRowAdded = false;
+            tableRowCount.textContent = 'Rows: 0';
+        });
+
         // Auto-initialize on load
         window.addEventListener('load', () => {
             btnInit.click();
+
+            // Initialize table after a short delay
+            setTimeout(() => {
+                initializeTable();
+            }, 500);
 
             // Track first meaningful action
             setTimeout(() => {

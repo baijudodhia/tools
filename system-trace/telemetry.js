@@ -292,8 +292,79 @@ class TelemetryCollector {
     const permissionMetrics = this.permissionTelemetry.getAllMetrics();
     const inferred = this.inferredTelemetry ? this.inferredTelemetry.infer() : null;
 
+    // Get extended telemetry data
+    const perfMetrics = this.performanceTelemetry.getMetrics();
+    const perfEvent = this.performanceTelemetry.getPerformanceEvent();
+    const networkSummary = this.networkTelemetry.getSummary();
+    const productSession = this.productTelemetry.getSessionMetrics();
+    const productEngagement = this.productTelemetry.getEngagementSummary();
+    const environmentData = this.environmentTelemetry.getData();
+
+    // Prepare performance data
+    const performanceData = {
+      LCP_ms: perfEvent.LCP_ms,
+      INP_ms: perfEvent.INP_ms,
+      CLS: perfEvent.CLS,
+      TTFB_ms: perfEvent.TTFB_ms,
+      FCP_ms: perfEvent.FCP_ms,
+      DOMContentLoaded_ms: perfEvent.DOMContentLoaded_ms,
+      Load_ms: perfEvent.Load_ms,
+      time_to_interactive_ms: perfEvent.time_to_interactive_ms
+    };
+
+    // Prepare network data with cache hit ratio
+    const networkData = networkSummary ? {
+      ...networkSummary,
+      cache_hit_ratio: networkSummary.by_cache_status && networkSummary.total_requests > 0
+        ? (networkSummary.by_cache_status.hit || 0) / networkSummary.total_requests
+        : null,
+      avg_status_code: null
+    } : null;
+
+    // Prepare product data
+    const productData = {
+      user_id_hash: productSession.user_id_hash,
+      tenant_id: productSession.tenant_id,
+      session_start: productSession.session_start,
+      session_end: productSession.session_end,
+      session_duration_sec: productSession.session_duration_sec,
+      latest_feature_used: this.productTelemetry.getEvents()
+        .filter(e => e.event === 'feature_used')
+        .slice(-1)[0]?.feature_used || null,
+      latest_conversion_event: this.productTelemetry.getEvents()
+        .filter(e => e.event === 'conversion_event')
+        .slice(-1)[0]?.conversion_event || null,
+      latest_conversion_value: this.productTelemetry.getEvents()
+        .filter(e => e.event === 'conversion_event')
+        .slice(-1)[0]?.conversion_value || null,
+      dwell_time_sec: productEngagement.dwell_time_sec,
+      scroll_depth_pct: productEngagement.scroll_depth_pct,
+      click_count: productEngagement.click_count
+    };
+
+    // Prepare environment data (stabilized fields)
+    const envData = {
+      browser_name: environmentData.browser_name,
+      browser_version: environmentData.browser_version,
+      gpu_renderer: this.staticData?.device?.gpuRenderer || null,
+      device_class: environmentData.device_class,
+      hardware_acceleration: environmentData.hardware_acceleration,
+      renderer_path: environmentData.renderer_path,
+      platform: this.staticData?.device?.platform || null,
+      architecture: this.staticData?.device?.architecture || null
+    };
+
     return samples.map(sample =>
-      this.schemaExporter.exportContinuous(sample, permissionMetrics, inferred)
+      this.schemaExporter.exportContinuous(
+        sample,
+        permissionMetrics,
+        inferred,
+        performanceData,
+        networkData,
+        productData,
+        envData,
+        this.staticData // Pass static data to fill in continuous records
+      )
     );
   }
 
