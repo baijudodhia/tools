@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Trace - Observability Dashboard</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'obs-dark': '#0f172a',
+                        'obs-darker': '#020617',
+                        'obs-card': '#1e293b',
+                        'obs-border': '#334155',
+                        'obs-text': '#e2e8f0',
+                        'obs-text-muted': '#94a3b8',
+                        'obs-success': '#10b981',
+                        'obs-warning': '#f59e0b',
+                        'obs-error': '#ef4444',
+                        'obs-info': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        }
+        .mono {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New', monospace;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .metric-card {
+            transition: all 0.2s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .table-row {
+            transition: background-color 0.15s ease;
+        }
+        .table-row:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-obs-dark text-obs-text">
+    <!-- Global Status Bar -->
+    <div class="bg-obs-darker border-b border-obs-border sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-6">
+                <h1 class="text-xl font-bold text-white">System Trace Observability</h1>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <span class="status-indicator bg-obs-success"></span>
+                        <span class="text-sm text-obs-text-muted" id="systemStatus">System Healthy</span>
+                    </div>
+                    <div class="text-sm text-obs-text-muted">
+                        <span class="mono" id="lastUpdate">--:--:--</span>
+                    </div>
+                    <div class="text-sm">
+                        <span class="px-2 py-1 bg-obs-card rounded text-obs-text-muted" id="environment">PROD</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="btnPause" class="px-3 py-1 bg-obs-card hover:bg-obs-border rounded text-sm transition">Pause</button>
+                <button id="btnExport" class="px-3 py-1 bg-obs-info hover:bg-blue-600 rounded text-sm transition">Export CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-6">
+        <!-- KPI Metric Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Risk Score -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">Composite Risk Score</span>
+                    <span class="text-xs px-2 py-1 rounded" id="riskLevelBadge">--</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="riskScore">--</div>
+                <div class="text-xs text-obs-text-muted" id="riskTrend">--</div>
+            </div>
+
+            <!-- Network Stability -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">Network Stability</span>
+                    <span class="text-xs text-obs-text-muted">Score</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="networkStability">--</div>
+                <div class="text-xs text-obs-text-muted" id="networkTrend">--</div>
+            </div>
+
+            <!-- Session Reliability -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">Session Reliability</span>
+                    <span class="text-xs text-obs-text-muted">Score</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="sessionReliability">--</div>
+                <div class="text-xs text-obs-text-muted" id="reliabilityTrend">--</div>
+            </div>
+
+            <!-- Agent Presence -->
+            <div class="metric-card bg-obs-card border border-obs-border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-obs-text-muted">Agent Presence</span>
+                    <span class="text-xs text-obs-text-muted">Score</span>
+                </div>
+                <div class="text-3xl font-bold mb-1" id="agentPresence">--</div>
+                <div class="text-xs text-obs-text-muted" id="presenceTrend">--</div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <!-- Core Web Vitals -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Core Web Vitals</h3>
+                <div class="chart-container">
+                    <canvas id="webVitalsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Network Performance -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Network Performance</h3>
+                <div class="chart-container">
+                    <canvas id="networkChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Metrics Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <!-- Memory Usage -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Memory Usage (MB)</h3>
+                <div class="chart-container">
+                    <canvas id="memoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Performance Indicators -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Performance Indicators</h3>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distribution & Analysis Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            <!-- Connection Tier Distribution -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Connection Tier</h3>
+                <div class="chart-container">
+                    <canvas id="connectionTierChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Device Class Distribution -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Device Class</h3>
+                <div class="chart-container">
+                    <canvas id="deviceClassChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Risk Level Distribution -->
+            <div class="bg-obs-card border border-obs-border rounded-lg p-4">
+                <h3 class="text-sm font-semibold mb-4 text-obs-text-muted">Risk Level</h3>
+                <div class="chart-container">
+                    <canvas id="riskLevelChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Metrics Table -->
+        <div class="bg-obs-card border border-obs-border rounded-lg p-4 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-obs-text-muted">Live Telemetry Data</h3>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="tableSearch" placeholder="Search..." class="px-3 py-1 bg-obs-darker border border-obs-border rounded text-sm text-obs-text" style="width: 200px;">
+                    <select id="tableFilter" class="px-3 py-1 bg-obs-darker border border-obs-border rounded text-sm text-obs-text">
+                        <option value="all">All Records</option>
+                        <option value="STATIC">Static Only</option>
+                        <option value="CONTINUOUS">Continuous Only</option>
+                    </select>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-obs-darker border-b border-obs-border sticky top-0">
+                        <tr id="tableHeaderRow">
+                            <!-- Headers populated dynamically -->
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Rows populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 text-xs text-obs-text-muted">
+                <span id="tableRowCount">0 rows</span> |
+                <span id="tableFilteredCount">0 filtered</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load telemetry modules -->
+    <script src="metadata.js"></script>
+    <script src="static-telemetry.js"></script>
+    <script src="continuous-telemetry.js"></script>
+    <script src="permission-telemetry.js"></script>
+    <script src="product-telemetry.js"></script>
+    <script src="performance-telemetry.js"></script>
+    <script src="network-telemetry.js"></script>
+    <script src="reliability-telemetry.js"></script>
+    <script src="media-telemetry.js"></script>
+    <script src="environment-telemetry.js"></script>
+    <script src="inferred-telemetry.js"></script>
+    <script src="schema-exporter.js"></script>
+    <script src="telemetry.js"></script>
+
+    <script>
+        // Initialize telemetry
+        const telemetry = new TelemetryCollector({
+            continuousInterval: 5000,
+            autoStart: false
+        });
+
+        // Dashboard state
+        let isPaused = false;
+        let chartInstances = {};
+        let dataHistory = {
+            timestamps: [],
+            riskScores: [],
+            networkStability: [],
+            sessionReliability: [],
+            agentPresence: [],
+            lcp: [],
+            inp: [],
+            cls: [],
+            rtt: [],
+            downlink: [],
+            memoryUsed: [],
+            memoryTotal: [],
+            eventLoopDelay: [],
+            connectionTiers: { A: 0, B: 0, C: 0 },
+            deviceClasses: {},
+            riskLevels: {}
+        };
+
+        // Initialize charts
+        function initializeCharts() {
+            // Web Vitals Chart
+            const webVitalsCtx = document.getElementById('webVitalsChart').getContext('2d');
+            chartInstances.webVitals = new Chart(webVitalsCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'LCP (ms)',
+                            data: [],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'INP (ms)',
+                            data: [],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'CLS',
+                            data: [],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, position: 'left' },
+                        y1: { ticks: { color: '#94a3b8' }, grid: { display: false }, position: 'right' }
+                    }
+                }
+            });
+
+            // Network Chart
+            const networkCtx = document.getElementById('networkChart').getContext('2d');
+            chartInstances.network = new Chart(networkCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'RTT (ms)',
+                            data: [],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Downlink (Mbps)',
+                            data: [],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, position: 'left' },
+                        y1: { ticks: { color: '#94a3b8' }, grid: { display: false }, position: 'right' }
+                    }
+                }
+            });
+
+            // Memory Chart
+            const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+            chartInstances.memory = new Chart(memoryCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Used (MB)',
+                            data: [],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Total (MB)',
+                            data: [],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+                    }
+                }
+            });
+
+            // Performance Chart
+            const perfCtx = document.getElementById('performanceChart').getContext('2d');
+            chartInstances.performance = new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Event Loop Delay (ms)',
+                            data: [],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Long Tasks',
+                            data: [],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, position: 'left' },
+                        y1: { ticks: { color: '#94a3b8' }, grid: { display: false }, position: 'right' }
+                    }
+                }
+            });
+
+            // Connection Tier Chart
+            const connCtx = document.getElementById('connectionTierChart').getContext('2d');
+            chartInstances.connectionTier = new Chart(connCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Tier A (Fast)', 'Tier B (Medium)', 'Tier C (Slow)'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' }, position: 'bottom' }
+                    }
+                }
+            });
+
+            // Device Class Chart
+            const deviceCtx = document.getElementById('deviceClassChart').getContext('2d');
+            chartInstances.deviceClass = new Chart(deviceCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Count',
+                        data: [],
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, beginAtZero: true }
+                    }
+                }
+            });
+
+            // Risk Level Chart
+            const riskCtx = document.getElementById('riskLevelChart').getContext('2d');
+            chartInstances.riskLevel = new Chart(riskCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Low', 'Medium', 'High', 'Critical'],
+                    datasets: [{
+                        label: 'Count',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // Update KPI cards
+        function updateKPICards(data) {
+            const riskScore = data.inferred?.riskScores?.composite_agent_risk_score;
+            const riskLevel = data.inferred?.riskScores?.risk_level || 'Unknown';
+            const networkStability = data.inferred?.sessionIntegrity?.network_stability_score;
+            const sessionReliability = data.inferred?.sessionIntegrity?.session_reliability_score;
+            const agentPresence = data.inferred?.riskScores?.agent_presence_score;
+
+            // Risk Score
+            if (riskScore !== undefined) {
+                document.getElementById('riskScore').textContent = riskScore;
+                const badge = document.getElementById('riskLevelBadge');
+                badge.textContent = riskLevel;
+                badge.className = 'text-xs px-2 py-1 rounded ' +
+                    (riskLevel === 'Low' ? 'bg-obs-success' :
+                     riskLevel === 'Medium' ? 'bg-obs-warning' :
+                     riskLevel === 'High' ? 'bg-orange-600' : 'bg-obs-error');
+            }
+
+            // Network Stability
+            if (networkStability !== undefined) {
+                document.getElementById('networkStability').textContent = networkStability;
+            }
+
+            // Session Reliability
+            if (sessionReliability !== undefined) {
+                document.getElementById('sessionReliability').textContent = sessionReliability;
+            }
+
+            // Agent Presence
+            if (agentPresence !== undefined) {
+                document.getElementById('agentPresence').textContent = agentPresence;
+            }
+        }
+
+        // Update charts
+        function updateCharts(data) {
+            if (isPaused) return;
+
+            const now = new Date().toLocaleTimeString();
+            const latest = data.continuous?.latest;
+            const perf = data.performance;
+            const inferred = data.inferred;
+
+            // Add timestamp
+            dataHistory.timestamps.push(now);
+            if (dataHistory.timestamps.length > 50) {
+                dataHistory.timestamps.shift();
+            }
+
+            // Update Web Vitals
+            if (perf) {
+                if (perf.core_web_vitals?.LCP_ms) {
+                    dataHistory.lcp.push(perf.core_web_vitals.LCP_ms);
+                    if (dataHistory.lcp.length > 50) dataHistory.lcp.shift();
+                }
+                if (perf.core_web_vitals?.INP_ms) {
+                    dataHistory.inp.push(perf.core_web_vitals.INP_ms);
+                    if (dataHistory.inp.length > 50) dataHistory.inp.shift();
+                }
+                if (perf.core_web_vitals?.CLS) {
+                    dataHistory.cls.push(perf.core_web_vitals.CLS);
+                    if (dataHistory.cls.length > 50) dataHistory.cls.shift();
+                }
+            }
+
+            // Update Network
+            if (latest?.network) {
+                if (latest.network.rtt) {
+                    dataHistory.rtt.push(latest.network.rtt);
+                    if (dataHistory.rtt.length > 50) dataHistory.rtt.shift();
+                }
+                if (latest.network.downlinkSpeed) {
+                    dataHistory.downlink.push(latest.network.downlinkSpeed);
+                    if (dataHistory.downlink.length > 50) dataHistory.downlink.shift();
+                }
+            }
+
+            // Update Memory
+            if (latest?.memory?.jsHeapUsedMB) {
+                dataHistory.memoryUsed.push(latest.memory.jsHeapUsedMB);
+                if (dataHistory.memoryUsed.length > 50) dataHistory.memoryUsed.shift();
+            }
+            if (latest?.memory?.jsHeapTotalMB) {
+                dataHistory.memoryTotal.push(latest.memory.jsHeapTotalMB);
+                if (dataHistory.memoryTotal.length > 50) dataHistory.memoryTotal.shift();
+            }
+
+            // Update Performance
+            if (latest?.performance) {
+                if (latest.performance.eventLoopDelay) {
+                    dataHistory.eventLoopDelay.push(latest.performance.eventLoopDelay);
+                    if (dataHistory.eventLoopDelay.length > 50) dataHistory.eventLoopDelay.shift();
+                }
+            }
+
+            // Update Risk Scores
+            if (inferred?.riskScores?.composite_agent_risk_score !== undefined) {
+                dataHistory.riskScores.push(inferred.riskScores.composite_agent_risk_score);
+                if (dataHistory.riskScores.length > 50) dataHistory.riskScores.shift();
+            }
+
+            // Update chart data
+            chartInstances.webVitals.data.labels = dataHistory.timestamps.slice(-20);
+            chartInstances.webVitals.data.datasets[0].data = dataHistory.lcp.slice(-20);
+            chartInstances.webVitals.data.datasets[1].data = dataHistory.inp.slice(-20);
+            chartInstances.webVitals.data.datasets[2].data = dataHistory.cls.slice(-20);
+            chartInstances.webVitals.update('none');
+
+            chartInstances.network.data.labels = dataHistory.timestamps.slice(-20);
+            chartInstances.network.data.datasets[0].data = dataHistory.rtt.slice(-20);
+            chartInstances.network.data.datasets[1].data = dataHistory.downlink.slice(-20);
+            chartInstances.network.update('none');
+
+            chartInstances.memory.data.labels = dataHistory.timestamps.slice(-20);
+            chartInstances.memory.data.datasets[0].data = dataHistory.memoryUsed.slice(-20);
+            chartInstances.memory.data.datasets[1].data = dataHistory.memoryTotal.slice(-20);
+            chartInstances.memory.update('none');
+
+            chartInstances.performance.data.labels = dataHistory.timestamps.slice(-20);
+            chartInstances.performance.data.datasets[0].data = dataHistory.eventLoopDelay.slice(-20);
+            chartInstances.performance.update('none');
+        }
+
+        // Update distribution charts
+        function updateDistributionCharts(rows) {
+            // Connection Tier
+            const tiers = { A: 0, B: 0, C: 0 };
+            rows.forEach(row => {
+                if (row.connection_tier) tiers[row.connection_tier] = (tiers[row.connection_tier] || 0) + 1;
+            });
+            chartInstances.connectionTier.data.datasets[0].data = [tiers.A || 0, tiers.B || 0, tiers.C || 0];
+            chartInstances.connectionTier.update('none');
+
+            // Device Class
+            const deviceClasses = {};
+            rows.forEach(row => {
+                if (row.device_class) {
+                    deviceClasses[row.device_class] = (deviceClasses[row.device_class] || 0) + 1;
+                }
+            });
+            chartInstances.deviceClass.data.labels = Object.keys(deviceClasses);
+            chartInstances.deviceClass.data.datasets[0].data = Object.values(deviceClasses);
+            chartInstances.deviceClass.update('none');
+
+            // Risk Level
+            const riskLevels = { Low: 0, Medium: 0, High: 0, Critical: 0 };
+            rows.forEach(row => {
+                if (row.risk_level) riskLevels[row.risk_level] = (riskLevels[row.risk_level] || 0) + 1;
+            });
+            chartInstances.riskLevel.data.datasets[0].data = [
+                riskLevels.Low || 0,
+                riskLevels.Medium || 0,
+                riskLevels.High || 0,
+                riskLevels.Critical || 0
+            ];
+            chartInstances.riskLevel.update('none');
+        }
+
+        // Update table
+        let tableRows = [];
+        let tableHeaders = [];
+
+        function initializeTable() {
+            tableHeaders = telemetry.getColumnHeaders();
+            const headerRow = document.getElementById('tableHeaderRow');
+            headerRow.innerHTML = '';
+
+            // Show only key columns for readability
+            const keyColumns = [
+                'record_type', 'collected_at', 'risk_level', 'composite_agent_risk_score',
+                'network_stability_score', 'session_reliability_score', 'agent_presence_score',
+                'rtt_ms', 'downlink_mbps', 'connection_tier', 'LCP_ms', 'INP_ms',
+                'js_heap_used_mb', 'device_class', 'browser_name'
+            ];
+
+            keyColumns.forEach(header => {
+                if (tableHeaders.includes(header)) {
+                    const th = document.createElement('th');
+                    th.className = 'px-4 py-2 text-left text-xs font-semibold text-obs-text-muted uppercase';
+                    th.textContent = header.replace(/_/g, ' ');
+                    headerRow.appendChild(th);
+                }
+            });
+        }
+
+        function updateTable() {
+            try {
+                const staticRow = telemetry.exportStaticRow();
+                const continuousRows = telemetry.exportContinuousRows();
+
+                tableRows = [];
+                if (staticRow) tableRows.push(staticRow);
+                tableRows.push(...continuousRows);
+
+                renderTable();
+                updateDistributionCharts(tableRows);
+            } catch (e) {
+                // Not ready yet
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
+            const filterType = document.getElementById('tableFilter').value;
+
+            const keyColumns = [
+                'record_type', 'collected_at', 'risk_level', 'composite_agent_risk_score',
+                'network_stability_score', 'session_reliability_score', 'agent_presence_score',
+                'rtt_ms', 'downlink_mbps', 'connection_tier', 'LCP_ms', 'INP_ms',
+                'js_heap_used_mb', 'device_class', 'browser_name'
+            ];
+
+            let filteredRows = tableRows.filter(row => {
+                if (filterType !== 'all' && row.record_type !== filterType) return false;
+                if (searchTerm) {
+                    const searchable = Object.values(row).join(' ').toLowerCase();
+                    if (!searchable.includes(searchTerm)) return false;
+                }
+                return true;
+            });
+
+            tbody.innerHTML = '';
+            filteredRows.slice(-100).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'table-row border-b border-obs-border';
+
+                keyColumns.forEach(col => {
+                    if (tableHeaders.includes(col)) {
+                        const td = document.createElement('td');
+                        td.className = 'px-4 py-2 text-xs mono';
+                        const value = row[col];
+
+                        if (value === null || value === undefined) {
+                            td.textContent = '--';
+                            td.className += ' text-obs-text-muted';
+                        } else if (col === 'risk_level') {
+                            td.textContent = value;
+                            td.className += value === 'Low' ? ' text-obs-success' :
+                                           value === 'Medium' ? ' text-obs-warning' :
+                                           value === 'High' ? ' text-orange-500' : ' text-obs-error';
+                        } else if (col === 'record_type') {
+                            td.textContent = value;
+                            td.className += value === 'STATIC' ? ' text-obs-warning' : ' text-obs-info';
+                        } else if (typeof value === 'number') {
+                            td.textContent = value.toFixed(2);
+                            td.className += ' text-obs-text';
+                        } else {
+                            td.textContent = String(value);
+                            td.className += ' text-obs-text';
+                        }
+
+                        tr.appendChild(td);
+                    }
+                });
+
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('tableRowCount').textContent = `${tableRows.length} rows`;
+            document.getElementById('tableFilteredCount').textContent = `${filteredRows.length} filtered`;
+        }
+
+        // Event handlers
+        document.getElementById('btnPause').addEventListener('click', () => {
+            isPaused = !isPaused;
+            document.getElementById('btnPause').textContent = isPaused ? 'Resume' : 'Pause';
+        });
+
+        document.getElementById('btnExport').addEventListener('click', () => {
+            const csv = telemetry.exportToCSV();
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `telemetry-${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('tableSearch').addEventListener('input', renderTable);
+        document.getElementById('tableFilter').addEventListener('change', renderTable);
+
+        // Main update loop
+        function updateDashboard() {
+            if (!telemetry.staticData) return;
+
+            try {
+                const allData = telemetry.getAllTelemetryExtended();
+                updateKPICards(allData);
+                updateCharts(allData);
+                updateTable();
+
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            } catch (e) {
+                // Not ready
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', async () => {
+            initializeCharts();
+            await telemetry.initialize();
+            telemetry.start();
+            initializeTable();
+
+            setInterval(updateDashboard, 2000);
+            updateDashboard();
+        });
+    </script>
+</body>
+</html>
