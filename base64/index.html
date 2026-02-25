@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base64 Encoder / Decoder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    };
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen transition-colors">
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+  <header class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+      <h1 class="text-xl font-semibold">Base64 Encoder / Decoder</h1>
+      <div class="flex items-center gap-2">
+        <button type="button" id="clear-all-btn" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition" aria-label="Clear all">Clear all</button>
+        <button type="button" id="theme-toggle" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition" aria-label="Toggle dark mode">
+          <span id="theme-icon-light" class="hidden dark:inline">☀️</span>
+          <span id="theme-icon-dark" class="inline dark:hidden">🌙</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-4">
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">All processing happens locally in your browser.</p>
+
+    <div role="tablist" class="flex flex-wrap gap-1 mb-4 border-b border-gray-200 dark:border-gray-700">
+      <button type="button" role="tab" id="tab-text" data-tab="text" aria-selected="true" class="tab-btn px-4 py-2 rounded-t-lg font-medium border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800">Text</button>
+      <button type="button" role="tab" id="tab-file" data-tab="file" aria-selected="false" class="tab-btn px-4 py-2 rounded-t-lg font-medium border-b-2 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800">File → Base64</button>
+      <button type="button" role="tab" id="tab-b64file" data-tab="b64file" aria-selected="false" class="tab-btn px-4 py-2 rounded-t-lg font-medium border-b-2 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800">Base64 → File</button>
+      <button type="button" role="tab" id="tab-utils" data-tab="utils" aria-selected="false" class="tab-btn px-4 py-2 rounded-t-lg font-medium border-b-2 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800">Utilities</button>
+    </div>
+
+    <!-- Panel: Text -->
+    <section id="panel-text" role="tabpanel" class="space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+          <label for="text-input" class="block text-sm font-medium mb-2">Text to encode / Base64 to decode</label>
+          <div class="flex gap-2 mb-2">
+            <button type="button" id="text-copy-in" class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Copy</button>
+            <button type="button" id="text-clear-in" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Clear</button>
+          </div>
+          <textarea id="text-input" rows="8" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm" placeholder="Paste text or Base64 here…"></textarea>
+        </div>
+        <div class="card rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+          <label for="text-output" class="block text-sm font-medium mb-2">Result</label>
+          <div class="flex gap-2 mb-2 flex-wrap">
+            <button type="button" id="text-copy-out" class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Copy</button>
+            <button type="button" id="text-clear-out" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Clear</button>
+            <button type="button" id="text-download" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 hidden">Download .txt</button>
+          </div>
+          <textarea id="text-output" rows="8" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-mono text-sm" placeholder="Result will appear here…" readonly></textarea>
+          <p id="text-error" class="mt-2 text-sm text-red-600 dark:text-red-400 hidden"></p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" id="text-encode" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">Encode to Base64</button>
+        <button type="button" id="text-decode" class="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">Decode from Base64</button>
+      </div>
+    </section>
+
+    <!-- Panel: File → Base64 -->
+    <section id="panel-file" role="tabpanel" class="hidden space-y-4">
+      <div id="file-drop-zone" class="rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 p-8 text-center transition hover:border-blue-400 dark:hover:border-blue-500">
+        <p class="text-gray-500 dark:text-gray-400 mb-2">Drag and drop a file here, or click to choose</p>
+        <input type="file" id="file-input" class="hidden" accept="*">
+        <button type="button" id="file-choose-btn" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600">Choose file</button>
+      </div>
+      <div id="file-loading" class="hidden flex items-center gap-2 text-gray-500 dark:text-gray-400">
+        <span class="animate-spin inline-block w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></span>
+        Processing…
+      </div>
+      <div id="file-result" class="hidden space-y-4">
+        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+          <h3 class="font-medium mb-2">File info</h3>
+          <p id="file-meta" class="text-sm text-gray-600 dark:text-gray-400"></p>
+        </div>
+        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+          <h3 class="font-medium mb-2">Data URL</h3>
+          <div class="flex gap-2 mb-2">
+            <button type="button" id="file-copy-dataurl" class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Copy</button>
+          </div>
+          <textarea id="file-dataurl" rows="4" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-mono text-xs overflow-auto" readonly></textarea>
+        </div>
+        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+          <h3 class="font-medium mb-2">Raw Base64</h3>
+          <div class="flex gap-2 mb-2 flex-wrap">
+            <button type="button" id="file-copy-raw" class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Copy</button>
+            <button type="button" id="file-download-txt" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Download as .txt</button>
+          </div>
+          <textarea id="file-raw" rows="6" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-mono text-xs overflow-auto" readonly></textarea>
+          <p id="file-size-info" class="mt-2 text-sm text-gray-500 dark:text-gray-400"></p>
+        </div>
+      </div>
+      <p id="file-warning" class="text-sm text-amber-600 dark:text-amber-400 hidden"></p>
+    </section>
+
+    <!-- Panel: Base64 → File -->
+    <section id="panel-b64file" role="tabpanel" class="hidden space-y-4">
+      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+        <label for="b64file-input" class="block text-sm font-medium mb-2">Paste Base64 or Data URL</label>
+        <textarea id="b64file-input" rows="6" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="data:image/png;base64,… or raw Base64"></textarea>
+        <div class="mt-2 flex gap-2 flex-wrap">
+          <button type="button" id="b64file-parse" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600">Parse &amp; preview</button>
+          <button type="button" id="b64file-clear" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Clear</button>
+        </div>
+      </div>
+      <div id="b64file-result" class="hidden space-y-4">
+        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+          <h3 class="font-medium mb-2">Preview</h3>
+          <div id="b64file-preview" class="min-h-[120px] rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 overflow-auto p-2"></div>
+          <div class="mt-2 flex gap-2">
+            <button type="button" id="b64file-download" class="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600">Download file</button>
+          </div>
+        </div>
+      </div>
+      <p id="b64file-error" class="text-sm text-red-600 dark:text-red-400 hidden"></p>
+    </section>
+
+    <!-- Panel: Utilities -->
+    <section id="panel-utils" role="tabpanel" class="hidden space-y-6">
+      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+        <h3 class="font-medium mb-2">Remove whitespace from Base64</h3>
+        <textarea id="utils-whitespace-in" rows="4" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="Paste Base64 with spaces/newlines…"></textarea>
+        <button type="button" id="utils-whitespace-btn" class="mt-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600">Strip whitespace</button>
+        <div id="utils-whitespace-out" class="mt-2 hidden">
+          <textarea id="utils-whitespace-result" rows="4" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-mono text-sm" readonly></textarea>
+          <button type="button" id="utils-whitespace-copy" class="copy-btn mt-2 px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Copy</button>
+        </div>
+      </div>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+        <h3 class="font-medium mb-2">Validate Base64</h3>
+        <textarea id="utils-validate-in" rows="3" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="Paste Base64 to validate…"></textarea>
+        <button type="button" id="utils-validate-btn" class="mt-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600">Validate</button>
+        <p id="utils-validate-result" class="mt-2 text-sm"></p>
+      </div>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+        <h3 class="font-medium mb-2">Base64 size calculator</h3>
+        <textarea id="utils-size-in" rows="3" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="Paste Base64…"></textarea>
+        <button type="button" id="utils-size-btn" class="mt-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600">Calculate</button>
+        <p id="utils-size-result" class="mt-2 text-sm text-gray-600 dark:text-gray-400"></p>
+      </div>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+        <h3 class="font-medium mb-2">Base64 ↔ JSON</h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label for="utils-json-in" class="block text-sm mb-1">JSON string or Base64</label>
+            <textarea id="utils-json-in" rows="4" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="{} or Base64…"></textarea>
+          </div>
+          <div>
+            <label for="utils-json-out" class="block text-sm mb-1">Result</label>
+            <textarea id="utils-json-out" rows="4" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-mono text-sm" readonly></textarea>
+          </div>
+        </div>
+        <div class="mt-2 flex gap-2">
+          <button type="button" id="utils-json-to-b64" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">JSON → Base64</button>
+          <button type="button" id="utils-json-from-b64" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Base64 → JSON</button>
+        </div>
+      </div>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
+        <h3 class="font-medium mb-2">Base64 ↔ Blob / ArrayBuffer</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Encode: choose a file. Decode: paste Base64 and see length / hex snippet.</p>
+        <input type="file" id="utils-blob-file" class="hidden">
+        <button type="button" id="utils-blob-choose" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 mb-2">Choose file → Base64</button>
+        <textarea id="utils-blob-b64" rows="3" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="Or paste Base64 to decode to ArrayBuffer…"></textarea>
+        <button type="button" id="utils-blob-decode" class="mt-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Decode to ArrayBuffer</button>
+        <p id="utils-blob-result" class="mt-2 text-sm text-gray-600 dark:text-gray-400"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-gray-200 dark:border-gray-700 mt-8 py-4">
+    <div class="max-w-5xl mx-auto px-4">
+      <a href="https://baijudodhia.github.io/tools/" class="text-blue-600 dark:text-blue-400 hover:underline">All Tools</a>
+    </div>
+  </footer>
+
+  <script>
+(function () {
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+  const TOAST_DURATION = 2500;
+
+  // --- Core encoding/decoding (UTF-8 safe) ---
+  function encodeText(s) {
+    if (!s) return '';
+    const u8 = new TextEncoder().encode(s);
+    const chunkSize = 8192;
+    let binary = '';
+    for (let i = 0; i < u8.length; i += chunkSize) {
+      const chunk = u8.subarray(i, Math.min(i + chunkSize, u8.length));
+      binary += String.fromCharCode.apply(null, chunk);
+    }
+    return btoa(binary);
+  }
+
+  function decodeText(b64) {
+    const raw = atob(b64);
+    const u8 = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) u8[i] = raw.charCodeAt(i);
+    return new TextDecoder().decode(u8);
+  }
+
+  function base64ToBlob(b64, mime) {
+    const raw = atob(b64);
+    const u8 = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) u8[i] = raw.charCodeAt(i);
+    return new Blob([u8], { type: mime || 'application/octet-stream' });
+  }
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => {
+        const dataUrl = r.result;
+        const base64 = dataUrl.indexOf('base64,') >= 0 ? dataUrl.split('base64,')[1] : dataUrl;
+        resolve({ dataUrl, raw: base64 });
+      };
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+  }
+
+  function validateBase64(str) {
+    if (!str || typeof str !== 'string') return { valid: false, error: 'Empty or invalid input' };
+    const stripped = str.replace(/\s/g, '');
+    if (!/^[A-Za-z0-9+/]*=*$/.test(stripped)) return { valid: false, error: 'Invalid characters' };
+    if (stripped.length % 4 === 1) return { valid: false, error: 'Invalid length (padding)' };
+    try {
+      atob(stripped);
+      return { valid: true };
+    } catch (e) {
+      return { valid: false, error: e.message || 'Decode failed' };
+    }
+  }
+
+  function stripWhitespace(str) {
+    return (str || '').replace(/\s/g, '');
+  }
+
+  function parseDataUrl(str) {
+    const trimmed = (str || '').trim();
+    const match = trimmed.match(/^data:([^;]+);base64,(.+)$/s);
+    if (match) return { mime: match[1].trim(), base64: match[2].replace(/\s/g, '') };
+    return { mime: null, base64: stripWhitespace(trimmed) };
+  }
+
+  function formatBytes(n) {
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(2) + ' KB';
+    return (n / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+
+  function tryPrettyJson(str) {
+    try {
+      const o = JSON.parse(str);
+      return JSON.stringify(o, null, 2);
+    } catch (_) {
+      return str;
+    }
+  }
+
+  function showToast(message, type) {
+    const container = document.getElementById('toast-container');
+    const el = document.createElement('div');
+    el.className = 'px-4 py-2 rounded-lg shadow-lg text-sm ' +
+      (type === 'error' ? 'bg-red-500 text-white' : 'bg-gray-800 dark:bg-gray-700 text-white');
+    el.textContent = message;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), TOAST_DURATION);
+  }
+
+  function copyToClipboard(text, btn) {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Copied to clipboard', 'success');
+      if (btn) {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      }
+    }).catch(() => showToast('Copy failed', 'error'));
+  }
+
+  // --- Theme ---
+  function initTheme() {
+    const dark = localStorage.getItem('base64-dark') === '1';
+    document.documentElement.classList.toggle('dark', dark);
+  }
+  function toggleTheme() {
+    const dark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('base64-dark', dark ? '1' : '0');
+  }
+
+  // --- Tabs ---
+  function showPanel(name) {
+    ['text', 'file', 'b64file', 'utils'].forEach(id => {
+      const panel = document.getElementById('panel-' + id);
+      const tab = document.getElementById('tab-' + (id === 'text' ? 'text' : id === 'file' ? 'file' : id === 'b64file' ? 'b64file' : 'utils'));
+      if (!panel || !tab) return;
+      panel.classList.toggle('hidden', id !== name);
+      tab.setAttribute('aria-selected', id === name ? 'true' : 'false');
+      tab.classList.toggle('border-blue-500', id === name);
+      tab.classList.toggle('text-blue-600', id === name);
+      tab.classList.toggle('dark:text-blue-400', id === name);
+      tab.classList.toggle('border-transparent', id !== name);
+    });
+    if (name === 'b64file') revokeB64FileUrls();
+  }
+
+  let b64FileObjectUrl = null;
+  function revokeB64FileUrls() {
+    if (b64FileObjectUrl) {
+      URL.revokeObjectURL(b64FileObjectUrl);
+      b64FileObjectUrl = null;
+    }
+  }
+
+  // --- Text tab ---
+  function runTextEncode() {
+    const input = document.getElementById('text-input');
+    const output = document.getElementById('text-output');
+    const err = document.getElementById('text-error');
+    const downloadBtn = document.getElementById('text-download');
+    err.classList.add('hidden');
+    downloadBtn.classList.add('hidden');
+    try {
+      output.value = encodeText(input.value);
+      if (output.value) downloadBtn.classList.remove('hidden');
+    } catch (e) {
+      err.textContent = e.message || 'Encode failed';
+      err.classList.remove('hidden');
+      showToast(err.textContent, 'error');
+    }
+  }
+  function runTextDecode() {
+    const input = document.getElementById('text-input');
+    const output = document.getElementById('text-output');
+    const err = document.getElementById('text-error');
+    const downloadBtn = document.getElementById('text-download');
+    err.classList.add('hidden');
+    try {
+      const v = validateBase64(input.value.trim());
+      if (!v.valid) throw new Error(v.error || 'Invalid Base64');
+      output.value = tryPrettyJson(decodeText(stripWhitespace(input.value)));
+      downloadBtn.classList.remove('hidden');
+    } catch (e) {
+      output.value = '';
+      err.textContent = e.message || 'Decode failed';
+      err.classList.remove('hidden');
+      showToast(err.textContent, 'error');
+      downloadBtn.classList.add('hidden');
+    }
+  }
+  function downloadTextAsFile() {
+    const output = document.getElementById('text-output');
+    if (!output.value) return;
+    const blob = new Blob([output.value], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'decoded.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('Downloaded', 'success');
+  }
+
+  // --- File → Base64 ---
+  function handleFile(file) {
+    const warning = document.getElementById('file-warning');
+    const loading = document.getElementById('file-loading');
+    const result = document.getElementById('file-result');
+    const meta = document.getElementById('file-meta');
+    const dataurlEl = document.getElementById('file-dataurl');
+    const rawEl = document.getElementById('file-raw');
+    const sizeInfo = document.getElementById('file-size-info');
+    warning.classList.add('hidden');
+    if (!file) {
+      result.classList.add('hidden');
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      warning.textContent = 'File is larger than 50MB. Processing may be slow or fail.';
+      warning.classList.remove('hidden');
+    }
+    loading.classList.remove('hidden');
+    result.classList.add('hidden');
+    const reader = new FileReader();
+    reader.onload = () => {
+      loading.classList.add('hidden');
+      const dataUrl = reader.result;
+      const raw = dataUrl.indexOf('base64,') >= 0 ? dataUrl.split('base64,')[1] : dataUrl;
+      meta.textContent = `Name: ${file.name} | Type: ${file.type || 'unknown'} | Size: ${formatBytes(file.size)}`;
+      dataurlEl.value = dataUrl;
+      rawEl.value = raw;
+      const decodedLen = Math.floor((raw.length * 3) / 4);
+      const pct = raw.length ? ((raw.length - decodedLen) / decodedLen * 100).toFixed(1) : 0;
+      sizeInfo.textContent = `Base64 length: ${raw.length} chars. Decoded ≈ ${formatBytes(decodedLen)}. Size increase ≈ ${pct}%.`;
+      result.classList.remove('hidden');
+    };
+    reader.onerror = () => {
+      loading.classList.add('hidden');
+      showToast('Failed to read file', 'error');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function setupFilePanel() {
+    const dropZone = document.getElementById('file-drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const chooseBtn = document.getElementById('file-choose-btn');
+    chooseBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      const f = fileInput.files && fileInput.files[0];
+      handleFile(f || null);
+    });
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-blue-500'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-blue-500'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-blue-500');
+      const f = e.dataTransfer.files && e.dataTransfer.files[0];
+      handleFile(f || null);
+    });
+    document.getElementById('file-copy-dataurl').addEventListener('click', () => copyToClipboard(document.getElementById('file-dataurl').value, document.getElementById('file-copy-dataurl')));
+    document.getElementById('file-copy-raw').addEventListener('click', () => copyToClipboard(document.getElementById('file-raw').value, document.getElementById('file-copy-raw')));
+    document.getElementById('file-download-txt').addEventListener('click', () => {
+      const raw = document.getElementById('file-raw').value;
+      if (!raw) return;
+      const blob = new Blob([raw], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'base64.txt';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast('Downloaded', 'success');
+    });
+  }
+
+  // --- Base64 → File ---
+  function runB64FileParse() {
+    const input = document.getElementById('b64file-input');
+    const resultDiv = document.getElementById('b64file-result');
+    const previewDiv = document.getElementById('b64file-preview');
+    const errEl = document.getElementById('b64file-error');
+    const downloadBtn = document.getElementById('b64file-download');
+    revokeB64FileUrls();
+    errEl.classList.add('hidden');
+    const { mime, base64 } = parseDataUrl(input.value);
+    if (!base64) {
+      errEl.textContent = 'No Base64 data found.';
+      errEl.classList.remove('hidden');
+      resultDiv.classList.add('hidden');
+      return;
+    }
+    const v = validateBase64(base64);
+    if (!v.valid) {
+      errEl.textContent = v.error || 'Invalid Base64';
+      errEl.classList.remove('hidden');
+      resultDiv.classList.add('hidden');
+      return;
+    }
+    let blob;
+    try {
+      blob = base64ToBlob(base64, mime || 'application/octet-stream');
+    } catch (e) {
+      errEl.textContent = e.message || 'Failed to create blob';
+      errEl.classList.remove('hidden');
+      resultDiv.classList.add('hidden');
+      return;
+    }
+    b64FileObjectUrl = URL.createObjectURL(blob);
+    previewDiv.innerHTML = '';
+    const mt = (mime || '').toLowerCase();
+    if (mt.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.src = b64FileObjectUrl;
+      img.alt = 'Preview';
+      img.className = 'max-w-full max-h-96 object-contain';
+      previewDiv.appendChild(img);
+    } else if (mt === 'application/pdf') {
+      const embed = document.createElement('embed');
+      embed.src = b64FileObjectUrl;
+      embed.type = 'application/pdf';
+      embed.className = 'w-full h-96';
+      previewDiv.appendChild(embed);
+    } else if (mt.startsWith('text/') || mt === 'application/json') {
+      const pre = document.createElement('pre');
+      pre.className = 'text-sm overflow-auto max-h-96 whitespace-pre-wrap break-all';
+      const text = decodeText(base64);
+      pre.textContent = tryPrettyJson(text);
+      previewDiv.appendChild(pre);
+    } else {
+      previewDiv.textContent = 'No preview for this type. Use Download to save the file.';
+    }
+    downloadBtn.onclick = () => {
+      const a = document.createElement('a');
+      a.href = b64FileObjectUrl;
+      a.download = mime ? getDefaultFilename(mime) : 'download.bin';
+      a.click();
+      showToast('Download started', 'success');
+    };
+    resultDiv.classList.remove('hidden');
+  }
+  function getDefaultFilename(mime) {
+    const map = { 'image/png': 'image.png', 'image/jpeg': 'image.jpg', 'image/gif': 'image.gif', 'application/pdf': 'document.pdf' };
+    return map[mime] || 'download.bin';
+  }
+
+  // --- Utilities ---
+  function runWhitespace() {
+    const inEl = document.getElementById('utils-whitespace-in');
+    const outBlock = document.getElementById('utils-whitespace-out');
+    const resultEl = document.getElementById('utils-whitespace-result');
+    resultEl.value = stripWhitespace(inEl.value);
+    outBlock.classList.remove('hidden');
+  }
+  function runValidate() {
+    const inEl = document.getElementById('utils-validate-in');
+    const resEl = document.getElementById('utils-validate-result');
+    const v = validateBase64(inEl.value);
+    if (v.valid) {
+      resEl.textContent = 'Valid Base64.';
+      resEl.className = 'mt-2 text-sm text-green-600 dark:text-green-400';
+    } else {
+      resEl.textContent = 'Invalid: ' + (v.error || 'Unknown error');
+      resEl.className = 'mt-2 text-sm text-red-600 dark:text-red-400';
+    }
+  }
+  function runSizeCalc() {
+    const inEl = document.getElementById('utils-size-in');
+    const resEl = document.getElementById('utils-size-result');
+    const s = stripWhitespace(inEl.value);
+    if (!s) {
+      resEl.textContent = 'Paste Base64 first.';
+      return;
+    }
+    const v = validateBase64(s);
+    if (!v.valid) {
+      resEl.textContent = 'Invalid Base64.';
+      return;
+    }
+    const decodedLen = Math.floor((s.length * 3) / 4);
+    const pct = decodedLen ? ((s.length - decodedLen) / decodedLen * 100).toFixed(1) : 0;
+    resEl.textContent = `Base64: ${s.length} chars. Decoded size: ${formatBytes(decodedLen)}. Size increase: ~${pct}%.`;
+  }
+  function jsonToB64() {
+    const inEl = document.getElementById('utils-json-in');
+    const outEl = document.getElementById('utils-json-out');
+    try {
+      outEl.value = encodeText(inEl.value);
+      showToast('Encoded', 'success');
+    } catch (e) {
+      showToast(e.message || 'Encode failed', 'error');
+    }
+  }
+  function jsonFromB64() {
+    const inEl = document.getElementById('utils-json-in');
+    const outEl = document.getElementById('utils-json-out');
+    const v = validateBase64(inEl.value);
+    if (!v.valid) {
+      showToast(v.error || 'Invalid Base64', 'error');
+      return;
+    }
+    try {
+      outEl.value = tryPrettyJson(decodeText(stripWhitespace(inEl.value)));
+      showToast('Decoded', 'success');
+    } catch (e) {
+      showToast(e.message || 'Decode failed', 'error');
+    }
+  }
+  function utilsBlobChoose() {
+    document.getElementById('utils-blob-file').click();
+  }
+  function utilsBlobFileChange(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    blobToBase64(file).then(({ raw }) => {
+      document.getElementById('utils-blob-b64').value = raw;
+      document.getElementById('utils-blob-result').textContent = 'Encoded. Length: ' + raw.length + ' chars.';
+    }).catch(() => showToast('Read failed', 'error'));
+    e.target.value = '';
+  }
+  function utilsBlobDecode() {
+    const b64 = stripWhitespace(document.getElementById('utils-blob-b64').value);
+    const resEl = document.getElementById('utils-blob-result');
+    const v = validateBase64(b64);
+    if (!v.valid) {
+      resEl.textContent = 'Invalid Base64.';
+      return;
+    }
+    try {
+      const blob = base64ToBlob(b64);
+      const u8 = new Uint8Array(blob.size);
+      const r = new FileReader();
+      r.onload = () => {
+        const ab = r.result;
+        const arr = new Uint8Array(ab);
+        const hex = Array.from(arr.slice(0, 32)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+        resEl.textContent = `ArrayBuffer length: ${arr.length} bytes. First bytes (hex): ${hex}${arr.length > 32 ? '…' : ''}`;
+      };
+      r.readAsArrayBuffer(blob);
+    } catch (e) {
+      resEl.textContent = 'Decode failed: ' + (e.message || '');
+    }
+  }
+
+  // --- Clear all ---
+  function clearAll() {
+    document.getElementById('text-input').value = '';
+    document.getElementById('text-output').value = '';
+    document.getElementById('text-error').classList.add('hidden');
+    document.getElementById('text-download').classList.add('hidden');
+    document.getElementById('file-input').value = '';
+    document.getElementById('file-result').classList.add('hidden');
+    document.getElementById('file-loading').classList.add('hidden');
+    document.getElementById('file-warning').classList.add('hidden');
+    document.getElementById('b64file-input').value = '';
+    document.getElementById('b64file-result').classList.add('hidden');
+    document.getElementById('b64file-error').classList.add('hidden');
+    revokeB64FileUrls();
+    document.getElementById('utils-whitespace-in').value = '';
+    document.getElementById('utils-whitespace-out').classList.add('hidden');
+    document.getElementById('utils-validate-in').value = '';
+    document.getElementById('utils-validate-result').textContent = '';
+    document.getElementById('utils-size-in').value = '';
+    document.getElementById('utils-size-result').textContent = '';
+    document.getElementById('utils-json-in').value = '';
+    document.getElementById('utils-json-out').value = '';
+    document.getElementById('utils-blob-b64').value = '';
+    document.getElementById('utils-blob-result').textContent = '';
+    showToast('Cleared', 'success');
+  }
+
+  // --- Init ---
+  function init() {
+    initTheme();
+    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => showPanel(btn.dataset.tab));
+    });
+    document.getElementById('clear-all-btn').addEventListener('click', clearAll);
+
+    document.getElementById('text-encode').addEventListener('click', runTextEncode);
+    document.getElementById('text-decode').addEventListener('click', runTextDecode);
+    document.getElementById('text-copy-in').addEventListener('click', () => copyToClipboard(document.getElementById('text-input').value, document.getElementById('text-copy-in')));
+    document.getElementById('text-copy-out').addEventListener('click', () => copyToClipboard(document.getElementById('text-output').value, document.getElementById('text-copy-out')));
+    document.getElementById('text-clear-in').addEventListener('click', () => { document.getElementById('text-input').value = ''; });
+    document.getElementById('text-clear-out').addEventListener('click', () => {
+      document.getElementById('text-output').value = '';
+      document.getElementById('text-error').classList.add('hidden');
+      document.getElementById('text-download').classList.add('hidden');
+    });
+    document.getElementById('text-download').addEventListener('click', downloadTextAsFile);
+
+    setupFilePanel();
+
+    document.getElementById('b64file-parse').addEventListener('click', runB64FileParse);
+    document.getElementById('b64file-clear').addEventListener('click', () => {
+      document.getElementById('b64file-input').value = '';
+      document.getElementById('b64file-result').classList.add('hidden');
+      document.getElementById('b64file-error').classList.add('hidden');
+      revokeB64FileUrls();
+    });
+
+    document.getElementById('utils-whitespace-btn').addEventListener('click', runWhitespace);
+    document.getElementById('utils-whitespace-copy').addEventListener('click', () => copyToClipboard(document.getElementById('utils-whitespace-result').value, document.getElementById('utils-whitespace-copy')));
+    document.getElementById('utils-validate-btn').addEventListener('click', runValidate);
+    document.getElementById('utils-size-btn').addEventListener('click', runSizeCalc);
+    document.getElementById('utils-json-to-b64').addEventListener('click', jsonToB64);
+    document.getElementById('utils-json-from-b64').addEventListener('click', jsonFromB64);
+    document.getElementById('utils-blob-choose').addEventListener('click', utilsBlobChoose);
+    document.getElementById('utils-blob-file').addEventListener('change', utilsBlobFileChange);
+    document.getElementById('utils-blob-decode').addEventListener('click', utilsBlobDecode);
+
+    document.getElementById('text-input').addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        if (e.shiftKey) runTextDecode();
+        else runTextEncode();
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+  </script>
+</body>
+</html>
