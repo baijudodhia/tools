@@ -206,11 +206,44 @@
     return new TextDecoder().decode(u8);
   }
 
-  function base64ToBlob(b64, mime) {
+  function base64ToUint8Array(b64) {
     const raw = atob(b64);
     const u8 = new Uint8Array(raw.length);
     for (let i = 0; i < raw.length; i++) u8[i] = raw.charCodeAt(i);
+    return u8;
+  }
+
+  function base64ToBlob(b64, mime) {
+    const u8 = base64ToUint8Array(b64);
     return new Blob([u8], { type: mime || 'application/octet-stream' });
+  }
+
+  // Detect MIME from magic bytes when no Data URL prefix
+  function detectMimeFromBytes(u8) {
+    if (!u8 || u8.length < 4) return null;
+    const b = (i) => u8[i] || 0;
+    if (b(0) === 0x89 && b(1) === 0x50 && b(2) === 0x4e && b(3) === 0x47) return 'image/png';
+    if (b(0) === 0xff && b(1) === 0xd8 && b(2) === 0xff) return 'image/jpeg';
+    if (b(0) === 0x47 && b(1) === 0x49 && b(2) === 0x46 && b(3) === 0x38 && (b(4) === 0x37 || b(4) === 0x39) && b(5) === 0x61) return 'image/gif';
+    if (b(0) === 0x52 && b(1) === 0x49 && b(2) === 0x46 && b(3) === 0x46 && u8.length >= 12 && b(8) === 0x57 && b(9) === 0x45 && b(10) === 0x42 && b(11) === 0x50) return 'image/webp';
+    if (b(0) === 0x25 && b(1) === 0x50 && b(2) === 0x44 && b(3) === 0x46) return 'application/pdf';
+    if (b(0) === 0x50 && b(1) === 0x4b && (b(2) === 0x03 || b(2) === 0x05) && (b(3) === 0x04 || b(3) === 0x06)) return 'application/zip';
+    if (u8.length >= 4 && b(0) === 0x3c && b(1) === 0x73 && b(2) === 0x76 && b(3) === 0x67) return 'image/svg+xml';
+    if (b(0) === 0x3c && (b(1) === 0x3f || b(1) === 0x21 || b(1) === 0x68)) return 'text/html';
+    if (u8.length >= 3 && b(0) === 0xef && b(1) === 0xbb && b(2) === 0xbf) {
+      try {
+        const s = new TextDecoder().decode(u8);
+        if ((s.trimStart().startsWith('{') && s.includes('}')) || (s.trimStart().startsWith('[') && s.includes(']'))) return 'application/json';
+        return 'text/plain';
+      } catch (_) { return null; }
+    }
+    try {
+      const s = new TextDecoder('utf-8', { fatal: true }).decode(u8);
+      const t = s.trimStart();
+      if ((t.startsWith('{') && t.includes('}')) || (t.startsWith('[') && t.includes(']'))) return 'application/json';
+      if (/^[\x20-\x7e\n\r\t]+$/.test(s) || s.length > 0) return 'text/plain';
+    } catch (_) {}
+    return null;
   }
 
   function blobToBase64(blob) {
@@ -464,9 +497,11 @@
       resultDiv.classList.add('hidden');
       return;
     }
+    const u8 = base64ToUint8Array(base64);
+    const resolvedMime = mime || detectMimeFromBytes(u8) || 'application/octet-stream';
     let blob;
     try {
-      blob = base64ToBlob(base64, mime || 'application/octet-stream');
+      blob = new Blob([u8], { type: resolvedMime });
     } catch (e) {
       errEl.textContent = e.message || 'Failed to create blob';
       errEl.classList.remove('hidden');
@@ -475,7 +510,7 @@
     }
     b64FileObjectUrl = URL.createObjectURL(blob);
     previewDiv.innerHTML = '';
-    const mt = (mime || '').toLowerCase();
+    const mt = resolvedMime.toLowerCase();
     if (mt.startsWith('image/')) {
       const img = document.createElement('img');
       img.src = b64FileObjectUrl;
@@ -500,14 +535,18 @@
     downloadBtn.onclick = () => {
       const a = document.createElement('a');
       a.href = b64FileObjectUrl;
-      a.download = mime ? getDefaultFilename(mime) : 'download.bin';
+      a.download = getDefaultFilename(resolvedMime);
       a.click();
       showToast('Download started', 'success');
     };
     resultDiv.classList.remove('hidden');
   }
   function getDefaultFilename(mime) {
-    const map = { 'image/png': 'image.png', 'image/jpeg': 'image.jpg', 'image/gif': 'image.gif', 'application/pdf': 'document.pdf' };
+    const map = {
+      'image/png': 'image.png', 'image/jpeg': 'image.jpg', 'image/gif': 'image.gif', 'image/webp': 'image.webp', 'image/svg+xml': 'image.svg',
+      'application/pdf': 'document.pdf', 'application/zip': 'archive.zip', 'application/json': 'data.json',
+      'text/plain': 'file.txt', 'text/html': 'page.html'
+    };
     return map[mime] || 'download.bin';
   }
 
