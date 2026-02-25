@@ -4,119 +4,142 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Base64 Encoder / Decoder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            primary: { 50: '#f0f4ff', 100: '#e0e9fe', 200: '#c7d6fe', 300: '#a4b8fc', 400: '#8093f8', 500: '#6172f3', 600: '#4d5ce6', 700: '#4046d4', 800: '#373aac', 900: '#313388' },
+            surface: { light: '#f8fafc', dark: '#0f172a' }
+          }
+        }
+      }
     };
   </script>
+  <style>
+    body { font-feature-settings: 'cv02','cv03','cv04','cv11'; }
+    .card-enterprise { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06); }
+    .dark .card-enterprise { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.2); }
+  </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen transition-colors">
-  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 min-h-screen transition-colors font-sans antialiased">
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
 
-  <header class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
-      <h1 class="text-xl font-semibold">Base64 Encoder / Decoder</h1>
+  <header class="border-b border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/95 backdrop-blur-sm">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-baseline gap-2">
+        <h1 class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">Base64</h1>
+        <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Encoder / Decoder</span>
+      </div>
       <div class="flex items-center gap-2">
-        <button type="button" id="clear-all-btn" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition" aria-label="Clear all">Clear all</button>
-        <button type="button" id="theme-toggle" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition" aria-label="Toggle dark mode">
-          <span id="theme-icon-light" class="hidden dark:inline">☀️</span>
-          <span id="theme-icon-dark" class="inline dark:hidden">🌙</span>
+        <button type="button" id="clear-all-btn" class="px-3 py-2 text-sm font-medium rounded-md border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" aria-label="Clear all">Clear all</button>
+        <button type="button" id="theme-toggle" class="p-2 rounded-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" aria-label="Toggle dark mode">
+          <span id="theme-icon-light" class="hidden dark:inline text-sm">☀️</span>
+          <span id="theme-icon-dark" class="inline dark:hidden text-sm">🌙</span>
         </button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 py-4">
-    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">All processing happens locally in your browser.</p>
+  <main class="max-w-5xl mx-auto px-6 py-6">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 text-xs font-medium mb-6">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+      All processing happens locally in your browser.
+    </div>
 
-    <div role="tablist" class="flex flex-wrap gap-1 mb-4 border-b border-gray-200 dark:border-gray-700">
-      <button type="button" role="tab" id="tab-text" data-tab="text" aria-selected="true" class="tab-btn px-4 py-2 rounded-t-lg font-medium border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800">Text</button>
-      <button type="button" role="tab" id="tab-file" data-tab="file" aria-selected="false" class="tab-btn px-4 py-2 rounded-t-lg font-medium border-b-2 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800">File → Base64</button>
-      <button type="button" role="tab" id="tab-b64file" data-tab="b64file" aria-selected="false" class="tab-btn px-4 py-2 rounded-t-lg font-medium border-b-2 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800">Base64 → File</button>
-      <button type="button" role="tab" id="tab-utils" data-tab="utils" aria-selected="false" class="tab-btn px-4 py-2 rounded-t-lg font-medium border-b-2 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800">Utilities</button>
+    <div role="tablist" class="flex flex-wrap gap-0.5 mb-6 p-1 rounded-lg bg-slate-100 dark:bg-slate-800/60 w-fit">
+      <button type="button" role="tab" id="tab-text" data-tab="text" aria-selected="true" class="tab-btn px-4 py-2.5 rounded-md text-sm font-medium border-blue-500 text-white bg-primary-600 dark:bg-primary-500 shadow-sm">Text</button>
+      <button type="button" role="tab" id="tab-file" data-tab="file" aria-selected="false" class="tab-btn px-4 py-2.5 rounded-md text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700/50 transition-colors">File → Base64</button>
+      <button type="button" role="tab" id="tab-b64file" data-tab="b64file" aria-selected="false" class="tab-btn px-4 py-2.5 rounded-md text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700/50 transition-colors">Base64 → File</button>
+      <button type="button" role="tab" id="tab-utils" data-tab="utils" aria-selected="false" class="tab-btn px-4 py-2.5 rounded-md text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700/50 transition-colors">Utilities</button>
     </div>
 
     <!-- Panel: Text -->
-    <section id="panel-text" role="tabpanel" class="space-y-4">
-      <div class="grid md:grid-cols-2 gap-4">
-        <div class="card rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-          <label for="text-input" class="block text-sm font-medium mb-2">Text to encode / Base64 to decode</label>
+    <section id="panel-text" role="tabpanel" class="space-y-5">
+      <div class="grid md:grid-cols-2 gap-5">
+        <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+          <label for="text-input" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Input</label>
           <div class="flex gap-2 mb-2">
-            <button type="button" id="text-copy-in" class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Copy</button>
-            <button type="button" id="text-clear-in" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Clear</button>
+            <button type="button" id="text-copy-in" class="copy-btn px-3 py-2 text-sm font-medium rounded-md border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Copy</button>
+            <button type="button" id="text-clear-in" class="px-3 py-2 text-sm font-medium rounded-md border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Clear</button>
           </div>
-          <textarea id="text-input" rows="8" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm" placeholder="Paste text or Base64 here…"></textarea>
+          <textarea id="text-input" rows="8" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm placeholder:text-slate-400" placeholder="Paste text or Base64 here…"></textarea>
         </div>
-        <div class="card rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-          <label for="text-output" class="block text-sm font-medium mb-2">Result</label>
+        <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+          <label for="text-output" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Result</label>
           <div class="flex gap-2 mb-2 flex-wrap">
-            <button type="button" id="text-copy-out" class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Copy</button>
-            <button type="button" id="text-clear-out" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Clear</button>
-            <button type="button" id="text-download" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 hidden">Download .txt</button>
+            <button type="button" id="text-copy-out" class="copy-btn px-3 py-2 text-sm font-medium rounded-md border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Copy</button>
+            <button type="button" id="text-clear-out" class="px-3 py-2 text-sm font-medium rounded-md border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Clear</button>
+            <button type="button" id="text-download" class="px-3 py-2 text-sm font-medium rounded-md border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors hidden">Download .txt</button>
           </div>
-          <textarea id="text-output" rows="8" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-mono text-sm" placeholder="Result will appear here…" readonly></textarea>
+          <textarea id="text-output" rows="8" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-950 font-mono text-sm placeholder:text-slate-400" placeholder="Result will appear here…" readonly></textarea>
           <p id="text-error" class="mt-2 text-sm text-red-600 dark:text-red-400 hidden"></p>
         </div>
       </div>
-      <div class="flex gap-2">
-        <button type="button" id="text-encode" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">Encode to Base64</button>
-        <button type="button" id="text-decode" class="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">Decode from Base64</button>
+      <div class="flex gap-3">
+        <button type="button" id="text-encode" class="px-4 py-2.5 rounded-md text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 shadow-sm transition-colors">Encode to Base64</button>
+        <button type="button" id="text-decode" class="px-4 py-2.5 rounded-md text-sm font-medium border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-colors">Decode from Base64</button>
       </div>
     </section>
 
     <!-- Panel: File → Base64 -->
-    <section id="panel-file" role="tabpanel" class="hidden space-y-4">
-      <div id="file-drop-zone" class="rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 p-8 text-center transition hover:border-blue-400 dark:hover:border-blue-500">
-        <p class="text-gray-500 dark:text-gray-400 mb-2">Drag and drop a file here, or click to choose</p>
+    <section id="panel-file" role="tabpanel" class="hidden space-y-5">
+      <div id="file-drop-zone" class="rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/40 p-10 text-center transition-colors hover:border-primary-400 dark:hover:border-primary-500 hover:bg-slate-100/80 dark:hover:bg-slate-800/60">
+        <p class="text-slate-500 dark:text-slate-400 text-sm mb-3">Drag and drop a file here, or click to choose</p>
         <input type="file" id="file-input" class="hidden" accept="*">
-        <button type="button" id="file-choose-btn" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600">Choose file</button>
+        <button type="button" id="file-choose-btn" class="px-4 py-2.5 rounded-md text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 shadow-sm transition-colors">Choose file</button>
       </div>
-      <div id="file-loading" class="hidden flex items-center gap-2 text-gray-500 dark:text-gray-400">
-        <span class="animate-spin inline-block w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></span>
+      <div id="file-loading" class="hidden flex items-center gap-3 text-slate-500 dark:text-slate-400 text-sm">
+        <span class="animate-spin inline-block w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full"></span>
         Processing…
       </div>
-      <div id="file-result" class="hidden space-y-4">
-        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-          <h3 class="font-medium mb-2">File info</h3>
-          <p id="file-meta" class="text-sm text-gray-600 dark:text-gray-400"></p>
+      <div id="file-result" class="hidden space-y-5">
+        <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">File info</h3>
+          <p id="file-meta" class="text-sm text-slate-700 dark:text-slate-300"></p>
         </div>
-        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-          <h3 class="font-medium mb-2">Data URL</h3>
+        <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Data URL</h3>
           <div class="flex gap-2 mb-2">
-            <button type="button" id="file-copy-dataurl" class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Copy</button>
+            <button type="button" id="file-copy-dataurl" class="copy-btn px-3 py-2 text-sm font-medium rounded-md border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Copy</button>
           </div>
-          <textarea id="file-dataurl" rows="4" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-mono text-xs overflow-auto" readonly></textarea>
+          <textarea id="file-dataurl" rows="4" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-950 font-mono text-xs overflow-auto" readonly></textarea>
         </div>
-        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-          <h3 class="font-medium mb-2">Raw Base64</h3>
+        <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Raw Base64</h3>
           <div class="flex gap-2 mb-2 flex-wrap">
-            <button type="button" id="file-copy-raw" class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Copy</button>
-            <button type="button" id="file-download-txt" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Download as .txt</button>
+            <button type="button" id="file-copy-raw" class="copy-btn px-3 py-2 text-sm font-medium rounded-md border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Copy</button>
+            <button type="button" id="file-download-txt" class="px-3 py-2 text-sm font-medium rounded-md border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Download as .txt</button>
           </div>
-          <textarea id="file-raw" rows="6" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-mono text-xs overflow-auto" readonly></textarea>
-          <p id="file-size-info" class="mt-2 text-sm text-gray-500 dark:text-gray-400"></p>
+          <textarea id="file-raw" rows="6" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-950 font-mono text-xs overflow-auto" readonly></textarea>
+          <p id="file-size-info" class="mt-2 text-sm text-slate-500 dark:text-slate-400"></p>
         </div>
       </div>
       <p id="file-warning" class="text-sm text-amber-600 dark:text-amber-400 hidden"></p>
     </section>
 
     <!-- Panel: Base64 → File -->
-    <section id="panel-b64file" role="tabpanel" class="hidden space-y-4">
-      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-        <label for="b64file-input" class="block text-sm font-medium mb-2">Paste Base64 or Data URL</label>
-        <textarea id="b64file-input" rows="6" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="data:image/png;base64,… or raw Base64"></textarea>
-        <div class="mt-2 flex gap-2 flex-wrap">
-          <button type="button" id="b64file-parse" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600">Parse &amp; preview</button>
-          <button type="button" id="b64file-clear" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Clear</button>
+    <section id="panel-b64file" role="tabpanel" class="hidden space-y-5">
+      <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+        <label for="b64file-input" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Paste Base64 or Data URL</label>
+        <textarea id="b64file-input" rows="6" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950 font-mono text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder:text-slate-400" placeholder="data:image/png;base64,… or raw Base64"></textarea>
+        <div class="mt-3 flex gap-3 flex-wrap">
+          <button type="button" id="b64file-parse" class="px-4 py-2.5 rounded-md text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 shadow-sm transition-colors">Parse &amp; preview</button>
+          <button type="button" id="b64file-clear" class="px-4 py-2.5 rounded-md text-sm font-medium border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Clear</button>
         </div>
       </div>
-      <div id="b64file-result" class="hidden space-y-4">
-        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-          <h3 class="font-medium mb-2">Preview</h3>
-          <div id="b64file-preview" class="min-h-[120px] rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 overflow-auto p-2"></div>
-          <div class="mt-2 flex gap-2">
-            <button type="button" id="b64file-download" class="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600">Download file</button>
+      <div id="b64file-result" class="hidden space-y-5">
+        <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Preview</h3>
+          <div id="b64file-preview" class="min-h-[140px] rounded-md border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-950 overflow-auto p-4"></div>
+          <div class="mt-3 flex gap-3">
+            <button type="button" id="b64file-download" class="px-4 py-2.5 rounded-md text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm transition-colors">Download file</button>
           </div>
         </div>
       </div>
@@ -125,59 +148,59 @@
 
     <!-- Panel: Utilities -->
     <section id="panel-utils" role="tabpanel" class="hidden space-y-6">
-      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-        <h3 class="font-medium mb-2">Remove whitespace from Base64</h3>
-        <textarea id="utils-whitespace-in" rows="4" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="Paste Base64 with spaces/newlines…"></textarea>
-        <button type="button" id="utils-whitespace-btn" class="mt-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600">Strip whitespace</button>
-        <div id="utils-whitespace-out" class="mt-2 hidden">
-          <textarea id="utils-whitespace-result" rows="4" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-mono text-sm" readonly></textarea>
-          <button type="button" id="utils-whitespace-copy" class="copy-btn mt-2 px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Copy</button>
+      <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Remove whitespace from Base64</h3>
+        <textarea id="utils-whitespace-in" rows="4" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950 font-mono text-sm placeholder:text-slate-400" placeholder="Paste Base64 with spaces/newlines…"></textarea>
+        <button type="button" id="utils-whitespace-btn" class="mt-3 px-4 py-2.5 rounded-md text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 shadow-sm transition-colors">Strip whitespace</button>
+        <div id="utils-whitespace-out" class="mt-3 hidden">
+          <textarea id="utils-whitespace-result" rows="4" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-950 font-mono text-sm" readonly></textarea>
+          <button type="button" id="utils-whitespace-copy" class="copy-btn mt-2 px-3 py-2 text-sm font-medium rounded-md border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Copy</button>
         </div>
       </div>
-      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-        <h3 class="font-medium mb-2">Validate Base64</h3>
-        <textarea id="utils-validate-in" rows="3" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="Paste Base64 to validate…"></textarea>
-        <button type="button" id="utils-validate-btn" class="mt-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600">Validate</button>
+      <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Validate Base64</h3>
+        <textarea id="utils-validate-in" rows="3" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950 font-mono text-sm placeholder:text-slate-400" placeholder="Paste Base64 to validate…"></textarea>
+        <button type="button" id="utils-validate-btn" class="mt-3 px-4 py-2.5 rounded-md text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 shadow-sm transition-colors">Validate</button>
         <p id="utils-validate-result" class="mt-2 text-sm"></p>
       </div>
-      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-        <h3 class="font-medium mb-2">Base64 size calculator</h3>
-        <textarea id="utils-size-in" rows="3" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="Paste Base64…"></textarea>
-        <button type="button" id="utils-size-btn" class="mt-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600">Calculate</button>
-        <p id="utils-size-result" class="mt-2 text-sm text-gray-600 dark:text-gray-400"></p>
+      <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Base64 size calculator</h3>
+        <textarea id="utils-size-in" rows="3" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950 font-mono text-sm placeholder:text-slate-400" placeholder="Paste Base64…"></textarea>
+        <button type="button" id="utils-size-btn" class="mt-3 px-4 py-2.5 rounded-md text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 shadow-sm transition-colors">Calculate</button>
+        <p id="utils-size-result" class="mt-2 text-sm text-slate-600 dark:text-slate-400"></p>
       </div>
-      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-        <h3 class="font-medium mb-2">Base64 ↔ JSON</h3>
+      <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Base64 ↔ JSON</h3>
         <div class="grid md:grid-cols-2 gap-4">
           <div>
-            <label for="utils-json-in" class="block text-sm mb-1">JSON string or Base64</label>
-            <textarea id="utils-json-in" rows="4" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="{} or Base64…"></textarea>
+            <label for="utils-json-in" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Input</label>
+            <textarea id="utils-json-in" rows="4" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950 font-mono text-sm placeholder:text-slate-400" placeholder="{} or Base64…"></textarea>
           </div>
           <div>
-            <label for="utils-json-out" class="block text-sm mb-1">Result</label>
-            <textarea id="utils-json-out" rows="4" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-mono text-sm" readonly></textarea>
+            <label for="utils-json-out" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Result</label>
+            <textarea id="utils-json-out" rows="4" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-950 font-mono text-sm" readonly></textarea>
           </div>
         </div>
-        <div class="mt-2 flex gap-2">
-          <button type="button" id="utils-json-to-b64" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">JSON → Base64</button>
-          <button type="button" id="utils-json-from-b64" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Base64 → JSON</button>
+        <div class="mt-3 flex gap-3">
+          <button type="button" id="utils-json-to-b64" class="px-4 py-2.5 rounded-md text-sm font-medium border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">JSON → Base64</button>
+          <button type="button" id="utils-json-from-b64" class="px-4 py-2.5 rounded-md text-sm font-medium border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Base64 → JSON</button>
         </div>
       </div>
-      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4">
-        <h3 class="font-medium mb-2">Base64 ↔ Blob / ArrayBuffer</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Encode: choose a file. Decode: paste Base64 and see length / hex snippet.</p>
+      <div class="card-enterprise rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Base64 ↔ Blob / ArrayBuffer</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Encode: choose a file. Decode: paste Base64 and see length / hex snippet.</p>
         <input type="file" id="utils-blob-file" class="hidden">
-        <button type="button" id="utils-blob-choose" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 mb-2">Choose file → Base64</button>
-        <textarea id="utils-blob-b64" rows="3" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 font-mono text-sm" placeholder="Or paste Base64 to decode to ArrayBuffer…"></textarea>
-        <button type="button" id="utils-blob-decode" class="mt-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Decode to ArrayBuffer</button>
-        <p id="utils-blob-result" class="mt-2 text-sm text-gray-600 dark:text-gray-400"></p>
+        <button type="button" id="utils-blob-choose" class="px-4 py-2.5 rounded-md text-sm font-medium border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors mb-3">Choose file → Base64</button>
+        <textarea id="utils-blob-b64" rows="3" class="w-full px-3 py-2.5 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950 font-mono text-sm placeholder:text-slate-400" placeholder="Or paste Base64 to decode to ArrayBuffer…"></textarea>
+        <button type="button" id="utils-blob-decode" class="mt-3 px-4 py-2.5 rounded-md text-sm font-medium border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Decode to ArrayBuffer</button>
+        <p id="utils-blob-result" class="mt-2 text-sm text-slate-600 dark:text-slate-400"></p>
       </div>
     </section>
   </main>
 
-  <footer class="border-t border-gray-200 dark:border-gray-700 mt-8 py-4">
-    <div class="max-w-5xl mx-auto px-4">
-      <a href="https://baijudodhia.github.io/tools/" class="text-blue-600 dark:text-blue-400 hover:underline">All Tools</a>
+  <footer class="border-t border-slate-200 dark:border-slate-800 mt-10 py-5">
+    <div class="max-w-5xl mx-auto px-6">
+      <a href="https://baijudodhia.github.io/tools/" class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline">All Tools</a>
     </div>
   </footer>
 
@@ -301,8 +324,8 @@
   function showToast(message, type) {
     const container = document.getElementById('toast-container');
     const el = document.createElement('div');
-    el.className = 'px-4 py-2 rounded-lg shadow-lg text-sm ' +
-      (type === 'error' ? 'bg-red-500 text-white' : 'bg-gray-800 dark:bg-gray-700 text-white');
+    el.className = 'px-4 py-2.5 rounded-md text-sm font-medium shadow-lg ' +
+      (type === 'error' ? 'bg-red-600 text-white' : 'bg-slate-800 dark:bg-slate-700 text-white border border-slate-700 dark:border-slate-600');
     el.textContent = message;
     container.appendChild(el);
     setTimeout(() => el.remove(), TOAST_DURATION);
@@ -338,10 +361,17 @@
       if (!panel || !tab) return;
       panel.classList.toggle('hidden', id !== name);
       tab.setAttribute('aria-selected', id === name ? 'true' : 'false');
-      tab.classList.toggle('border-blue-500', id === name);
-      tab.classList.toggle('text-blue-600', id === name);
-      tab.classList.toggle('dark:text-blue-400', id === name);
-      tab.classList.toggle('border-transparent', id !== name);
+      const active = id === name;
+      tab.classList.toggle('text-white', active);
+      tab.classList.toggle('bg-primary-600', active);
+      tab.classList.toggle('dark:bg-primary-500', active);
+      tab.classList.toggle('shadow-sm', active);
+      tab.classList.toggle('text-slate-600', !active);
+      tab.classList.toggle('dark:text-slate-400', !active);
+      tab.classList.toggle('hover:bg-white', !active);
+      tab.classList.toggle('dark:hover:bg-slate-700/50', !active);
+      tab.classList.toggle('hover:text-slate-900', !active);
+      tab.classList.toggle('dark:hover:text-white', !active);
     });
     if (name === 'b64file') revokeB64FileUrls();
   }
