@@ -725,15 +725,45 @@
     <script src="enhanced-collection.js"></script>
 
     <script>
+        console.log('Dashboard script loading...', typeof TelemetryCollector, typeof EnhancedTelemetryCollector);
         // Initialize telemetry
-        const telemetry = new TelemetryCollector({
-            continuousInterval: 1000,
-            speedTestInterval: 1000, // Speed test every 1 second
-            autoStart: false
-        });
+        if (typeof TelemetryCollector === 'undefined') {
+            console.error('TelemetryCollector is not defined! Script files may not be loaded.');
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:script',message:'ERROR: TelemetryCollector undefined',data:{documentReady:document.readyState},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch((e)=>{console.error('Log fetch failed:',e);});
+            // #endregion
+        }
+        if (typeof EnhancedTelemetryCollector === 'undefined') {
+            console.error('EnhancedTelemetryCollector is not defined! Script files may not be loaded.');
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:script',message:'ERROR: EnhancedTelemetryCollector undefined',data:{documentReady:document.readyState},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch((e)=>{console.error('Log fetch failed:',e);});
+            // #endregion
+        }
+        let telemetry;
+        let enhancedCollector;
+        try {
+            telemetry = new TelemetryCollector({
+                continuousInterval: 1000,
+                speedTestInterval: 1000, // Speed test every 1 second
+                autoStart: false
+            });
+            console.log('TelemetryCollector created successfully');
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:script',message:'TelemetryCollector created',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch((e)=>{console.error('Log fetch failed:',e);});
+            // #endregion
 
-        // Initialize enhanced collection
-        const enhancedCollector = new EnhancedTelemetryCollector(telemetry);
+            // Initialize enhanced collection
+            enhancedCollector = new EnhancedTelemetryCollector(telemetry);
+            console.log('EnhancedTelemetryCollector created successfully');
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:script',message:'EnhancedTelemetryCollector created',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch((e)=>{console.error('Log fetch failed:',e);});
+            // #endregion
+        } catch (e) {
+            console.error('Error creating telemetry objects:', e);
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:script',message:'ERROR creating telemetry',data:{error:e.message,stack:e.stack},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch((e)=>{console.error('Log fetch failed:',e);});
+            // #endregion
+        }
 
         // Dashboard state
         let isPaused = false;
@@ -773,9 +803,14 @@
 
         // Initialize charts
         function initializeCharts() {
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:initializeCharts',message:'initializeCharts called',data:{hasChart:typeof Chart!=='undefined'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
             // Web Vitals Chart
-            const webVitalsCtx = document.getElementById('webVitalsChart').getContext('2d');
-            chartInstances.webVitals = new Chart(webVitalsCtx, {
+            const webVitalsEl = document.getElementById('webVitalsChart');
+            if (webVitalsEl) {
+                const webVitalsCtx = webVitalsEl.getContext('2d');
+                chartInstances.webVitals = new Chart(webVitalsCtx, {
                 type: 'line',
                 data: {
                     labels: [],
@@ -819,98 +854,106 @@
             });
 
             // Network Chart
-            const networkCtx = document.getElementById('networkChart').getContext('2d');
-            chartInstances.network = new Chart(networkCtx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'RTT (ms)',
-                            data: [],
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Downlink (Mbps)',
-                            data: [],
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            tension: 0.4,
-                            yAxisID: 'y1'
-                        },
-                        {
-                            label: 'Download Speed (Mbps)',
-                            data: [],
-                            borderColor: '#8b5cf6',
-                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                            tension: 0.4,
-                            yAxisID: 'y1'
-                        },
-                        {
-                            label: 'Upload Speed (Mbps)',
-                            data: [],
-                            borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                            tension: 0.4,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#94a3b8' } }
+            const networkEl = document.getElementById('networkChart');
+            if (networkEl) {
+                const networkCtx = networkEl.getContext('2d');
+                chartInstances.network = new Chart(networkCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'RTT (ms)',
+                                data: [],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Downlink (Mbps)',
+                                data: [],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            },
+                            {
+                                label: 'Download Speed (Mbps)',
+                                data: [],
+                                borderColor: '#8b5cf6',
+                                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            },
+                            {
+                                label: 'Upload Speed (Mbps)',
+                                data: [],
+                                borderColor: '#f59e0b',
+                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            }
+                        ]
                     },
-                    scales: {
-                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
-                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, position: 'left' },
-                        y1: { ticks: { color: '#94a3b8' }, grid: { display: false }, position: 'right' }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#94a3b8' } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, position: 'left' },
+                            y1: { ticks: { color: '#94a3b8' }, grid: { display: false }, position: 'right' }
+                        }
                     }
-                }
-            });
+                });
+            }
 
             // Memory Chart
-            const memoryCtx = document.getElementById('memoryChart').getContext('2d');
-            chartInstances.memory = new Chart(memoryCtx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'Used (MB)',
-                            data: [],
-                            borderColor: '#ef4444',
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Total (MB)',
-                            data: [],
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#94a3b8' } }
+            const memoryEl = document.getElementById('memoryChart');
+            if (memoryEl) {
+                const memoryCtx = memoryEl.getContext('2d');
+                chartInstances.memory = new Chart(memoryCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Used (MB)',
+                                data: [],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Total (MB)',
+                                data: [],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4
+                            }
+                        ]
                     },
-                    scales: {
-                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
-                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#94a3b8' } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+                        }
                     }
-                }
-            });
+                });
+            }
 
             // Performance Chart
-            const perfCtx = document.getElementById('performanceChart').getContext('2d');
-            chartInstances.performance = new Chart(perfCtx, {
+            const perfEl = document.getElementById('performanceChart');
+            if (perfEl) {
+                const perfCtx = perfEl.getContext('2d');
+                chartInstances.performance = new Chart(perfCtx, {
                 type: 'line',
                 data: {
                     labels: [],
@@ -945,10 +988,13 @@
                     }
                 }
             });
+            }
 
             // Connection Tier Chart
-            const connCtx = document.getElementById('connectionTierChart').getContext('2d');
-            chartInstances.connectionTier = new Chart(connCtx, {
+            const connEl = document.getElementById('connectionTierChart');
+            if (connEl) {
+                const connCtx = connEl.getContext('2d');
+                chartInstances.connectionTier = new Chart(connCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Tier A (Fast)', 'Tier B (Medium)', 'Tier C (Slow)'],
@@ -965,10 +1011,13 @@
                     }
                 }
             });
+            }
 
             // Device Class Chart
-            const deviceCtx = document.getElementById('deviceClassChart').getContext('2d');
-            chartInstances.deviceClass = new Chart(deviceCtx, {
+            const deviceEl = document.getElementById('deviceClassChart');
+            if (deviceEl) {
+                const deviceCtx = deviceEl.getContext('2d');
+                chartInstances.deviceClass = new Chart(deviceCtx, {
                 type: 'bar',
                 data: {
                     labels: [],
@@ -990,10 +1039,13 @@
                     }
                 }
             });
+            }
 
             // Risk Level Chart
-            const riskCtx = document.getElementById('riskLevelChart').getContext('2d');
-            chartInstances.riskLevel = new Chart(riskCtx, {
+            const riskEl = document.getElementById('riskLevelChart');
+            if (riskEl) {
+                const riskCtx = riskEl.getContext('2d');
+                chartInstances.riskLevel = new Chart(riskCtx, {
                 type: 'bar',
                 data: {
                     labels: ['Low', 'Medium', 'High', 'Critical'],
@@ -1015,6 +1067,7 @@
                     }
                 }
             });
+            }
 
             // Resource Timing Chart
             const resourceCtx = document.getElementById('resourceTimingChart')?.getContext('2d');
@@ -1777,7 +1830,7 @@
             }
 
             // Update Resource Timing Chart
-            if (chartInstances.resourceTiming && data.network?.summary) {
+            if (chartInstances.resourceTiming && chartInstances.resourceTiming.data && chartInstances.resourceTiming.data.datasets && chartInstances.resourceTiming.data.datasets[0] && data.network?.summary) {
                 const net = data.network.summary;
                 if (net.avg_timing) {
                     chartInstances.resourceTiming.data.datasets[0].data = [
@@ -2119,85 +2172,127 @@
         // Update distribution charts
         function updateDistributionCharts(rows) {
             // Connection Tier
-            const tiers = { A: 0, B: 0, C: 0 };
-            rows.forEach(row => {
-                if (row.connection_tier) tiers[row.connection_tier] = (tiers[row.connection_tier] || 0) + 1;
-            });
-            chartInstances.connectionTier.data.datasets[0].data = [tiers.A || 0, tiers.B || 0, tiers.C || 0];
-            chartInstances.connectionTier.update('none');
+            if (chartInstances.connectionTier && chartInstances.connectionTier.data && chartInstances.connectionTier.data.datasets && chartInstances.connectionTier.data.datasets[0]) {
+                const tiers = { A: 0, B: 0, C: 0 };
+                rows.forEach(row => {
+                    if (row.connection_tier) tiers[row.connection_tier] = (tiers[row.connection_tier] || 0) + 1;
+                });
+                chartInstances.connectionTier.data.datasets[0].data = [tiers.A || 0, tiers.B || 0, tiers.C || 0];
+                chartInstances.connectionTier.update('none');
+            }
 
             // Device Class
-            const deviceClasses = {};
-            rows.forEach(row => {
-                if (row.device_class) {
-                    deviceClasses[row.device_class] = (deviceClasses[row.device_class] || 0) + 1;
-                }
-            });
-            chartInstances.deviceClass.data.labels = Object.keys(deviceClasses);
-            chartInstances.deviceClass.data.datasets[0].data = Object.values(deviceClasses);
-            chartInstances.deviceClass.update('none');
+            if (chartInstances.deviceClass && chartInstances.deviceClass.data && chartInstances.deviceClass.data.datasets && chartInstances.deviceClass.data.datasets[0]) {
+                const deviceClasses = {};
+                rows.forEach(row => {
+                    if (row.device_class) {
+                        deviceClasses[row.device_class] = (deviceClasses[row.device_class] || 0) + 1;
+                    }
+                });
+                chartInstances.deviceClass.data.labels = Object.keys(deviceClasses);
+                chartInstances.deviceClass.data.datasets[0].data = Object.values(deviceClasses);
+                chartInstances.deviceClass.update('none');
+            }
 
             // Risk Level
-            const riskLevels = { Low: 0, Medium: 0, High: 0, Critical: 0 };
-            rows.forEach(row => {
-                if (row.risk_level) riskLevels[row.risk_level] = (riskLevels[row.risk_level] || 0) + 1;
-            });
-            chartInstances.riskLevel.data.datasets[0].data = [
-                riskLevels.Low || 0,
-                riskLevels.Medium || 0,
-                riskLevels.High || 0,
-                riskLevels.Critical || 0
-            ];
-            chartInstances.riskLevel.update('none');
+            if (chartInstances.riskLevel && chartInstances.riskLevel.data && chartInstances.riskLevel.data.datasets && chartInstances.riskLevel.data.datasets[0]) {
+                const riskLevels = { Low: 0, Medium: 0, High: 0, Critical: 0 };
+                rows.forEach(row => {
+                    if (row.risk_level) riskLevels[row.risk_level] = (riskLevels[row.risk_level] || 0) + 1;
+                });
+                chartInstances.riskLevel.data.datasets[0].data = [
+                    riskLevels.Low || 0,
+                    riskLevels.Medium || 0,
+                    riskLevels.High || 0,
+                    riskLevels.Critical || 0
+                ];
+                chartInstances.riskLevel.update('none');
+            }
         }
 
         // Update table
         let tableRows = [];
-        let tableHeaders = [];
+        let tableHeaders = []; // Initialize as empty array to prevent errors
 
         function initializeTable() {
-            tableHeaders = telemetry.getColumnHeaders();
-            const headerRow = document.getElementById('tableHeaderRow');
-            headerRow.innerHTML = '';
-
-            // Show only key columns for readability
-            const keyColumns = [
-                'record_type', 'collected_at', 'risk_level', 'composite_agent_risk_score',
-                'network_stability_score', 'session_reliability_score', 'agent_presence_score',
-                'rtt_ms', 'downlink_mbps', 'connection_tier', 'LCP_ms', 'INP_ms',
-                'js_heap_used_mb', 'device_class', 'browser_name'
-            ];
-
-            keyColumns.forEach(header => {
-                if (tableHeaders.includes(header)) {
-                    const th = document.createElement('th');
-                    th.className = 'px-4 py-2 text-left text-xs font-semibold text-obs-text-muted uppercase';
-                    th.textContent = header.replace(/_/g, ' ');
-                    headerRow.appendChild(th);
+            try {
+                if (!telemetry || typeof telemetry.getColumnHeaders !== 'function') {
+                    console.warn('Telemetry not ready for table initialization');
+                    return;
                 }
-            });
+                tableHeaders = telemetry.getColumnHeaders();
+                if (!Array.isArray(tableHeaders)) {
+                    console.warn('Table headers not available');
+                    tableHeaders = [];
+                    return;
+                }
+                const headerRow = document.getElementById('tableHeaderRow');
+                if (!headerRow) {
+                    console.warn('Table header row element not found');
+                    return;
+                }
+                headerRow.innerHTML = '';
+
+                // Show only key columns for readability
+                const keyColumns = [
+                    'record_type', 'collected_at', 'risk_level', 'composite_agent_risk_score',
+                    'network_stability_score', 'session_reliability_score', 'agent_presence_score',
+                    'rtt_ms', 'downlink_mbps', 'connection_tier', 'LCP_ms', 'INP_ms',
+                    'js_heap_used_mb', 'device_class', 'browser_name'
+                ];
+
+                keyColumns.forEach(header => {
+                    if (tableHeaders.includes(header)) {
+                        const th = document.createElement('th');
+                        th.className = 'px-4 py-2 text-left text-xs font-semibold text-obs-text-muted uppercase';
+                        th.textContent = header.replace(/_/g, ' ');
+                        headerRow.appendChild(th);
+                    }
+                });
+            } catch (e) {
+                console.error('Error initializing table:', e);
+            }
         }
 
         function updateTable() {
             try {
+                if (!telemetry || typeof telemetry.exportStaticRow !== 'function' || typeof telemetry.exportContinuousRows !== 'function') {
+                    return;
+                }
                 const staticRow = telemetry.exportStaticRow();
                 const continuousRows = telemetry.exportContinuousRows();
 
                 tableRows = [];
                 if (staticRow) tableRows.push(staticRow);
-                tableRows.push(...continuousRows);
+                if (Array.isArray(continuousRows)) {
+                    tableRows.push(...continuousRows);
+                }
 
                 renderTable();
                 updateDistributionCharts(tableRows);
             } catch (e) {
-                // Not ready yet
+                console.error('Error updating table:', e);
             }
         }
 
         function renderTable() {
             const tbody = document.getElementById('tableBody');
-            const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
-            const filterType = document.getElementById('tableFilter').value;
+            if (!tbody) {
+                console.warn('Table body element not found');
+                return;
+            }
+
+            const tableSearchEl = document.getElementById('tableSearch');
+            const tableFilterEl = document.getElementById('tableFilter');
+            const searchTerm = tableSearchEl ? tableSearchEl.value.toLowerCase() : '';
+            const filterType = tableFilterEl ? tableFilterEl.value : 'all';
+
+            if (!Array.isArray(tableRows)) {
+                tableRows = [];
+            }
+            if (!Array.isArray(tableHeaders)) {
+                tableHeaders = [];
+            }
 
             const keyColumns = [
                 'record_type', 'collected_at', 'risk_level', 'composite_agent_risk_score',
@@ -2207,6 +2302,7 @@
             ];
 
             let filteredRows = tableRows.filter(row => {
+                if (!row || typeof row !== 'object') return false;
                 if (filterType !== 'all' && row.record_type !== filterType) return false;
                 if (searchTerm) {
                     const searchable = Object.values(row).join(' ').toLowerCase();
@@ -2267,60 +2363,173 @@
             });
         }
 
-        document.getElementById('btnExport').addEventListener('click', () => {
-            const csv = telemetry.exportToCSV();
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `telemetry-${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
+        const btnExportEl = document.getElementById('btnExport');
+        if (btnExportEl) {
+            btnExportEl.addEventListener('click', () => {
+                try {
+                    if (!telemetry || typeof telemetry.exportToCSV !== 'function') {
+                        console.error('Telemetry not initialized or exportToCSV not available');
+                        return;
+                    }
+                    const csv = telemetry.exportToCSV();
+                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `telemetry-${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } catch (e) {
+                    console.error('Export error:', e);
+                }
+            });
+        }
 
-        document.getElementById('tableSearch').addEventListener('input', renderTable);
-        document.getElementById('tableFilter').addEventListener('change', renderTable);
+        const tableSearchEl = document.getElementById('tableSearch');
+        if (tableSearchEl) {
+            tableSearchEl.addEventListener('input', renderTable);
+        }
+
+        const tableFilterEl = document.getElementById('tableFilter');
+        if (tableFilterEl) {
+            tableFilterEl.addEventListener('change', renderTable);
+        }
 
         // Main update loop
         function updateDashboard() {
-            if (!telemetry.staticData) {
+            console.log('updateDashboard() called', { isPaused, hasTelemetry: !!telemetry, hasStaticData: !!telemetry?.staticData });
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'updateDashboard called',data:{isPaused,hasTelemetry:!!telemetry,hasStaticData:!!telemetry?.staticData},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+            // #endregion
+            if (isPaused) {
+                console.log('updateDashboard: Early return - isPaused');
                 // #region agent log
-                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'No static data',data:{isInitialized:telemetry.isInitialized},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Early return: isPaused',data:{isPaused},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+                // #endregion
+                return;
+            }
+
+            if (!telemetry.staticData) {
+                console.log('updateDashboard: Early return - No static data', { isInitialized: telemetry.isInitialized });
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Early return: No static data',data:{isInitialized:telemetry.isInitialized,hasTelemetry:!!telemetry},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
                 // #endregion
                 return;
             }
 
             try {
+                console.log('updateDashboard: Getting extended telemetry...');
                 const allData = telemetry.getAllTelemetryExtended();
+                console.log('updateDashboard: Got extended data', { keys: Object.keys(allData), hasInferred: !!allData.inferred, hasPerformance: !!allData.performance });
                 // #region agent log
-                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Got extended data',data:{keys:Object.keys(allData),hasInferred:!!allData.inferred,hasPerformance:!!allData.performance},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Got extended data',data:{keys:Object.keys(allData),hasInferred:!!allData.inferred,hasPerformance:!!allData.performance,hasContinuous:!!allData.continuous,hasStatic:!!allData.static,dataSize:JSON.stringify(allData).length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Before updateKPICards',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
                 // #endregion
                 updateKPICards(allData);
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Before updateCharts',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
                 updateCharts(allData);
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Before updateStatistics',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
                 updateStatistics(allData);
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Before updateTable',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
                 updateTable();
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'After all updates',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
 
                 const lastUpdateEl = document.getElementById('lastUpdate');
                 if (lastUpdateEl) lastUpdateEl.textContent = new Date().toLocaleTimeString();
             } catch (e) {
+                console.error('Dashboard update error:', e);
+                console.error('Error stack:', e.stack);
                 // #region agent log
                 fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:updateDashboard',message:'Error in updateDashboard',data:{error:e.message,stack:e.stack},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
                 // #endregion
-                console.error('Dashboard update error:', e);
             }
         }
 
         // Initialize
-        window.addEventListener('load', async () => {
-            initializeCharts();
-            await telemetry.initialize();
-            await enhancedCollector.initialize();
-            telemetry.start();
-            initializeTable();
+        console.log('Setting up window load listener...', 'document.readyState:', document.readyState);
+        // #region agent log
+        fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:script',message:'Script loaded',data:{documentReady:document.readyState,hasTelemetry:typeof TelemetryCollector!=='undefined',hasEnhanced:typeof EnhancedTelemetryCollector!=='undefined'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch((e)=>{console.error('Log fetch failed:',e);});
+        // #endregion
 
-            setInterval(updateDashboard, 1000);
-            updateDashboard();
-        });
+        // Initialize function
+        async function initializeDashboard() {
+            console.log('Window load event fired');
+            // #region agent log
+            fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'Window load event fired',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
+            try {
+                console.log('Starting initialization...', { hasTelemetry: !!telemetry, hasEnhanced: !!enhancedCollector });
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'Before initializeCharts',data:{hasTelemetry:!!telemetry,hasEnhancedCollector:!!enhancedCollector},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
+                initializeCharts();
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'After initializeCharts',data:{chartCount:Object.keys(chartInstances).length,chartKeys:Object.keys(chartInstances)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'Before telemetry.initialize',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                console.log('Calling telemetry.initialize()...');
+                await telemetry.initialize();
+                console.log('telemetry.initialize() completed', { isInitialized: telemetry.isInitialized, hasStaticData: !!telemetry.staticData });
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'After telemetry.initialize',data:{isInitialized:telemetry.isInitialized,hasStaticData:!!telemetry.staticData,staticDataKeys:telemetry.staticData?Object.keys(telemetry.staticData):[]},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'Before enhancedCollector.initialize',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                await enhancedCollector.initialize();
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'After enhancedCollector.initialize',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                telemetry.start();
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'After telemetry.start',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                initializeTable();
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'After initializeTable',data:{tableHeadersLength:tableHeaders.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+
+                console.log('Setting up updateDashboard interval...');
+                setInterval(updateDashboard, 1000);
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'setInterval called',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                console.log('Calling initial updateDashboard()...');
+                updateDashboard();
+                console.log('Initial updateDashboard() completed');
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'Initial updateDashboard called',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+            } catch (e) {
+                console.error('Dashboard initialization error:', e);
+                console.error('Initialization error stack:', e.stack);
+                // #region agent log
+                fetch('http://127.0.0.1:7246/ingest/5c8ad60c-a6a5-468a-ae31-51292894e278',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard.html:load',message:'Initialization error',data:{error:e.message,stack:e.stack},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'F'})}).catch(()=>{});
+                // #endregion
+            }
+        }
+
+        // Check if page is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            console.log('Page already loaded, initializing immediately...');
+            initializeDashboard();
+        } else {
+            console.log('Waiting for window load event...');
+            window.addEventListener('load', initializeDashboard);
+        }
+        }
     </script>
 </body>
 </html>
