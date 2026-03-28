@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RTC Connection Test</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="min-h-screen flex flex-col">
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+      <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-semibold tracking-tight">RTC Connection Test</h1>
+          <p class="text-xs text-slate-400 mt-1">
+            Paste a WebRTC/WebSocket config JSON and run connectivity checks from your browser.
+          </p>
+        </div>
+        <a href="../" class="text-xs text-slate-400 hover:text-slate-100 underline underline-offset-4">
+          All tools
+        </a>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <div class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        <!-- Config input -->
+        <section class="grid gap-6 lg:grid-cols-2">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h2 class="text-sm font-medium tracking-tight text-slate-100">Config JSON</h2>
+                <p class="text-xs text-slate-400">
+                  Expected root key: <code class="text-emerald-300">"websocket"</code> with
+                  <code class="text-emerald-300">BASE_URL</code>,
+                  <code class="text-emerald-300">PATH</code> and
+                  <code class="text-emerald-300">socketConfig</code>.
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <button id="load-sample-btn"
+                  class="inline-flex items-center rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-100 shadow-sm hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950">
+                  Load sample
+                </button>
+                <button id="clear-config-btn"
+                  class="inline-flex items-center rounded-md border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800">
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <div class="relative">
+              <textarea id="config-input" spellcheck="false"
+                class="w-full h-72 resize-none rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-xs font-mono text-slate-100 shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                placeholder="Paste your JSON config here..."></textarea>
+              <div id="config-error"
+                class="mt-1 text-xs text-rose-400 min-h-[1.25rem] whitespace-pre-wrap"></div>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <button id="validate-config-btn"
+                class="inline-flex items-center rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-emerald-950 shadow hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950">
+                Validate config
+              </button>
+              <button id="run-all-tests-btn"
+                class="inline-flex items-center rounded-md bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-indigo-50 shadow hover:bg-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950">
+                Run all tests
+              </button>
+            </div>
+          </div>
+
+          <!-- Parsed view -->
+          <div class="space-y-3">
+            <h2 class="text-sm font-medium tracking-tight text-slate-100">Parsed summary</h2>
+            <div
+              class="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-3 text-xs text-slate-200 space-y-2">
+              <div class="space-y-1">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-[11px] uppercase tracking-wide text-slate-400">WebSocket endpoint</p>
+                  <span id="config-validity-pill"
+                    class="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+                    Not validated
+                  </span>
+                </div>
+                <p id="ws-endpoint" class="font-mono text-[11px] text-emerald-300 break-all">
+                  -
+                </p>
+              </div>
+
+              <div class="border-t border-slate-800 pt-2 space-y-1">
+                <p class="text-[11px] uppercase tracking-wide text-slate-400">ICE servers</p>
+                <pre id="ice-servers"
+                  class="max-h-40 overflow-auto rounded border border-slate-900 bg-slate-950 px-2 py-1.5 text-[11px] leading-snug text-slate-200 whitespace-pre-wrap">-</pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tests -->
+        <section class="grid gap-4 md:grid-cols-2">
+          <!-- WebSocket test -->
+          <div class="rounded-xl border border-slate-800 bg-slate-950/80 p-4 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h2 class="text-sm font-medium tracking-tight text-slate-100">WebSocket connectivity</h2>
+                <p class="text-xs text-slate-400">Attempts a plain WebSocket connection to the configured URL.</p>
+              </div>
+              <span id="ws-status-pill"
+                class="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+                Idle
+              </span>
+            </div>
+            <button id="run-ws-test-btn"
+              class="inline-flex items-center rounded-md bg-sky-500 px-3 py-1.5 text-xs font-semibold text-sky-950 shadow hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950">
+              Run WebSocket test
+            </button>
+            <p class="text-[11px] text-slate-500">
+              Note: If the server expects Socket.IO protocol, a plain WebSocket handshake may fail even if the endpoint
+              is healthy.
+            </p>
+          </div>
+
+          <!-- ICE test -->
+          <div class="rounded-xl border border-slate-800 bg-slate-950/80 p-4 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h2 class="text-sm font-medium tracking-tight text-slate-100">ICE gathering (WebRTC)</h2>
+                <p class="text-xs text-slate-400">Creates a dummy peer connection to test STUN/TURN reachability.</p>
+              </div>
+              <span id="ice-status-pill"
+                class="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+                Idle
+              </span>
+            </div>
+            <button id="run-ice-test-btn"
+              class="inline-flex items-center rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-emerald-950 shadow hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950">
+              Run ICE test
+            </button>
+            <p class="text-[11px] text-slate-500">
+              This does not require a remote peer. It inspects gathered ICE candidates and connection states only from
+              your browser.
+            </p>
+          </div>
+        </section>
+
+        <!-- App decision simulator -->
+        <section class="grid gap-4 md:grid-cols-2">
+          <div class="rounded-xl border border-slate-800 bg-slate-950/80 p-4 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h2 class="text-sm font-medium tracking-tight text-slate-100">Media server decision simulator</h2>
+                <p class="text-[11px] text-slate-400">
+                  Mirrors <code>isVpnConnected(socketConfig, true)</code> logic used for
+                  <span class="text-emerald-300">"Media server Connection"</span> in your React app.
+                </p>
+              </div>
+              <span id="media-status-pill"
+                class="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+                Idle
+              </span>
+            </div>
+            <div class="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 space-y-1">
+              <p class="text-[11px] uppercase tracking-wide text-slate-500">Simulated result</p>
+              <p id="media-decision" class="text-xs text-slate-200">
+                Run ICE test to compute simulated result.
+              </p>
+              <p class="text-[11px] text-slate-500 mt-1">
+                Rule (detectICECandidate = <span class="text-emerald-300 font-mono text-[11px]">true</span>): if no
+                <code>srflx</code>/<code>relay</code> candidate is ever seen
+                (<span class="font-mono text-[11px] text-rose-300">iceCandidateDetected &lt;= 0</span>)
+                then <span class="text-rose-300">"ICE Candidate Detectection Failed"</span> → app marks
+                <span class="text-rose-300">Media server Connection = Failed</span>.
+              </p>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-slate-800 bg-slate-950/80 p-4 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h2 class="text-sm font-medium tracking-tight text-slate-100">ICE metrics & VPN-style rule</h2>
+                <p class="text-[11px] text-slate-400">
+                  Exposes counters similar to <code>isVpnConnected(socketConfig)</code> (without
+                  <code>detectICECandidate</code>).
+                </p>
+              </div>
+              <span id="vpn-status-pill"
+                class="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+                Idle
+              </span>
+            </div>
+            <div class="space-y-2">
+              <div class="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2">
+                <p class="text-[11px] uppercase tracking-wide text-slate-500">ICE counters</p>
+                <pre id="ice-metrics"
+                  class="mt-1 max-h-28 overflow-auto rounded border border-slate-900 bg-slate-950 px-2 py-1.5 text-[11px] leading-snug text-slate-200 whitespace-pre-wrap">Run ICE test to see candidate counts.</pre>
+              </div>
+              <div class="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 space-y-1">
+                <p class="text-[11px] uppercase tracking-wide text-slate-500">VPN-style decision</p>
+                <p id="vpn-decision" class="text-xs text-slate-200">
+                  Uses <code>noOfSrflx</code> rule: if <code>noOfSrflx &gt; 1</code> or
+                  <code>noOfSrflx === 0</code> → "VPN Detected", else "VPN Not Detected".
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Log output -->
+        <section class="space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <h2 class="text-sm font-medium tracking-tight text-slate-100">Session log</h2>
+            <button id="clear-log-btn"
+              class="inline-flex items-center rounded-md border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-900">
+              Clear log
+            </button>
+          </div>
+          <div id="log-output"
+            class="h-64 overflow-auto rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2 text-xs font-mono text-slate-200 space-y-1">
+            <div class="text-slate-500 text-[11px]">Waiting for config...</div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="border-t border-slate-900 bg-slate-950">
+      <div class="max-w-6xl mx-auto px-4 py-3 text-[11px] text-slate-500 flex items-center justify-between">
+        <span>Runs fully in your browser.</span>
+        <span>RTC Connection Test</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./main.js"></script>
+</body>
+
+</html>
+
